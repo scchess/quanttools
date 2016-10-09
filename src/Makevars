@@ -1,0 +1,1 @@
+PKG_CPPFLAGS = -std=c++11 -O3 -Wall -pipe -Wno-unused -march=core2 -static

@@ -1,0 +1,21 @@
+Package: QuantTools
+Type: Package
+Title: Quant Tools
+Version: 0.5.0
+Author: Stanislav Kovalevsky
+Maintainer: Stanislav Kovalevsky <so.kovalevsky@gmail.com>
+Description: Download and store historical market data. Plot time series objects in a various formats. c++ API for fast backtesting.
+License: GPL-3
+Encoding: UTF-8
+LazyData: true
+Depends:
+    data.table,
+    R (>= 2.10)
+Imports:
+    methods,
+    fasttime,
+    RCurl,
+    Rcpp (>= 0.12.6)
+LinkingTo: Rcpp
+SystemRequirements: C++11
+RoxygenNote: 5.0.1
