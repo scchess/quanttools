@@ -139,7 +139,7 @@ get_yahoo_splits_and_dividends = function( symbol, from, to = from ) {
   dat = dat[ apply( dat, 1, function( x ) !any( x == '' ) ) ]
   value = date = NULL
 
-  dat[, value := sapply( gsub( ':', '/', value ), function( x ) eval( parse( text = x ) ) ) ]
+  dat[, value := sapply( parse( text = gsub( ':', '/', value ) ), eval ) ]
   dat[,  date := as.Date( date, '%Y%m%d' ) ]
 
   options( warn = 0 )
