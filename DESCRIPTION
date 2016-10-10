@@ -4,8 +4,8 @@ Title: Quant Tools
 Version: 0.5.0
 Author: Stanislav Kovalevsky
 Maintainer: Stanislav Kovalevsky <so.kovalevsky@gmail.com>
-Description: Download and store historical market data. Plot time series. c++
-    API for fast backtesting.
+Description: Trading strategies development tools: historical market data download and storage, customizable time series plots, c++
+    API for fast and reliable backtesting.
 URL: https://quanttools.bitbucket.io/_site/index.html
 BugReports: https://bitbucket.org/quanttools/quanttools/issues
 License: GPL-3
