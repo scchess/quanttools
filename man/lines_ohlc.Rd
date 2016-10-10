@@ -22,7 +22,7 @@ lines_ohlc(x = 1:nrow(ohlc), ohlc, width = 0.3, candle.col.up = "blue",
 Add candles to active time series plot
 }
 \details{
-Used in \code{\link[StanTools]{plot_ts}} internally.
+Used in \code{\link{plot_ts}} internally.
 }
 \seealso{
 Other graphical functions: \code{\link{add_last_values}},

@@ -25,7 +25,7 @@
 #' @family graphical functions
 #'
 #' @details
-#' Used in \code{\link[StanTools]{plot_ts}} internally.
+#' Used in \code{\link{plot_ts}} internally.
 #'
 #' @export
 lines_ohlc <- function(x = 1:nrow(ohlc), ohlc ,width = 0.3, candle.col.up = 'blue', candle.col.dn = 'red', ch = TRUE ){

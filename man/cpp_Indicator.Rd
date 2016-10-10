@@ -33,13 +33,6 @@ Other backtesting classes: \code{\link{Candle}},
   \code{\link{Cost}}, \code{\link{Order}},
   \code{\link{Processor}}, \code{\link{Tick}}
 
-Other c++ indicators: \code{\link{BBands}},
-  \code{\link{Crossover}}, \code{\link{Ema}},
-  \code{\link{RollLinReg}}, \code{\link{RollPercentRank}},
-  \code{\link{RollRange}}, \code{\link{RollSd}},
-  \code{\link{RollVolumeProfile}}, \code{\link{Rsi}},
-  \code{\link{Sma}}, \code{\link{Stochastic}}
-
 Other c++ classes: \code{\link{BBands}},
   \code{\link{Candle}}, \code{\link{Cost}},
   \code{\link{Crossover}}, \code{\link{Ema}},
@@ -49,5 +42,12 @@ Other c++ classes: \code{\link{BBands}},
   \code{\link{RollVolumeProfile}}, \code{\link{Rsi}},
   \code{\link{Sma}}, \code{\link{Stochastic}},
   \code{\link{Tick}}
+
+Other c++ indicators: \code{\link{BBands}},
+  \code{\link{Crossover}}, \code{\link{Ema}},
+  \code{\link{RollLinReg}}, \code{\link{RollPercentRank}},
+  \code{\link{RollRange}}, \code{\link{RollSd}},
+  \code{\link{RollVolumeProfile}}, \code{\link{Rsi}},
+  \code{\link{Sma}}, \code{\link{Stochastic}}
 }
 

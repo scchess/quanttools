@@ -13,6 +13,6 @@ calc_decimal_resolution(x)
 Calculate decimal resolution
 }
 \details{
-Used in \code{\link[StanTools]{add_last_values}} internally.
+Used in \code{\link{add_last_values}} internally.
 }
 
