@@ -147,7 +147,7 @@ public:
 
   void Feed( const Tick& tick ) {
 
-    if( tick.time < this->tick.time ) { throw std::invalid_argument( "ticks must be time ordered tick.id = " + std::to_string( tick.id ) ); }
+    if( tick.time < this->tick.time ) { throw std::invalid_argument( "ticks must be time ordered tick.id = " + std::to_string( tick.id + 1 ) ); }
 
     FormCandle( tick );
 
