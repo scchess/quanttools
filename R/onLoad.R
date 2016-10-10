@@ -25,6 +25,8 @@
 
   } else if ( .Platform[['OS.type']] == 'unix' ) { # unix
 
+    Sys.setlocale( 'LC_ALL', 'C' )
+
   } else { # Unknown OS
 
   }
