@@ -25,7 +25,7 @@
 #' @family graphical functions
 #'
 #' @details
-#' Plots multi dimentional heatmap. Axes drawn automatically by layers.
+#' Plots multi dimensional heatmap. Axes drawn automatically by layers.
 #' Inner axes are most frequent and outer axes are less frequent.
 #'
 #'

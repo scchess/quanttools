@@ -23,7 +23,7 @@ multi_heatmap(x, pars, value, col_neg = c("darkblue", "lightblue"),
 Multi Dimensional Heat Map
 }
 \details{
-Plots multi dimentional heatmap. Axes drawn automatically by layers.
+Plots multi dimensional heatmap. Axes drawn automatically by layers.
 Inner axes are most frequent and outer axes are less frequent.
 }
 \seealso{
