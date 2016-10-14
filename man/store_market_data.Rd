@@ -24,7 +24,7 @@ See example below.
 \examples{
 \donttest{
 
-## finam data storage
+## Finam data storage
 settings = list(
   # set storage path, it is perfect to use Solid State Drive for data storage
   # it is no problem to move storage folder just don't forget to set new path in settings
@@ -38,7 +38,7 @@ QuantTools_settings( settings )
 # now it is time to add some data into storage. You have three options here:
 
   # 1 update storage with data from last date available until today
-  # it is very convinient to create a script with this function and
+  # it is very convenient to create a script with this function and
   # run it every time you need to update your storage
   store_finam_data()
 
@@ -66,7 +66,7 @@ QuantTools_settings( settings )
 # now it is time to add some data into storage. You have three options here:
 
   # 1 update storage with data from last date available until today
-  # it is very convinient to create a script with this function and
+  # it is very convenient to create a script with this function and
   # run it every time you need to update your storage
   store_iqfeed_data()
 

@@ -11,7 +11,7 @@ multi_heatmap(x, pars, value, col_neg = c("darkblue", "lightblue"),
 \arguments{
 \item{x}{\code{data.table} object}
 
-\item{pars}{names of parameters. Parameters compinations must be unique}
+\item{pars}{names of parameters. Parameters combinations must be unique}
 
 \item{value}{name of value parameter}
 

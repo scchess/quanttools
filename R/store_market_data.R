@@ -26,7 +26,7 @@
 #' @examples
 #' \donttest{
 #'
-#' ## finam data storage
+#' ## Finam data storage
 #' settings = list(
 #'   # set storage path, it is perfect to use Solid State Drive for data storage
 #'   # it is no problem to move storage folder just don't forget to set new path in settings
@@ -40,7 +40,7 @@
 #' # now it is time to add some data into storage. You have three options here:
 #'
 #'   # 1 update storage with data from last date available until today
-#'   # it is very convinient to create a script with this function and
+#'   # it is very convenient to create a script with this function and
 #'   # run it every time you need to update your storage
 #'   store_finam_data()
 #'
@@ -68,7 +68,7 @@
 #' # now it is time to add some data into storage. You have three options here:
 #'
 #'   # 1 update storage with data from last date available until today
-#'   # it is very convinient to create a script with this function and
+#'   # it is very convenient to create a script with this function and
 #'   # run it every time you need to update your storage
 #'   store_iqfeed_data()
 #'
@@ -106,7 +106,7 @@ store_finam_data = function( from = NULL, to = format( Sys.Date() ), verbose = T
     if( is.null( from ) && length( dates_available ) == 0 ) {
 
       from = .settings$finam_storage_from
-      if( from == '' ) stop( 'please set finam storage start date via QuantTools_settings( \'finam_storage_from\', \'YYYYMMDD\' )' )
+      if( from == '' ) stop( 'please set Finam storage start date via QuantTools_settings( \'finam_storage_from\', \'YYYYMMDD\' )' )
       message( 'not found in storage, \ntrying to download since storage start date' )
 
     }
@@ -205,7 +205,7 @@ store_iqfeed_data = function( from = NULL, to = format( Sys.Date() ), verbose = 
 
 .get_local_data = function( symbol, from, to, source ) {
 
-  data_dir = switch( source, finam = .settings$finam_storage, iqfeed = .settings$iqfeed_storage )
+  data_dir = switch( source, Finam = .settings$finam_storage, iqfeed = .settings$iqfeed_storage )
 
   if( data_dir == '' ) stop( paste0('please set storage path via QuantTools_settings( \'', source, '_storage\', \'/storage/path/\' )
 use store_', source, '_data to add some data into the storage' ) )

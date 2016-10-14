@@ -16,7 +16,7 @@ lines_ohlc(x = 1:nrow(ohlc), ohlc, width = 0.3, candle.col.up = "blue",
 
 \item{candle.col.up, candle.col.dn}{colors of up and down candles}
 
-\item{ch}{use chineese style?}
+\item{ch}{use Chinese style?}
 }
 \description{
 Add candles to active time series plot

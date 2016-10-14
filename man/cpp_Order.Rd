@@ -36,9 +36,9 @@ c++ class documentation
 \cr \code{isMarket?}          \tab \code{bool}          \tab market order?
 \cr \code{GetTradeId()}       \tab \code{int}           \tab trade id for grouping multiple orders into trades
 \cr \code{GetExecutionPrice()}\tab \code{double}        \tab execution price, price for limit order and market price for market order
-\cr \code{comment}            \tab \code{std::string}   \tab arbitrary comment, useful to idetify order when analysing backtest results
+\cr \code{comment}            \tab \code{std::string}   \tab arbitrary comment, useful to identify order when analyzing backtest results
 \cr \code{onExecuted}         \tab \code{std::function} \tab called when execution confirmation received from exchange
-\cr \code{onCancelled}        \tab \code{std::function} \tab called when cancelation confirmation received from exchange
+\cr \code{onCancelled}        \tab \code{std::function} \tab called when cancellation confirmation received from exchange
 \cr \code{onRegistered}       \tab \code{std::function} \tab called when placement confirmation received from exchange
 \cr \code{onCancelFailed}     \tab \code{std::function} \tab called when execution confirmation received from exchange but order was about to cancel
 \cr \code{Cancel()}           \tab \code{void}          \tab sends cancel request to exchange if \code{state} is \code{REGISTERED} and \code{type} is \code{LIMIT}

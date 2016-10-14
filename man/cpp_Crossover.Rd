@@ -20,12 +20,19 @@ R function \link{crossover}.
 \cr \code{Add( std::pair< double, double > value )} \tab \code{void}                 \tab update indicator
 \cr \code{Reset()}                                  \tab \code{void}                 \tab reset to initial state
 \cr \code{IsFormed()}                               \tab \code{bool}                 \tab is indicator value valid?
-\cr \code{IsAbove()}                                \tab \code{bool}                 \tab ?
-\cr \code{IsBelow()}                                \tab \code{bool}                 \tab peak from max just happend?
+\cr \code{IsAbove()}                                \tab \code{bool}                 \tab first just went above second?
+\cr \code{IsBelow()}                                \tab \code{bool}                 \tab first just went below second?
 \cr \code{GetHistory()}                             \tab \code{factor}               \tab factor vector with levels \code{UP, DN}
 }
 }
 \seealso{
+Other c++ indicators: \code{\link{BBands}},
+  \code{\link{Ema}}, \code{\link{Indicator}},
+  \code{\link{RollLinReg}}, \code{\link{RollPercentRank}},
+  \code{\link{RollRange}}, \code{\link{RollSd}},
+  \code{\link{RollVolumeProfile}}, \code{\link{Rsi}},
+  \code{\link{Sma}}, \code{\link{Stochastic}}
+
 Other c++ classes: \code{\link{BBands}},
   \code{\link{Candle}}, \code{\link{Cost}},
   \code{\link{Ema}}, \code{\link{Indicator}},
@@ -35,12 +42,5 @@ Other c++ classes: \code{\link{BBands}},
   \code{\link{RollVolumeProfile}}, \code{\link{Rsi}},
   \code{\link{Sma}}, \code{\link{Stochastic}},
   \code{\link{Tick}}
-
-Other c++ indicators: \code{\link{BBands}},
-  \code{\link{Ema}}, \code{\link{Indicator}},
-  \code{\link{RollLinReg}}, \code{\link{RollPercentRank}},
-  \code{\link{RollRange}}, \code{\link{RollSd}},
-  \code{\link{RollVolumeProfile}}, \code{\link{Rsi}},
-  \code{\link{Sma}}, \code{\link{Stochastic}}
 }
 

@@ -35,14 +35,14 @@ Download historical market data
 }
 \details{
 Use external websites to get desired symbol name for
-\href{http://www.finam.ru/profile/moex-akcii/sberbank/export/}{finam},
-\href{http://www.iqfeed.net/symbolguide/index.cfm?symbolguide=lookup}{iqfeed},
-\href{http://finance.yahoo.com/}{yahoo} and
-\href{https://www.google.com/finance}{google} sources. \cr
+\href{http://www.finam.ru/profile/moex-akcii/sberbank/export/}{Finam},
+\href{http://www.iqfeed.net/symbolguide/index.cfm?symbolguide=lookup}{IQFeed},
+\href{http://finance.yahoo.com/}{Yahoo} and
+\href{https://www.google.com/finance}{Google} sources. \cr
 Note: Timestamps timezones set to UTC. \cr
-It is recomended to store tick market data locally.
-Load time is reduced drammatically. It is a good way to collect market data as
-e.g. iqfeed gives only 180 days of tick data if you would need more it will
+It is recommended to store tick market data locally.
+Load time is reduced dramatically. It is a good way to collect market data as
+e.g. IQFeed gives only 180 days of tick data if you would need more it will
 cost you a lot. See \code{\link{store_market_data}} for details. \cr
 See \link{iqfeed} return format specification.
 }

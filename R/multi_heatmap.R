@@ -18,7 +18,7 @@
 #' Multi Dimensional Heat Map
 #'
 #' @param x \code{data.table} object
-#' @param pars names of parameters. Parameters compinations must be unique
+#' @param pars names of parameters. Parameters combinations must be unique
 #' @param value name of value parameter
 #' @param col_pos,col_neg used to generate gradient
 #' @param peak_value normalization value

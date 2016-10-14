@@ -227,6 +227,12 @@ NULL
         return( NULL )
 
       }
+      if( grepl( 'Could not connect to History socket.', ch, fixed = TRUE ) ) {
+        close( con )
+        message( paste( 'Could not connect to History socket (' , gsub( '\r\n','\\\\r\\\\n', cmd ), ')' ) )
+        return( NULL )
+
+      }
 
       if( grepl( '!ENDMSG!,\r\n', rawToChar( c( y, x ) ), fixed = TRUE ) ) {
 

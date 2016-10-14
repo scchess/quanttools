@@ -18,7 +18,7 @@
 #' Plot histogram of data.table by columns
 #'
 #' @param dt data.table
-#' @param bin_width trunc data by this value
+#' @param bin_width truncate data by this value
 #' @param coeff group width in [0,1]
 #' @param main plot title
 #' @family graphical functions

@@ -6,7 +6,7 @@
 \arguments{
 \item{timeFrame}{candle timeframe in seconds}
 
-\item{latencySend, latencyReceive}{latencies in seconds}
+\item{latencySend, latencyReceive}{latency in seconds}
 }
 \description{
 c++ class documentation
@@ -23,8 +23,8 @@ c++ class documentation
 \cr \code{onTick( \link{Tick} tick )}       \tab \code{std::function} \tab called on new tick event
 \cr \code{Feed( \link{Tick} tick )}         \tab \code{void}          \tab process by individual tick
 \cr \code{Feed( Rcpp::DataFrame ticks )}    \tab \code{void}          \tab batch process, see 'Ticks' section
-\cr \code{SendOrder( \link{Order}* order )} \tab \code{void}          \tab execution price, price for limit order and market price for market order
-\cr \code{CancelOrders()}                   \tab \code{void}          \tab arbitrary comment, useful to idetify order when analysing backtest results
+\cr \code{SendOrder( \link{Order}* order )} \tab \code{void}          \tab send order to exchange
+\cr \code{CancelOrders()}                   \tab \code{void}          \tab cancel active orders
 \cr \code{GetPosition()}                    \tab \code{int}           \tab total executed position, positive means long, negative means short
 \cr \code{GetPositionPlanned()}             \tab \code{int}           \tab total number of orders processing ( not executed or cancelled yet )
 \cr \code{GetMarketValue()}                 \tab \code{double}        \tab total portfolio percent value ( initial value is 100 )
@@ -147,9 +147,9 @@ Back test summary statistics:
 \cr win           \tab total won in percent
 \cr loss          \tab total lost in percent
 \cr pnl           \tab total pnl in percent
-\cr max_dd        \tab maximum drowdown in percent
-\cr max_dd_start  \tab time the maximum drowdown started
-\cr max_dd_end    \tab time the maximum drowdown recovered
+\cr max_dd        \tab maximum drawdown in percent
+\cr max_dd_start  \tab time the maximum drawdown started
+\cr max_dd_end    \tab time the maximum drawdown recovered
 \cr max_dd_length \tab number of calendar days in the maximum drawdown period
 }
 }

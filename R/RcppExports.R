@@ -166,7 +166,7 @@ roll_volume_profile <- function(ticks, timeFrame, step, alpha, cut) {
 #' @param x numeric vectors
 #' @param n window size
 #' @family technical indicators
-#' @description Relative strength index aka RSI measurs the velocity and magnitude of directional price movements.
+#' @description Relative strength index aka RSI measures the velocity and magnitude of directional price movements.
 #' @export
 rsi <- function(x, n) {
     .Call('QuantTools_rsi', PACKAGE = 'QuantTools', x, n)

@@ -16,7 +16,7 @@
 # along with QuantTools. If not, see <http://www.gnu.org/licenses/>.
 
 
-#' Round POSIXct tiestamps
+#' Round POSIXct timestamps
 #'
 #' @param x POSIXct vector
 #' @param units to round off to

@@ -2,7 +2,7 @@
 % Please edit documentation in R/lapply_named.R
 \name{lapply_named}
 \alias{lapply_named}
-\title{Lapply which returns named list}
+\title{lapply which returns named list}
 \usage{
 lapply_named(X, FUN, ...)
 }
@@ -10,6 +10,6 @@ lapply_named(X, FUN, ...)
 \item{X, FUN, ...}{same as \code{\link[base]{lapply}} arguments}
 }
 \description{
-Lapply which returns named list
+lapply which returns named list
 }
 

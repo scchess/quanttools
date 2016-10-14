@@ -21,7 +21,7 @@
 #' @param ohlc time_series \code{data.frame} or \code{data.table} object with 4 columns \code{'open','high','low','close'}
 #' @param width width of candles body
 #' @param candle.col.up,candle.col.dn colors of up and down candles
-#' @param ch use chineese style?
+#' @param ch use Chinese style?
 #' @family graphical functions
 #'
 #' @details

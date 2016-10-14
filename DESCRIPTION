@@ -1,10 +1,10 @@
 Package: QuantTools
 Type: Package
 Title: Enhanced Quantitative Trading Modelling
-Version: 0.5.0
+Version: 0.5.01
 Author: Stanislav Kovalevsky
 Maintainer: Stanislav Kovalevsky <so.kovalevsky@gmail.com>
-Description: Download and organize historical market data from multiple sources like Yahoo, Google Finam and IQFeed. Code your trading algorithms in modern c++11 with powerful event driven tick processing API including trading costs and exchange communication latency and transform detailed data seamlessly into R. In just few lines of code you will be able to visualize every step of your trading model from tick data to multi dimensional heat maps.
+Description: Download and organize historical market data from multiple sources like Yahoo (<http://finance.yahoo.com>), Google (<https://www.google.com/finance>), Finam (<http://www.finam.ru/profile/moex-akcii/sberbank/export/>) and IQFeed (<http://www.iqfeed.net/symbolguide/index.cfm?symbolguide=lookup>). Code your trading algorithms in modern C++11 with powerful event driven tick processing API including trading costs and exchange communication latency and transform detailed data seamlessly into R. In just few lines of code you will be able to visualize every step of your trading model from tick data to multi dimensional heat maps.
 URL: https://quanttools.bitbucket.io/_site/index.html
 BugReports: https://bitbucket.org/quanttools/quanttools/issues
 License: GPL-3
@@ -20,4 +20,4 @@ Imports:
     Rcpp (>= 0.12.6)
 LinkingTo: Rcpp
 SystemRequirements: C++11
-RoxygenNote: 5.0.1
+RoxygenNote: 5.0.1.9000

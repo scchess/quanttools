@@ -13,7 +13,7 @@ lmerge(x, key, value, na.omit = T)
 
 \item{value}{column name of value variable}
 
-\item{na.omit}{should leading NA values be ommited?}
+\item{na.omit}{should leading NA values be omitted?}
 }
 \description{
 Merge list of data.frames into data.table by key column

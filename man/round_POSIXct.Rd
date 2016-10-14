@@ -2,7 +2,7 @@
 % Please edit documentation in R/round_POSIXct.R
 \name{round_POSIXct}
 \alias{round_POSIXct}
-\title{Round POSIXct tiestamps}
+\title{Round POSIXct timestamps}
 \usage{
 round_POSIXct(x, units = c("seconds", "minutes", "5min", "10min", "15min",
   "30min", "hour", "day"), type = "floor")
@@ -15,7 +15,7 @@ round_POSIXct(x, units = c("seconds", "minutes", "5min", "10min", "15min",
 \item{type}{\code{floor} or \code{ceiling}}
 }
 \description{
-Round POSIXct tiestamps
+Round POSIXct timestamps
 }
 \details{
 Rounds POSIXct vector.

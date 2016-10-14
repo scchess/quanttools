@@ -12,7 +12,7 @@ rsi(x, n)
 \item{n}{window size}
 }
 \description{
-Relative strength index aka RSI measurs the velocity and magnitude of directional price movements.
+Relative strength index aka RSI measures the velocity and magnitude of directional price movements.
 }
 \seealso{
 Other technical indicators: \code{\link{bbands}},

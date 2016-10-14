@@ -10,7 +10,7 @@ hist_dt(dt, bin_width = diff(range(dt, na.rm = TRUE))/10, coeff = 0.8,
 \arguments{
 \item{dt}{data.table}
 
-\item{bin_width}{trunc data by this value}
+\item{bin_width}{truncate data by this value}
 
 \item{coeff}{group width in [0,1]}
 
