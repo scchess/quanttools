@@ -254,6 +254,8 @@ NULL
 
   res = rawToChar( res )
 
+  res = gsub( ', ', ';', res, fixed = T )
+
   suppressWarnings( {
   z = fread( res, sep = ',',header = FALSE, skip = 1, showProgress = verbose )
   })
@@ -268,6 +270,13 @@ NULL
   markets = .get_iqfeed( cmd = 'SLM\r\n' )[,1:3, with = FALSE]
   setnames( markets, c( 'market_id', 'short_name', 'long_name' ) )
   markets[]
+}
+
+.get_iqfeed_trade_conditions_info = function( ){
+  codes = .get_iqfeed( cmd = 'STC\r\n' )[,1:3, with = FALSE]
+  setnames( codes, c( 'condition_code', 'short_name', 'description' ) )
+  codes[, condition_code := as.hexmode( condition_code ) ]
+  codes[]
 }
 
 .get_iqfeed_ticks = function( symbol, from, to = from, time_from = '', time_to = '' ){
