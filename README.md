@@ -1,4 +1,3 @@
- 
 ![][cran version]
 ![][cran monthly downloads]
 ![][cran total downloads]
@@ -7,4 +6,4 @@
 [cran monthly downloads]: http://cranlogs.r-pkg.org/badges/QuantTools "CRAN Monthly Downloads"
 [cran total downloads]: http://cranlogs.r-pkg.org/badges/grand-total/QuantTools?color=yellowgreen "CRAN Total Downloads"
 
-[QuantTools](quanttools.bitbucket.io)
+[QuantTools](https://quanttools.bitbucket.io)
