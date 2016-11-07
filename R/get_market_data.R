@@ -181,7 +181,7 @@ get_finam_data = function( symbol, from, to = from, period = 'day', local = FALS
 
   }
   # Finam host address
-  host = 'export.finam.ru'#'195.128.78.52'
+  host = 'export.finam.ru'
   # referer to successfully download data from Finam server
   referer = 'http://www.finam.ru/analysis/profile041CA00007/default.asp'
   # urls of Finam instruments information files
