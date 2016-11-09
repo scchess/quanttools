@@ -266,7 +266,7 @@ get_finam_data = function( symbol, from, to = from, period = 'day', local = FALS
     cn = symbol, # ticker
     dtf = 1, # date format
     tmf = 3, # time format
-    MSOR = 0, # cnadle time 0 - candle start,1 - candle end
+    MSOR = 1, # candle time 0 - candle start,1 - candle end
     mstimever = 0,
     sep = 1, # column separator    1 - ",", 2 - ".", 3 - ";", 4 - "<tab>", 5 - " "
     sep2 = 1, # thousands separator 1 - "" , 2 - ".", 3 - ",", 4 - " "    , 5 - "'"
