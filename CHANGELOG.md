@@ -5,5 +5,6 @@
     - `QuantTools:::.get_iqfeed_markets_info()` retrieves markets info.
     - `QuantTools:::.get_iqfeed_trade_conditions_info()` retrieves trade conditions info.
 - `get_finam_data` fixed.
+- `round_POSIXct` changed to generic version.
 
-## 2016-10-16 v0.5.0 Initial Release.
+## 2016-10-14 v0.5.0 Initial Release.
