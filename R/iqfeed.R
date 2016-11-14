@@ -456,6 +456,7 @@ NULL
 .get_iqfeed_trade_conditions_info = function( ){
   codes = .get_iqfeed( cmd = 'STC\r\n' )[,1:3, with = FALSE]
   setnames( codes, c( 'condition_code', 'short_name', 'description' ) )
+  condition_code = NULL
   codes[, condition_code := toupper( as.hexmode( condition_code ) ) ]
   codes[]
 }

@@ -28,13 +28,6 @@ R function \link{sma}.
 }
 }
 \seealso{
-Other c++ indicators: \code{\link{BBands}},
-  \code{\link{Crossover}}, \code{\link{Ema}},
-  \code{\link{Indicator}}, \code{\link{RollLinReg}},
-  \code{\link{RollPercentRank}}, \code{\link{RollRange}},
-  \code{\link{RollSd}}, \code{\link{RollVolumeProfile}},
-  \code{\link{Rsi}}, \code{\link{Stochastic}}
-
 Other c++ classes: \code{\link{BBands}},
   \code{\link{Candle}}, \code{\link{Cost}},
   \code{\link{Crossover}}, \code{\link{Ema}},
@@ -44,5 +37,12 @@ Other c++ classes: \code{\link{BBands}},
   \code{\link{RollSd}}, \code{\link{RollVolumeProfile}},
   \code{\link{Rsi}}, \code{\link{Stochastic}},
   \code{\link{Tick}}
+
+Other c++ indicators: \code{\link{BBands}},
+  \code{\link{Crossover}}, \code{\link{Ema}},
+  \code{\link{Indicator}}, \code{\link{RollLinReg}},
+  \code{\link{RollPercentRank}}, \code{\link{RollRange}},
+  \code{\link{RollSd}}, \code{\link{RollVolumeProfile}},
+  \code{\link{Rsi}}, \code{\link{Stochastic}}
 }
 

@@ -33,7 +33,9 @@ to_ticks = function( x ){
 
   period = x[ 1:min( 100, .N ), min( diff( time )[ -1 ] ) ]
 
-  ticks = x[, .(
+  time = open = high = low = volume = NULL
+
+  ticks = x[, list(
     time   = c( time - period, time - period / 2, time - period / 2, time - period / 100 ),
     price  = c( open         , high             , low              , close               ),
     volume = c( volume / 4   , volume / 4       , volume / 4       , volume / 4          )
