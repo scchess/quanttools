@@ -22,10 +22,13 @@
 #' @param period candle period \code{tick, 1min, 5min, 10min, 15min, 30min, hour, day, week, month}
 #' @param split.adjusted should data be split adjusted?
 #' @param local should data be loaded from local storage? Only 'tick' period supported for local storage. See 'Details' section
+#' @param code futures or option code name, e.g. \code{"RIU6"}
+#' @param contract,frequency,day_exp same as in \code{\link{gen_futures_codes}}
 #' @name get_market_data
 #' @details
 #' Use external websites to get desired symbol name for
 #' \href{https://www.finam.ru/profile/moex-akcii/sberbank/export/}{Finam},
+#' \href{https://www.moex.com/en/derivatives/contracts.aspx}{MOEX},
 #' \href{https://www.iqfeed.net/symbolguide/index.cfm?symbolguide=lookup}{IQFeed},
 #' \href{https://finance.yahoo.com/}{Yahoo} and
 #' \href{https://www.google.com/finance}{Google} sources. \cr
@@ -34,7 +37,8 @@
 #' Load time is reduced dramatically. It is a good way to collect market data as
 #' e.g. IQFeed gives only 180 days of tick data if you would need more it will
 #' cost you a lot. See \code{\link{store_market_data}} for details. \cr
-#' See \link{iqfeed} return format specification.
+#' See \link{iqfeed} return format specification. \cr
+#' MOEX data can be retrieved from local storage only in order to minimize load on MOEX data servers. Read \code{\link{store_market_data}} for information on how to store data locally.
 #'
 #' @examples
 #' \donttest{
@@ -48,6 +52,10 @@
 #'
 #' get_google_data( 'MSFT', '2015-01-01', '2016-01-01' )
 #' get_yahoo_data( 'MSFT', '2015-01-01', '2016-01-01' )
+#'
+#' get_moex_futures_data( 'RIH9', '2009-01-01', '2009-02-01', 'tick', local = T )
+#' get_moex_options_data( 'RI55000C9', '2009-01-01', '2009-02-01', 'tick', local = T )
+#' get_moex_continuous_futures_data( 'RI', '2016-01-01', '2016-11-01', frequency = 3, day_exp = 15 )
 #'
 #' }
 # split character date into desired parts
@@ -340,4 +348,61 @@ get_iqfeed_data = function( symbol, from, to = from, period = 'day', local = FAL
   return( data )
 
 }
+#' @rdname get_market_data
+#' @export
+get_moex_options_data = function( code, from, to = from, period = 'tick', local = TRUE ) {
 
+  .get_moex_data( code = code, from = from, to = to, period = period, local = local, type = 'options' )
+
+}
+#' @rdname get_market_data
+#' @export
+get_moex_futures_data = function( code, from, to = from, period = 'tick', local = TRUE ) {
+
+  .get_moex_data( code = code, from = from, to = to, period = period, local = local, type = 'futures' )
+
+}
+#' @rdname get_market_data
+#' @export
+get_moex_continuous_futures_data = function( contract, from, to, frequency, day_exp ) {
+
+  schedule = gen_futures_codes( contract, from, to, frequency, day_exp, year_last_digit = T )
+
+  trades = schedule[, get_moex_futures_data( code, from, to ), by = contract_id ][]
+  setcolorder( trades, c( 'time', 'price', 'volume', 'id', 'contract_id' )  )
+  trades[, code := schedule$code[ contract_id ] ][]
+  gc()
+  return( trades )
+
+}
+
+.get_moex_data = function( code, from, to = from, period = 'tick', local = TRUE, type = c( 'options', 'futures' ) ) {
+
+  if( period != 'tick' ) stop( 'only \'tick\' data supported' )
+  if( !local ) stop( 'only \'local = TRUE\' flag supported' )
+  type = match.arg( type )
+
+  dir_data = paste0( .settings$moex_storage, '/', type, '/' )
+
+  files = list.files( dir_data, pattern = '.rds', full.names = T )
+  dates = gsub( '.*/|\\..*', '', files )
+
+  data = vector( length( dates[ from <= dates & dates <= to ] ), mode = 'list' )
+  i = 1
+
+  for( file in files[ from <= dates & dates <= to ] ) {
+
+    code_ = code
+
+    Nosystem = 0
+    data[[ i ]] = readRDS( file )[ code == code_ & Nosystem != 1, .( time = dat_time, price, volume = as.integer( amount ), id = 1:.N ) ]
+
+    i = i + 1
+
+  }
+
+  data = rbindlist( data, use.names = T, fill = T )[]
+  gc()
+  return( data )
+
+}

@@ -39,7 +39,7 @@ private:
   std::vector< std::string > TradeSideString  = { "long", "short" };
   std::vector< std::string > OrderTypeString  = { "market", "limit" };
   std::vector< std::string > OrderStateString = { "new", "registered", "executed", "cancelling", "cancelled" };
-  std::vector< std::string > TradeStateString  = { "new", "opened", "closed" };
+  std::vector< std::string > TradeStateString = { "new", "opened", "closed" };
 
   std::vector<Order*> orders;
   std::vector<Order*> ordersProcessed;
@@ -47,6 +47,16 @@ private:
   std::map< int, Trade*> trades;
 
   std::vector<Candle> candles;
+  std::vector<double> marketValueHistory;
+  std::vector<double> drawdownHistory;
+
+  std::vector<Rcpp::Date> dates;
+  std::vector<double>     dailyReturns;
+  std::vector<double>     dailyPnl;
+  std::vector<double>     dailyDrawdown;
+  double                  currentDateMarketValue;
+
+
   int    position;
   double positionValue;
   int    positionPlanned;
@@ -74,6 +84,9 @@ private:
 
   Rcpp::CharacterVector timeZone;
 
+  const int nSecondsInDay = 60 * 60 * 24;
+  const int nDaysInTradingYear = 252;
+
   void FormCandle( Tick tick ) {
 
     bool startOver = candle.time != floor( tick.time / timeFrame ) * timeFrame + timeFrame;
@@ -81,7 +94,20 @@ private:
     if( startOver and candle.time != 0 ) {
 
       if( onCandle != nullptr ) onCandle( candle );
+
       candles.push_back( candle );
+
+      if( std::isnan( marketValue ) ) {
+
+        marketValueHistory.push_back( 0 );
+        drawdownHistory.push_back( 0 );
+
+      } else {
+
+        marketValueHistory.push_back( marketValue );
+        drawdownHistory.push_back( drawdown );
+
+      }
 
     }
 
@@ -89,9 +115,111 @@ private:
 
   };
 
+  double calcMean( std::vector<double> x ) {
+
+    double avgX = 0;
+
+    for( auto Xi: x ) {
+
+      if( std::isnan( Xi ) ) continue;
+      avgX += Xi / x.size();
+
+    }
+
+    return( avgX );
+
+  }
+
+  double calcSd( std::vector<double> x ) {
+
+    double avgX = 0;
+
+    for( auto Xi: x ) {
+
+      if( std::isnan( Xi ) ) continue;
+      avgX += Xi;
+
+    }
+
+    avgX /= x.size();
+
+    double var = 0;
+
+    for( auto Xi: x ) var += ( Xi - avgX ) * ( Xi - avgX ) / x.size();
+
+    double sd = std::sqrt( var );
+
+    return sd;
+
+  };
+
+  double calcSharpe( std::vector<double> returns, double riskFreeRate = 0 ) {
+
+    double mean = calcMean( returns );
+    double sd   = calcSd( returns );
+
+    if( sd == 0 ) return NA_REAL;
+
+    double sharpe = ( mean - riskFreeRate / nDaysInTradingYear ) / sd * std::sqrt( nDaysInTradingYear );
+
+    return( sharpe );
+
+  };
+
+  double calcSortino( std::vector<double> returns, double riskFreeRate = 0 ) {
+
+    double mean = calcMean( returns );
+
+    for( size_t i = 0; i < returns.size(); i++ ) if( returns[i] > 0 ) returns[i] = 0;
+
+    double sd   = calcSd( returns );
+
+    if( sd == 0 ) return NA_REAL;
+
+    double sortino = ( mean - riskFreeRate / nDaysInTradingYear ) / sd * std::sqrt( nDaysInTradingYear );
+
+    return( sortino );
+
+  };
+
+  double calcRSquared( std::vector<double> y ) {
+
+    double sumXY = 0;
+    double sumXX = 0;
+    double sumYY = 0;
+    double sumY = 0;
+    double sumX = 0;
+
+    int n = 0;
+
+    for( size_t i = 0; i < y.size(); i++ ) {
+
+      if( std::isnan( y[i] ) ) continue;
+
+      n++;
+      sumX += n;
+      sumY += y[i];
+      sumXX += n * n;
+      sumXY += n * y[i];
+      sumYY += y[i] * y[i];
+
+    }
+
+    double covXY = n * sumXY - sumX * sumY; // * 1.0 / ( n * ( n - 1 ) )
+    double varX  = n * sumXX - sumX * sumX; // * 1.0 / ( n * ( n - 1 ) )
+    double varY  = n * sumYY - sumY * sumY; // * 1.0 / ( n * ( n - 1 ) )
+
+    if( varX == 0 or varY == 0 ) return NA_REAL;
+
+    double r        = covXY / sqrt( varX * varY );
+    double rSquared = r * r;
+
+    return rSquared;
+
+  };
+
   int NNights( double time1, double time2 ) {
 
-    const int nSecondsInDay = 60 * 60 * 24;
     return std::abs( std::trunc( time1 / nSecondsInDay ) - std::trunc( time2 / nSecondsInDay ) );
 
   }
@@ -131,6 +259,8 @@ public:
     tick = {};
     timeZone          = "UTC";
 
+    currentDateMarketValue = 1;
+
   };
 
   ~Processor() {
@@ -158,8 +288,29 @@ public:
 
     int nNights = NNights( this->tick.time, tick.time );
 
+    bool firstTick = nDaysTested == 0;
     if( nDaysTested == 0 ) { nDaysTested = 1; }
-    if( nNights > 0      ) { nDaysTested++;   }
+    if( nNights > 0 and not firstTick ) {
+
+      nDaysTested++;
+
+      if( std::isnan( marketValue ) ) {
+
+        dailyPnl.push_back( currentDateMarketValue );
+        dailyDrawdown.push_back( 0 );
+        dailyReturns.push_back( 0 );
+
+      } else {
+
+        dailyPnl.push_back( marketValue );
+        dailyDrawdown.push_back( -drawdown );
+        dailyReturns.push_back( marketValue - currentDateMarketValue );
+        currentDateMarketValue = marketValue;
+
+      }
+      dates.push_back( Rcpp::Date( this->tick.time / nSecondsInDay ) );
+
+    }
     if( std::isnan( timeFirstTick ) ) { timeFirstTick = tick.time; }
     timeLastTick = tick.time;
 
@@ -347,6 +498,11 @@ public:
 
     }
 
+    dailyPnl.push_back( marketValue );
+    dailyDrawdown.push_back( -drawdown );
+    dailyReturns.push_back( marketValue - currentDateMarketValue );
+    dates.push_back( Rcpp::Date( this->tick.time / nSecondsInDay ) );
+
   }
 
   void SendOrder( Order* order ) {
@@ -395,6 +551,35 @@ public:
     marketValueMax    = 1;
     isDrawdownMax     = false;
     tick = {};
+
+    marketValueHistory.clear();
+    drawdownHistory.clear();
+
+    dates.clear();
+    dailyReturns.clear();
+    dailyPnl.clear();
+    dailyDrawdown.clear();
+    currentDateMarketValue = 1;
+
+  }
+
+  std::vector<double> GetMarketValueHistory() {  return marketValueHistory;  }
+  std::vector<double> GetDrawdownHistory() {  return drawdownHistory;  }
+
+  Rcpp::List GetDailyPerformanceHistory() {
+
+    Rcpp::List performance = Rcpp::List::create(
+
+      Rcpp::Named( "date"     ) = dates,
+      Rcpp::Named( "return"   ) = dailyReturns,
+      Rcpp::Named( "pnl"      ) = dailyPnl,
+      Rcpp::Named( "drawdown" ) = dailyDrawdown
+
+    );
+
+    setDT( performance );
+
+    return performance;
 
   }
 
@@ -680,7 +865,6 @@ public:
     max_dd_end.attr( "class" )   = Rcpp::CharacterVector::create( "POSIXct", "POSIXt" );
     max_dd_end.attr( "tzone" )   = timeZone;
 
-
     Rcpp::DataFrame summary = ListBuilder()
 
       .Add( "from"          , from )
@@ -704,7 +888,11 @@ public:
       .Add( "max_dd"        , -std::round( drawdownMax  * percent / roundPrecision ) * roundPrecision )
       .Add( "max_dd_start"  , max_dd_start )
       .Add( "max_dd_end"    , max_dd_end )
-      .Add( "max_dd_length" , nDaysDrawdownMax );
+      .Add( "max_dd_length" , nDaysDrawdownMax )
+      .Add( "sharpe"        , std::round( calcSharpe( dailyReturns ) / roundPrecision ) * roundPrecision )
+      .Add( "sortino"       , std::round( calcSortino( dailyReturns ) / roundPrecision ) * roundPrecision )
+      .Add( "r_squared"     , std::round( calcRSquared( dailyPnl ) / roundPrecision ) * roundPrecision )
+      .Add( "avg_dd"        , std::round( calcMean( dailyDrawdown ) * percent / roundPrecision ) * roundPrecision );
 
     return summary;
 
