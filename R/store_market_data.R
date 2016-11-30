@@ -171,6 +171,13 @@ store_finam_data = function( from = NULL, to = format( Sys.Date() ), verbose = T
 # iqfeed
 store_iqfeed_data = function( from = NULL, to = format( Sys.Date() ), verbose = TRUE ) {
 
+  .store_iqfeed_data_mins ( from, to, verbose )
+  .store_iqfeed_data_ticks( from, to, verbose )
+
+}
+
+.store_iqfeed_data_ticks = function( from = NULL, to = format( Sys.Date() ), verbose = TRUE ) {
+
   save_dir = .settings$iqfeed_storage
   symbols = .settings$iqfeed_symbols
 
@@ -185,7 +192,7 @@ store_iqfeed_data = function( from = NULL, to = format( Sys.Date() ), verbose = 
     if( verbose ) message( symbol )
     if( from_is_null ) from = NULL
 
-    dates_available = gsub( '.rds', '', list.files( paste( save_dir, symbol, sep = '/' ), pattern = '.rds' ) )
+    dates_available = gsub( '.rds', '', list.files( paste( save_dir, symbol, sep = '/' ), pattern = '\\d{4}-\\d{2}-\\d{2}.rds' ) )
     if( is.null( from ) && length( dates_available ) == 0 ) {
 
       from = .settings$iqfeed_storage_from
@@ -214,42 +221,120 @@ store_iqfeed_data = function( from = NULL, to = format( Sys.Date() ), verbose = 
     }
 
     ticks = get_iqfeed_data( symbol, from, to, period = 'tick' )
-    if( is.null( ticks ) ) next
+    if( !is.null( ticks ) ) {
 
-    dir.create( paste0( save_dir, '/' , symbol ), recursive = TRUE, showWarnings = FALSE )
+      dir.create( paste0( save_dir, '/' , symbol ), recursive = TRUE, showWarnings = FALSE )
 
-    ticks[, date := format( time, '%Y-%m-%d' ) ]
-    ticks[ , {
+      ticks[, date := format( time, '%Y-%m-%d' ) ]
+      ticks[ , {
 
-      saveRDS( .SD, file = paste0( save_dir, '/' , symbol, '/', date, '.rds' ) )
+        saveRDS( .SD, file = paste0( save_dir, '/' , symbol, '/', date, '.rds' ) )
 
-      if( verbose ) message( paste( date,  'saved' ) )
+        if( verbose ) message( paste( date,  'saved' ) )
 
-    }, by = date ]
+      }, by = date ]
+
+    }
 
   }
 
 }
 
-.get_local_data = function( symbol, from, to, source ) {
+.store_iqfeed_data_mins =  function( from = NULL, to = format( Sys.Date() ), verbose = TRUE ) {
+
+  save_dir = .settings$iqfeed_storage
+  symbols = .settings$iqfeed_symbols
+
+  if( save_dir == '' ) stop( 'please set storage path via QuantTools_settings( \'iqfeed_storage\', \'/storage/path/\' ) ' )
+  if( is.null( symbols ) ) stop( 'please set symbols vector via QuantTools_settings( \'iqfeed_symbols\', c( \'symbol_1\', ...,\'symbol_n\' ) ) ' )
+
+
+  from_is_null = is.null( from )
+
+  for( symbol in symbols ) {
+
+    if( verbose ) message( symbol )
+    if( from_is_null ) from = NULL
+
+    months_available = gsub( '.rds', '', list.files( paste( save_dir, symbol, sep = '/' ), pattern = '\\d{4}-\\d{2}.rds' ) )
+    if( is.null( from ) && length( months_available ) == 0 ) {
+
+      from = .settings$iqfeed_storage_from
+      if( from == '' ) stop( 'please set iqfeed storage start date via QuantTools_settings( \'iqfeed_storage_from\', \'YYYYMMDD\' )' )
+      message( 'not found in storage, \ntrying to download since storage start date' )
+
+    }
+    if( is.null( from ) && substr( to, 1, 7 ) >= max( months_available ) ) {
+
+      from = max( months_available )
+      message( paste( 'months to be added:', from, '-', substr( to, 1, 7 ) ) )
+
+    }
+
+    mins = get_iqfeed_data( symbol, paste0( substr( from, 1, 7 ), '-01' ), format( as.Date( to ) + 31 ), period = '1min' )
+    if( !is.null( mins ) && nrow( mins ) != 0 ) {
+
+      dir.create( paste0( save_dir, '/' , symbol ), recursive = TRUE, showWarnings = FALSE )
+
+      mins[, month := format( time, '%Y-%m' ) ]
+      mins[ , {
+
+        saveRDS( .SD, file = paste0( save_dir, '/' , symbol, '/', month, '.rds' ) )
+
+        if( verbose ) message( paste( month,  'saved' ) )
+
+      }, by = month ]
+
+    }
+
+  }
+
+}
+
+.get_local_data = function( symbol, from, to, source, period ) {
 
   data_dir = switch( source, Finam = .settings$finam_storage, iqfeed = .settings$iqfeed_storage )
 
   if( data_dir == '' ) stop( paste0('please set storage path via QuantTools_settings( \'', source, '_storage\', \'/storage/path/\' )
-use store_', source, '_data to add some data into the storage' ) )
+  use store_', source, '_data to add some data into the storage' ) )
 
-  dates_available = gsub( '.rds', '', list.files( paste( data_dir, symbol, sep = '/' ), pattern = '.rds' ) )
+  if( period == 'tick' ) {
 
-  dates_to_load = sort( dates_available[ dates_available %bw% c( from, to ) ] )
+    dates_available = gsub( '.rds', '', list.files( paste( data_dir, symbol, sep = '/' ), pattern = '\\d{4}-\\d{2}-\\d{2}.rds' ) )
 
-  data = vector( length( dates_to_load ), mode = 'list' )
-  names( data ) = dates_to_load
+    dates_to_load = sort( dates_available[ dates_available %bw% c( from, to ) ] )
 
-  for( date in dates_to_load ) data[[ date ]] = readRDS( file = paste0( data_dir, '/' , symbol, '/', date, '.rds' ) )
+    data = vector( length( dates_to_load ), mode = 'list' )
+    names( data ) = dates_to_load
 
-  data = rbindlist( data )
+    for( date in dates_to_load ) data[[ date ]] = readRDS( file = paste0( data_dir, '/' , symbol, '/', date, '.rds' ) )
 
-  return( data )
+    data = rbindlist( data )
+
+    return( data )
+
+  }
+  if( period == '1min' ) {
+
+    months_available = gsub( '.rds', '', list.files( paste( data_dir, symbol, sep = '/' ), pattern = '\\d{4}-\\d{2}.rds' ) )
+
+    months_to_load = sort( months_available[ months_available %bw% substr( c( from, to ), 1, 7 ) ] )
+
+    if( length( months_to_load ) == 0 ) return( NULL )
+    data = vector( length( months_to_load ), mode = 'list' )
+    names( data ) = months_to_load
+
+    for( month in months_to_load ) data[[ month ]] = readRDS( file = paste0( data_dir, '/' , symbol, '/', month, '.rds' ) )
+
+    data = rbindlist( data )#[ as.Date( time ) %bw% as.Date( c( from, to ) )  ]
+
+    time_range = as.POSIXct( format( as.Date( c( from, to ) ) + c( 0, 1 ) ), 'UTC' )
+
+    data = data[ time > time_range[1] & time <= time_range[2] ]
+
+    return( data )
+
+  }
 
 }
 #' @rdname store_market_data
@@ -401,10 +486,3 @@ store_moex_data = function( from = NULL, to = format( Sys.Date() ), verbose = TR
   }
 
 }
-
-
-
-
-
-
-

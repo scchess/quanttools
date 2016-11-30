@@ -39,7 +39,7 @@ get_moex_continuous_futures_data(contract, from, to, frequency, day_exp)
 
 \item{period}{candle period \code{tick, 1min, 5min, 10min, 15min, 30min, hour, day, week, month}}
 
-\item{local}{should data be loaded from local storage? Only 'tick' period supported for local storage. See 'Details' section}
+\item{local}{should data be loaded from local storage? See 'Details' section}
 
 \item{code}{futures or option code name, e.g. \code{"RIU6"}}
 
@@ -61,7 +61,7 @@ Load time is reduced dramatically. It is a good way to collect market data as
 e.g. IQFeed gives only 180 days of tick data if you would need more it will
 cost you a lot. See \code{\link{store_market_data}} for details. \cr
 See \link{iqfeed} return format specification. \cr
-MOEX data can be retrieved from local storage only in order to minimize load on MOEX data servers. Read \code{\link{store_market_data}} for information on how to store data locally.
+MOEX data can be retrieved from local storage only in order to minimize load on MOEX data servers. Read \code{\link{store_market_data}} for information on how to store data locally. \cr
 }
 \examples{
 \donttest{

@@ -21,7 +21,7 @@
 #' @param from,to text dates in format \code{"YYYY-mm-dd"}
 #' @param period candle period \code{tick, 1min, 5min, 10min, 15min, 30min, hour, day, week, month}
 #' @param split.adjusted should data be split adjusted?
-#' @param local should data be loaded from local storage? Only 'tick' period supported for local storage. See 'Details' section
+#' @param local should data be loaded from local storage? See 'Details' section
 #' @param code futures or option code name, e.g. \code{"RIU6"}
 #' @param contract,frequency,day_exp same as in \code{\link{gen_futures_codes}}
 #' @name get_market_data
@@ -38,7 +38,7 @@
 #' e.g. IQFeed gives only 180 days of tick data if you would need more it will
 #' cost you a lot. See \code{\link{store_market_data}} for details. \cr
 #' See \link{iqfeed} return format specification. \cr
-#' MOEX data can be retrieved from local storage only in order to minimize load on MOEX data servers. Read \code{\link{store_market_data}} for information on how to store data locally.
+#' MOEX data can be retrieved from local storage only in order to minimize load on MOEX data servers. Read \code{\link{store_market_data}} for information on how to store data locally. \cr
 #'
 #' @examples
 #' \donttest{
@@ -79,6 +79,10 @@ NULL
 #' @rdname get_market_data
 #' @export
 get_yahoo_data = function( symbol, from, to, split.adjusted = TRUE ) {
+
+  curr_date = format( Sys.Date() )
+  if( from > curr_date ) from = to = curr_date
+  if( to   > curr_date ) to = curr_date
 
   splits = get_yahoo_splits_and_dividends( symbol, from, to )
   # split dates into parts
@@ -128,6 +132,10 @@ get_yahoo_data = function( symbol, from, to, split.adjusted = TRUE ) {
 #' @export
 get_yahoo_splits_and_dividends = function( symbol, from, to = from ) {
 
+  curr_date = format( Sys.Date() )
+  if( from > curr_date ) from = to = curr_date
+  if( to   > curr_date ) to = curr_date
+
   # split dates into parts
   from = .extract_date_parts( from )
   to = .extract_date_parts( to )
@@ -160,6 +168,10 @@ get_yahoo_splits_and_dividends = function( symbol, from, to = from ) {
 #' @export
 get_google_data = function( symbol, from, to = from ){
 
+  curr_date = format( Sys.Date() )
+  if( from > curr_date ) from = to = curr_date
+  if( to   > curr_date ) to = curr_date
+
   from = as.Date( from )
   to = as.Date( to )
 
@@ -188,6 +200,11 @@ get_finam_data = function( symbol, from, to = from, period = 'day', local = FALS
     return( data )
 
   }
+
+  curr_date = format( Sys.Date() )
+  if( from > curr_date ) from = to = curr_date
+  if( to   > curr_date ) to = curr_date
+
   # Finam host address
   host = 'export.finam.ru'
   # referer to successfully download data from Finam server
@@ -324,13 +341,40 @@ get_finam_data = function( symbol, from, to = from, period = 'day', local = FALS
 #' @export
 get_iqfeed_data = function( symbol, from, to = from, period = 'day', local = FALSE ) {
 
+  curr_date = format( Sys.Date() )
+  if( from > curr_date ) from = to = curr_date
+  if( to   > curr_date ) to = curr_date
+
   if( local ){
 
-    if( period != 'tick' ) stop( 'only ticks supported in local storage' )
+    if( period == 'tick' ) data = .get_local_data(  symbol, from, to, source = 'iqfeed', period = 'tick' )
+    if( period != 'tick' ) {
 
-    data = .get_local_data(  symbol, from, to, source = 'iqfeed' )
+      data = .get_local_data(  symbol, from, to, source = 'iqfeed', period = '1min' )
+      if( is.null( data ) ) return( NULL )
 
-    return( data )
+      switch( period,
+              '1min'  = { n =  1; units = 'mins' },
+              '5min'  = { n =  5; units = 'mins' },
+              '10min' = { n = 10; units = 'mins' },
+              '15min' = { n = 15; units = 'mins' },
+              '30min' = { n = 30; units = 'mins' },
+              'hour'  = { n =  1; units = 'hour' },
+              'day'   = { n =  1; units = 'days' }
+      )
+
+      data = data[ , .( open = open[1], high = max( high ), low = min( low ), close = close[.N], volume = sum( volume ) ), by = .( time = ceiling_POSIXct( time, n, units ) ) ]
+      if( period == 'day' ) {
+
+        data[, time := as.Date( time ) - 1 ]
+        setnames( data, 'time', 'date' )
+
+
+      }
+
+    }
+
+    return( data[] )
 
   }
 
