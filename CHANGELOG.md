@@ -1,3 +1,8 @@
+## 2016-11-30 v0.5.2 Updates:
+- `round_POSIXct` `days` units support added.
+- IQFeed local storage `1min` to `day` period support added.
+- `Processor` mark to market caclulation fixed. Draw down calculation changed to difference between maximum market value and current market value.
+
 ## 2016-11-18 v0.5.2 Updates:
 - Added MOEX futures and options trades data support. Use `store_moex_data` to initialize local storage with `moex_storage`, `moex_data_url`, `moex_storage_from` settings. Use `get_moex_futures_data`, `get_moex_continuous_futures_data`, `get_moex_options_data` to get data from storage.
 - `Processor.GetSummary()` method now returns `sharpe`, `sortino`, `r_squared`, `avg_dd`.
