@@ -7,4 +7,5 @@
 [cran total downloads]: http://cranlogs.r-pkg.org/badges/grand-total/QuantTools?color=yellowgreen "CRAN Total Downloads"
 
 [Website](https://quanttools.bitbucket.io)
-[ChangeLog](bitbucket.org/quanttools/quanttools/src/master/CHANGELOG.md)
+
+<script src="https://bitbucket.org/quanttools/quanttools/src/5c9d1e3eaf6a3da3e4ce51596609a72db78d5545/CHANGELOG.md?embed=t"></script>
