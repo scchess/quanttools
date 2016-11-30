@@ -45,6 +45,7 @@ private:
   std::vector<Order*> ordersProcessed;
 
   std::map< int, Trade*> trades;
+  std::map< int, Trade*> tradesProcessed;
 
   std::vector<Candle> candles;
   std::vector<double> marketValueHistory;
@@ -253,13 +254,13 @@ public:
     drawdownStart     = NAN;
     drawdownEnd       = NAN;
     pnl               = 0;
-    marketValue       = 1;
-    marketValueMax    = 1;
+    marketValue       = 0;
+    marketValueMax    = 0;
     isDrawdownMax     = false;
     tick = {};
     timeZone          = "UTC";
 
-    currentDateMarketValue = 1;
+    currentDateMarketValue = 0;
 
   };
 
@@ -273,6 +274,9 @@ public:
 
     for( auto r: trades ) delete r.second;
     trades.clear();
+
+    for( auto r: tradesProcessed ) delete r.second;
+    tradesProcessed.clear();
 
   }
 
@@ -383,26 +387,9 @@ public:
 
         }
 
-        if( nNights > 0 ) {
-
-          trade->cost += nNights * ( trade->side == TradeSide::LONG ? cost.longAbs : cost.shortAbs );
-          trade->cost += nNights * ( trade->side == TradeSide::LONG ? cost.longRel : cost.shortRel ) * this->tick.price * cost.pointValue;
-
-        }
-
         if( order->IsNew()       ) { trade->cost += cost.order;  }
         if( order->IsCancelled() ) { trade->cost += cost.cancel; }
 
-        if( trade->state == TradeState::OPENED ) {
-
-          double mtm    = ( trade->side == TradeSide::LONG ? +1. : -1. ) * ( tick.price - trade->priceEnter );
-          double mtmRel = ( trade->side == TradeSide::LONG ? +1. : -1. ) * ( tick.price / trade->priceEnter - 1 );
-          if( trade->mtmMax < mtm ) trade->mtmMax = mtm;
-          if( trade->mtmMin > mtm ) trade->mtmMin = mtm;
-          if( trade->mtmMaxRel < mtmRel ) trade->mtmMaxRel = mtmRel;
-          if( trade->mtmMinRel > mtmRel ) trade->mtmMinRel = mtmRel;
-
-        }
         trade->costRel = trade->cost / ( trade->priceEnter * cost.pointValue );
 
       }
@@ -420,12 +407,50 @@ public:
 
     }
 
-    marketValue = 1 + pnl + position * ( tick.price / positionValue - 1 );
+    for( auto it = trades.begin(); it != trades.end();  ) {
 
+      if( it->second->state == TradeState::CLOSED ) {
+
+        tradesProcessed[it->first] = it->second;
+        it = trades.erase( it );
+
+      } else ++it;
+
+    }
+
+    for( auto r: trades ) {
+
+      Trade* trade = r.second;
+
+      if( trade->state == TradeState::OPENED ) {
+
+        if( nNights > 0 ) {
+
+          trade->cost += nNights * ( trade->side == TradeSide::LONG ? cost.longAbs : cost.shortAbs );
+          trade->cost += nNights * ( trade->side == TradeSide::LONG ? cost.longRel : cost.shortRel ) * this->tick.price * cost.pointValue;
+
+        }
+
+        double mtm    = ( trade->side == TradeSide::LONG ? +1. : -1. ) * ( tick.price - trade->priceEnter );
+        double mtmRel = mtm / trade->priceEnter;
+
+        if( trade->mtmMax < mtm ) trade->mtmMax = mtm;
+        if( trade->mtmMin > mtm ) trade->mtmMin = mtm;
+        if( trade->mtmMaxRel < mtmRel ) trade->mtmMaxRel = mtmRel;
+        if( trade->mtmMinRel > mtmRel ) trade->mtmMinRel = mtmRel;
+
+      }
+
+    }
+
+    // fixed pnl + current position value
+    marketValue = pnl + position * ( tick.price / positionValue - 1 );
+
+    // new market value high reached
     if( marketValueMax < marketValue ) marketValueMax = marketValue;
 
     double prevDrowdown = drawdown;
-    drawdown = ( 1 - marketValue / marketValueMax );
+    drawdown = marketValueMax - marketValue;
 
     // drawdown started
     if( prevDrowdown == 0 and drawdown > 0 ) {
@@ -531,6 +556,9 @@ public:
     for( auto r: trades ) delete r.second;
     trades.clear();
 
+    for( auto r: tradesProcessed ) delete r.second;
+    tradesProcessed.clear();
+
     cost              = {};
     position          = 0;
     positionValue     = 0;
@@ -547,8 +575,8 @@ public:
     drawdownStart     = NAN;
     drawdownEnd       = NAN;
     pnl               = 0;
-    marketValue       = 1;
-    marketValueMax    = 1;
+    marketValue       = 0;
+    marketValueMax    = 0;
     isDrawdownMax     = false;
     tick = {};
 
@@ -559,7 +587,7 @@ public:
     dailyReturns.clear();
     dailyPnl.clear();
     dailyDrawdown.clear();
-    currentDateMarketValue = 1;
+    currentDateMarketValue = 0;
 
   }
 
@@ -699,7 +727,7 @@ public:
 
   Rcpp::List GetTrades() {
 
-    int n = trades.size();
+    int n = trades.size() + tradesProcessed.size();
 
     Rcpp::IntegerVector  id_trade   ( n );
     Rcpp::IntegerVector  id_sent    ( n );
@@ -730,9 +758,35 @@ public:
     Rcpp::IntegerVector  state      ( n );
 
     const int basisPoints = 10000;
-    const double moneyPrecision = 0.0001;
+    const double moneyPrecision = 0.00001;
+
 
     int i = 0;
+    for( const auto &r : tradesProcessed ) {
+
+      id_trade   [i] = r.first;
+      id_sent    [i] = r.second->idSent;
+      id_enter   [i] = r.second->idEnter;
+      id_exit    [i] = r.second->idExit;
+      time_sent  [i] = r.second->timeSent;
+      time_enter [i] = r.second->timeEnter;
+      time_exit  [i] = r.second->timeExit;
+      side       [i] = (int)r.second->side + 1;
+      price_enter[i] = r.second->priceEnter;
+      price_exit [i] = r.second->priceExit;
+      pnl        [i] = std::round( r.second->pnl / moneyPrecision ) * moneyPrecision;
+      mtm_min    [i] = r.second->mtmMin;
+      mtm_max    [i] = r.second->mtmMax;
+      cost       [i] = std::round( r.second->cost / moneyPrecision ) * moneyPrecision;
+      pnl_rel    [i] = std::round( r.second->pnlRel    * basisPoints / moneyPrecision ) * moneyPrecision;
+      mtm_min_rel[i] = std::round( r.second->mtmMinRel * basisPoints / moneyPrecision ) * moneyPrecision;
+      mtm_max_rel[i] = std::round( r.second->mtmMaxRel * basisPoints / moneyPrecision ) * moneyPrecision;
+      cost_rel   [i] = std::round( r.second->costRel   * basisPoints / moneyPrecision ) * moneyPrecision;
+      state      [i] = (int)r.second->state + 1;
+
+      i++;
+
+    }
     for( const auto &r : trades ) {
 
       id_trade   [i] = r.first;
@@ -749,15 +803,16 @@ public:
       mtm_min    [i] = r.second->mtmMin;
       mtm_max    [i] = r.second->mtmMax;
       cost       [i] = std::round( r.second->cost / moneyPrecision ) * moneyPrecision;
-      pnl_rel    [i] = std::rint( r.second->pnlRel * basisPoints );
-      mtm_min_rel[i] = std::rint( r.second->mtmMinRel * basisPoints );
-      mtm_max_rel[i] = std::rint( r.second->mtmMaxRel * basisPoints );
-      cost_rel   [i] = std::rint( r.second->costRel * basisPoints );
+      pnl_rel    [i] = std::round( r.second->pnlRel    * basisPoints / moneyPrecision ) * moneyPrecision;
+      mtm_min_rel[i] = std::round( r.second->mtmMinRel * basisPoints / moneyPrecision ) * moneyPrecision;
+      mtm_max_rel[i] = std::round( r.second->mtmMaxRel * basisPoints / moneyPrecision ) * moneyPrecision;
+      cost_rel   [i] = std::round( r.second->costRel   * basisPoints / moneyPrecision ) * moneyPrecision;
       state      [i] = (int)r.second->state + 1;
 
       i++;
 
     }
+
     side.attr( "levels" ) = Rcpp::wrap( TradeSideString );
     side.attr( "class" ) = "factor";
 
@@ -811,7 +866,7 @@ public:
     const int percent = 100;
     const double roundPrecision = 0.01;
 
-    for( auto&& r : trades ) {
+    for( auto&& r : tradesProcessed ) {
 
       if( r.second->state != TradeState::CLOSED ) continue;
       nTrades++;
@@ -834,6 +889,7 @@ public:
       uniqueDates[ std::trunc( r.second->timeExit  / nSecondsInDay ) ] = 0;
 
     }
+
     int nDaysTraded = uniqueDates.size();
     double nTradesPerDay = nDaysTested == 0 ? 0 : std::round( nTrades * 1. / nDaysTested / roundPrecision ) * roundPrecision;
 
