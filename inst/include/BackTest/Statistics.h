@@ -99,8 +99,7 @@ private:
   double sumRR;
   double tdv;
 
-  const int nSecondsInDay = 60 * 60 * 24;
-  const int nDaysInTradingYear = 252;
+  const int nTradingDaysInYear = 252;
   std::string timeZone = "UTC";
 
 public:
@@ -280,12 +279,12 @@ public:
     double avgR = sumR / nDaysTested;
     double varR = /*nDaysTested < 2 ? NAN : */( nDaysTested * sumRR - sumR * sumR ) / nDaysTested / ( nDaysTested - 1 );
 
-    sharpe = /*varR == 0 ? NAN : */avgR / sqrt( varR ) * sqrt( nDaysInTradingYear );
+    sharpe = /*varR == 0 ? NAN : */avgR / sqrt( varR ) * sqrt( nTradingDaysInYear );
 
     double downside = marketValueChange > 0 ? 0 : marketValueChange;
     tdv = ( tdv * ( nDaysTested - 1 ) + downside * downside ) / nDaysTested;
 
-    sortino = /*tdv == 0 ? NAN : */avgR / sqrt( tdv ) * sqrt( nDaysInTradingYear );
+    sortino = /*tdv == 0 ? NAN : */avgR / sqrt( tdv ) * sqrt( nTradingDaysInYear );
 
     avgDrawDown = ( avgDrawDown * ( nDaysTested - 1 ) + drawDown ) / nDaysTested;
 

@@ -18,12 +18,14 @@
 #ifndef NPERIODS_H
 #define NPERIODS_H
 
+constexpr const int nSecondsInDay = 60 * 60 * 24;
+constexpr const int nSecondsInHour = 60 * 60;
+constexpr const int nHoursInDay = 24;
+
 
 inline int NNights( double time1, double time2 ) {
 
-  const int nSecondsInDay = 60 * 60 * 24;
-
-  return std::abs( std::trunc( time1 / nSecondsInDay ) - std::trunc( time2 / nSecondsInDay ) );
+  return std::abs( (int)time1 / nSecondsInDay - (int)time2 / nSecondsInDay );
 
 }
 
@@ -31,18 +33,17 @@ inline int NDays( double time1, double time2 ) { return NNights( time1, time2 );
 
 inline double NHours( double time ) {
 
-  const int nSecondsInHour = 60 * 60;
+  double x =  time / nSecondsInHour;
 
-  return std::fmod( time / nSecondsInHour, 24 );
+  return x - (int)x / nHoursInDay * nHoursInDay;
 
+  //return std::fmod( time / nSecondsInHour, nHoursInDay );
 
 }
 
 inline double NHours( double time1, double time2 ) {
 
-  const int nSecondsInHour = 60 * 60;
-
-  return std::abs( time2 - time1 ) / nSecondsInHour;
+  return std::abs( time1 - time2 ) / nSecondsInHour;
 
 }
 
