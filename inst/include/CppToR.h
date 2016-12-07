@@ -18,7 +18,7 @@
 #ifndef CPPTOR_H
 #define CPPTOR_H
 
-Rcpp::NumericVector DoubleToDateTime( std::vector<double> times, std::string timeZone = "UTC" ) {
+inline Rcpp::NumericVector DoubleToDateTime( std::vector<double> times, std::string timeZone = "UTC" ) {
 
   Rcpp::NumericVector dateTimeVector = Rcpp::wrap( times );
   dateTimeVector.attr( "class" ) = Rcpp::CharacterVector::create( "POSIXct", "POSIXt" );
@@ -28,7 +28,7 @@ Rcpp::NumericVector DoubleToDateTime( std::vector<double> times, std::string tim
 
 }
 
-Rcpp::NumericVector DoubleToDateTime( double time, std::string timeZone = "UTC" ) {
+inline Rcpp::NumericVector DoubleToDateTime( double time, std::string timeZone = "UTC" ) {
 
   Rcpp::NumericVector dateTimeVector( 1, time );
   dateTimeVector.attr( "class" ) = Rcpp::CharacterVector::create( "POSIXct", "POSIXt" );
@@ -38,7 +38,7 @@ Rcpp::NumericVector DoubleToDateTime( double time, std::string timeZone = "UTC" 
 
 }
 
-Rcpp::NumericVector IntToDate( std::vector<int> dates ) {
+inline Rcpp::NumericVector IntToDate( std::vector<int> dates ) {
 
   Rcpp::NumericVector dateVector = Rcpp::wrap( dates );
   dateVector.attr( "class" ) = Rcpp::CharacterVector::create( "Date" );
@@ -47,7 +47,7 @@ Rcpp::NumericVector IntToDate( std::vector<int> dates ) {
 
 }
 
-Rcpp::IntegerVector IntToFactor( std::vector<int> x, std::vector<std::string> levels ) {
+inline Rcpp::IntegerVector IntToFactor( std::vector<int> x, std::vector<std::string> levels ) {
 
   Rcpp::IntegerVector factor = Rcpp::wrap( x );
   factor.attr( "levels" ) = Rcpp::wrap( levels );

@@ -19,7 +19,7 @@
 #define NPERIODS_H
 
 
-int NNights( double time1, double time2 ) {
+inline int NNights( double time1, double time2 ) {
 
   const int nSecondsInDay = 60 * 60 * 24;
 
@@ -27,11 +27,9 @@ int NNights( double time1, double time2 ) {
 
 }
 
-int NDays( double time1, double time2 ) { return NNights( time1, time2 ); }
+inline int NDays( double time1, double time2 ) { return NNights( time1, time2 ); }
 
-//std::fmod( 1479292398. / 3600, 24 );
-
-double NHours( double time ) {
+inline double NHours( double time ) {
 
   const int nSecondsInHour = 60 * 60;
 
@@ -40,7 +38,7 @@ double NHours( double time ) {
 
 }
 
-double NHours( double time1, double time2 ) {
+inline double NHours( double time1, double time2 ) {
 
   const int nSecondsInHour = 60 * 60;
 

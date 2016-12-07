@@ -18,13 +18,6 @@
 #ifndef BACKTEST_H
 #define BACKTEST_H
 
-//' Last Observation Carried Forward.
-//' @title Last Observation Carried Forward.
-//' @param x numeric vector to roll through.
-//'
-//' @name back_test_doc
-//' @export
-
 #include "BackTest/Processor.h"
 #include "Indicators.h"
 

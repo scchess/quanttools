@@ -332,6 +332,7 @@ public:
   }
 
   std::vector<double> GetMarketValueHistory() {  return statistics.onCandleHistoryMarketValue;  }
+
   std::vector<double> GetDrawdownHistory() {  return statistics.onCandleHistoryDrawDown;  }
 
   Rcpp::List GetDailyPerformanceHistory() {
@@ -351,13 +352,13 @@ public:
 
     int n = candles.size();
 
-    Rcpp::IntegerVector  id    ( n );
-    Rcpp::NumericVector  open  ( n );
-    Rcpp::NumericVector  high  ( n );
-    Rcpp::NumericVector  low   ( n );
-    Rcpp::NumericVector  close ( n );
-    Rcpp::NumericVector  time = DoubleToDateTime( std::vector<double>( n ), timeZone );
-    Rcpp::IntegerVector  volume( n );
+    Rcpp::IntegerVector id    ( n );
+    Rcpp::NumericVector open  ( n );
+    Rcpp::NumericVector high  ( n );
+    Rcpp::NumericVector low   ( n );
+    Rcpp::NumericVector close ( n );
+    Rcpp::NumericVector time  = DoubleToDateTime( std::vector<double>( n ), timeZone );
+    Rcpp::IntegerVector volume( n );
 
     int i = 0;
     auto convertCandle = [&]( std::vector<Candle>::iterator it ) {
@@ -407,26 +408,26 @@ public:
     Rcpp::CharacterVector comment       ( n );
 
     int i = 0;
-    auto convertOrder = [&]( std::vector<Order*>::iterator it ) {
+    auto convertOrder = [&]( Order* order ) {
 
-      id_trade      [i] = ( *it )->idTrade;
-      id_sent       [i] = ( *it )->idSent + 1;
-      id_processed  [i] = ( *it )->idProcessed + 1;
-      time_sent     [i] = ( *it )->timeSent;
-      time_processed[i] = ( *it )->timeProcessed;
-      price_init    [i] = ( *it )->price;
-      price_exec    [i] = ( *it )->priceExecuted;
-      side          [i] = (int)( *it )->side + 1;
-      type          [i] = (int)( *it )->type + 1;
-      state         [i] = (int)( *it )->state + 1;
-      comment       [i] = ( *it )->comment;
+      id_trade      [i] = order->idTrade;
+      id_sent       [i] = order->idSent + 1;
+      id_processed  [i] = order->idProcessed + 1;
+      time_sent     [i] = order->timeSent;
+      time_processed[i] = order->timeProcessed;
+      price_init    [i] = order->price;
+      price_exec    [i] = order->priceExecuted;
+      side          [i] = (int)order->side + 1;
+      type          [i] = (int)order->type + 1;
+      state         [i] = (int)order->state + 1;
+      comment       [i] = order->comment;
 
       i++;
 
     };
 
-    for( auto it = ordersProcessed.begin(); it != ordersProcessed.end(); it++ ) convertOrder( it );
-    for( auto it = orders         .begin(); it != orders         .end(); it++ ) convertOrder( it );
+    for( auto it = ordersProcessed.begin(); it != ordersProcessed.end(); it++ ) convertOrder( *it );
+    for( auto it = orders         .begin(); it != orders         .end(); it++ ) convertOrder( *it );
 
     Rcpp::DataFrame orders = ListBuilder()
 
@@ -450,57 +451,57 @@ public:
 
     int n = trades.size() + tradesProcessed.size();
 
-    Rcpp::IntegerVector  id_trade   ( n );
-    Rcpp::IntegerVector  id_sent    ( n );
-    Rcpp::IntegerVector  id_enter   ( n );
-    Rcpp::IntegerVector  id_exit    ( n );
-    Rcpp::IntegerVector  side       = IntToFactor( std::vector<int>( n ), TradeSideString );
-    Rcpp::NumericVector  price_enter( n );
-    Rcpp::NumericVector  price_exit ( n );
-    Rcpp::NumericVector  time_sent  = DoubleToDateTime( std::vector<double>( n ), timeZone );
-    Rcpp::NumericVector  time_enter = DoubleToDateTime( std::vector<double>( n ), timeZone );
-    Rcpp::NumericVector  time_exit  = DoubleToDateTime( std::vector<double>( n ), timeZone );
-    Rcpp::NumericVector  pnl        ( n );
-    Rcpp::NumericVector  mtm_min    ( n );
-    Rcpp::NumericVector  mtm_max    ( n );
-    Rcpp::NumericVector  cost       ( n );
-    Rcpp::NumericVector  pnl_rel    ( n );
-    Rcpp::NumericVector  mtm_min_rel( n );
-    Rcpp::NumericVector  mtm_max_rel( n );
-    Rcpp::NumericVector  cost_rel   ( n );
-    Rcpp::IntegerVector  state      = IntToFactor( std::vector<int>( n ), TradeStateString );
+    Rcpp::IntegerVector id_trade   ( n );
+    Rcpp::IntegerVector id_sent    ( n );
+    Rcpp::IntegerVector id_enter   ( n );
+    Rcpp::IntegerVector id_exit    ( n );
+    Rcpp::IntegerVector side       = IntToFactor( std::vector<int>( n ), TradeSideString );
+    Rcpp::NumericVector price_enter( n );
+    Rcpp::NumericVector price_exit ( n );
+    Rcpp::NumericVector time_sent  = DoubleToDateTime( std::vector<double>( n ), timeZone );
+    Rcpp::NumericVector time_enter = DoubleToDateTime( std::vector<double>( n ), timeZone );
+    Rcpp::NumericVector time_exit  = DoubleToDateTime( std::vector<double>( n ), timeZone );
+    Rcpp::NumericVector pnl        ( n );
+    Rcpp::NumericVector mtm_min    ( n );
+    Rcpp::NumericVector mtm_max    ( n );
+    Rcpp::NumericVector cost       ( n );
+    Rcpp::NumericVector pnl_rel    ( n );
+    Rcpp::NumericVector mtm_min_rel( n );
+    Rcpp::NumericVector mtm_max_rel( n );
+    Rcpp::NumericVector cost_rel   ( n );
+    Rcpp::IntegerVector state      = IntToFactor( std::vector<int>( n ), TradeStateString );
 
     const int basisPoints = 10000;
 
     int i = 0;
-    auto convertTrade = [&]( std::map<int,Trade*>::iterator it ) {
+    auto convertTrade = [&]( Trade* trade ) {
 
-      id_trade   [i] = it->first;
-      id_sent    [i] = it->second->idSent  + 1;
-      id_enter   [i] = it->second->idEnter + 1;
-      id_exit    [i] = it->second->idExit  + 1;
-      time_sent  [i] = it->second->timeSent;
-      time_enter [i] = it->second->timeEnter;
-      time_exit  [i] = it->second->timeExit;
-      side       [i] = (int)it->second->side + 1;
-      price_enter[i] = it->second->priceEnter;
-      price_exit [i] = it->second->priceExit;
-      pnl        [i] = it->second->pnl;
-      mtm_min    [i] = it->second->mtmMin;
-      mtm_max    [i] = it->second->mtmMax;
-      cost       [i] = it->second->cost;
-      pnl_rel    [i] = it->second->pnlRel    * basisPoints;
-      mtm_min_rel[i] = it->second->mtmMinRel * basisPoints;
-      mtm_max_rel[i] = it->second->mtmMaxRel * basisPoints;
-      cost_rel   [i] = it->second->costRel   * basisPoints;
-      state      [i] = (int)it->second->state + 1;
+      id_trade   [i] = trade->idTrade;
+      id_sent    [i] = trade->idSent  + 1;
+      id_enter   [i] = trade->idEnter + 1;
+      id_exit    [i] = trade->idExit  + 1;
+      time_sent  [i] = trade->timeSent;
+      time_enter [i] = trade->timeEnter;
+      time_exit  [i] = trade->timeExit;
+      side       [i] = (int)trade->side + 1;
+      price_enter[i] = trade->priceEnter;
+      price_exit [i] = trade->priceExit;
+      pnl        [i] = trade->pnl;
+      mtm_min    [i] = trade->mtmMin;
+      mtm_max    [i] = trade->mtmMax;
+      cost       [i] = trade->cost;
+      pnl_rel    [i] = trade->pnlRel    * basisPoints;
+      mtm_min_rel[i] = trade->mtmMinRel * basisPoints;
+      mtm_max_rel[i] = trade->mtmMaxRel * basisPoints;
+      cost_rel   [i] = trade->costRel   * basisPoints;
+      state      [i] = (int)trade->state + 1;
 
       i++;
 
     };
 
-    for( auto it = tradesProcessed.begin(); it != tradesProcessed.end(); it++ ) convertTrade( it );
-    for( auto it = trades         .begin(); it != trades         .end(); it++ ) convertTrade( it );
+    for( auto it = tradesProcessed.begin(); it != tradesProcessed.end(); it++ ) convertTrade( it->second );
+    for( auto it = trades         .begin(); it != trades         .end(); it++ ) convertTrade( it->second );
 
     Rcpp::DataFrame trades = ListBuilder()
 

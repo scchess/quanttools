@@ -27,7 +27,7 @@ c++ class documentation
 \cr \code{CancelOrders()}                   \tab \code{void}                \tab cancel active orders
 \cr \code{GetPosition()}                    \tab \code{int}                 \tab total executed position, positive means long, negative means short
 \cr \code{GetPositionPlanned()}             \tab \code{int}                 \tab total number of orders processing ( not executed or cancelled yet )
-\cr \code{GetMarketValue()}                 \tab \code{double}              \tab total portfolio percent value ( initial value is 100 )
+\cr \code{GetMarketValue()}                 \tab \code{double}              \tab total portfolio percent value ( initial value is 0 )
 \cr \code{GetCandles()}                     \tab \code{Rcpp::List}          \tab candles history, see 'Candles' section
 \cr \code{GetOrders()}                      \tab \code{Rcpp::List}          \tab orders history, see 'Orders' section
 \cr \code{GetTrades()}                      \tab \code{Rcpp::List}          \tab trades history, see 'Trades' section
