@@ -45,6 +45,7 @@ gen_futures_codes = function( contract, from, to, frequency, day_exp, year_last_
   schedule = data.table( code = contracts, from = froms, to = tos )[ to >= from_ & from <= to_ ]
   schedule[ 1, from := from_ ]
   schedule[ .N, to := to_ ]
+  contract_id = NULL
   schedule[ , contract_id := 1:.N ]
 
   return( schedule[] )

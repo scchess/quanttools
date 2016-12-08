@@ -76,10 +76,10 @@ private:
 
   bool   isDrawDownMax;
 
-  std::vector<double> dailyHistoryMarketValue;
-  std::vector<double> dailyHistoryMarketValueChange;
-  std::vector<double> dailyHistoryDrawDown;
-  std::vector<int>    dailyHistoryDates;
+  std::vector<double> onDayCloseHistoryMarketValue;
+  std::vector<double> onDayCloseHistoryMarketValueChange;
+  std::vector<double> onDayCloseHistoryDrawDown;
+  std::vector<int>    onDayCloseHistoryDates;
 
   std::vector<double> onCandleHistoryMarketValue;
   std::vector<double> onCandleHistoryDrawDown;
@@ -147,10 +147,10 @@ public:
 
     isDrawDownMax     = false;
 
-    dailyHistoryMarketValue      .clear();
-    dailyHistoryMarketValueChange.clear();
-    dailyHistoryDrawDown         .clear();
-    dailyHistoryDates            .clear();
+    onDayCloseHistoryMarketValue      .clear();
+    onDayCloseHistoryMarketValueChange.clear();
+    onDayCloseHistoryDrawDown         .clear();
+    onDayCloseHistoryDates            .clear();
 
     onCandleHistoryMarketValue   .clear();
     onCandleHistoryDrawDown      .clear();
@@ -250,15 +250,15 @@ public:
 
   }
 
-  void onDayStart() {
+  void onDayStart() { // previous day close
 
-    dailyHistoryDates.push_back( prevTickTime / nSecondsInDay );
+    onDayCloseHistoryDates.push_back( prevTickTime / nSecondsInDay );
 
-    double marketValueChange = nDaysTested == 0 ? 0 : marketValue - dailyHistoryMarketValue.back();
+    double marketValueChange = nDaysTested == 0 ? 0 : marketValue - onDayCloseHistoryMarketValue.back();
 
-    dailyHistoryMarketValueChange.push_back( marketValueChange );
-    dailyHistoryMarketValue      .push_back( marketValue );
-    dailyHistoryDrawDown         .push_back( drawDown );
+    onDayCloseHistoryMarketValueChange.push_back( marketValueChange );
+    onDayCloseHistoryMarketValue      .push_back( marketValue );
+    onDayCloseHistoryDrawDown         .push_back( drawDown );
 
     nDaysTested++;
 

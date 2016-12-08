@@ -39,9 +39,9 @@
 #' \cr \code{GetOrders()}                      \tab \code{Rcpp::List}          \tab orders history, see 'Orders' section
 #' \cr \code{GetTrades()}                      \tab \code{Rcpp::List}          \tab trades history, see 'Trades' section
 #' \cr \code{GetSummary()}                     \tab \code{Rcpp::List}          \tab trades summary, see 'Summary' section
-#' \cr \code{GetMarketValueHistory()}          \tab \code{std::vector<double>} \tab vector of portfolio value history recalculated on candle update
-#' \cr \code{GetDrawdownHistory()}             \tab \code{std::vector<double>} \tab vector of portfolio drawdown history recalculated on candle update
-#' \cr \code{GetDailyPerformanceHistory()}     \tab \code{Rcpp::List}          \tab data.table of daily performance history with columns \code{date, return, pnl, drawdown}
+#' \cr \code{GetOnCandleMarketValueHistory()}  \tab \code{std::vector<double>} \tab vector of portfolio value history recalculated on candle complete
+#' \cr \code{GetOnCandleDrawDownHistory()}     \tab \code{std::vector<double>} \tab vector of portfolio drawdown history recalculated on candle complete
+#' \cr \code{GetOnDayClosePerformanceHistory()}\tab \code{Rcpp::List}          \tab data.table of daily performance history with columns \code{date, return, pnl, drawdown}
 #' \cr \code{Reset()}                          \tab \code{void}                \tab resets to initial state
 #' \cr \code{SetCost( \link{Cost} cost )}      \tab \code{void}                \tab sets trading commissions cost
 #' }

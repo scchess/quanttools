@@ -8,4 +8,4 @@
 
 [Website](https://quanttools.bitbucket.io)
 
-[ChangeLog](https://bitbucket.org/quanttools/quanttools/src/5c9d1e3eaf6a3da3e4ce51596609a72db78d5545/CHANGELOG.md)
+[ChangeLog](https://bitbucket.org/quanttools/quanttools/src/5c9d1e3eaf6a3da3e4ce51596609a72db78d5545/NEWS.md)

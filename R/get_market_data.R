@@ -363,7 +363,8 @@ get_iqfeed_data = function( symbol, from, to = from, period = 'day', local = FAL
               'day'   = { n =  1; units = 'days' }
       )
 
-      data = data[ , .( open = open[1], high = max( high ), low = min( low ), close = close[.N], volume = sum( volume ) ), by = .( time = ceiling_POSIXct( time, n, units ) ) ]
+      open = high = low = close = volume = NULL
+      data = data[ , list( open = open[1], high = max( high ), low = min( low ), close = close[.N], volume = sum( volume ) ), by = list( time = ceiling_POSIXct( time, n, units ) ) ]
       if( period == 'day' ) {
 
         data[, time := as.Date( time ) - 1 ]
@@ -414,6 +415,7 @@ get_moex_continuous_futures_data = function( contract, from, to, frequency, day_
 
   trades = schedule[, get_moex_futures_data( code, from, to ), by = contract_id ][]
   setcolorder( trades, c( 'time', 'price', 'volume', 'id', 'contract_id' )  )
+  code = contract_id = NULL
   trades[, code := schedule$code[ contract_id ] ][]
   gc()
   return( trades )
@@ -438,8 +440,10 @@ get_moex_continuous_futures_data = function( contract, from, to, frequency, day_
 
     code_ = code
 
+    dat_time = price = amount = NULL
+
     Nosystem = 0
-    data[[ i ]] = readRDS( file )[ code == code_ & Nosystem != 1, .( time = dat_time, price, volume = as.integer( amount ), id = 1:.N ) ]
+    data[[ i ]] = readRDS( file )[ code == code_ & Nosystem != 1, list( time = dat_time, price, volume = as.integer( amount ), id = 1:.N ) ]
 
     i = i + 1
 

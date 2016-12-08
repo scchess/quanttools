@@ -331,18 +331,18 @@ public:
     prevTickTime = 0;
   }
 
-  std::vector<double> GetMarketValueHistory() {  return statistics.onCandleHistoryMarketValue;  }
+  std::vector<double> GetOnCandleMarketValueHistory() {  return statistics.onCandleHistoryMarketValue;  }
 
-  std::vector<double> GetDrawdownHistory() {  return statistics.onCandleHistoryDrawDown;  }
+  std::vector<double> GetOnCandleDrawDownHistory() {  return statistics.onCandleHistoryDrawDown;  }
 
-  Rcpp::List GetDailyPerformanceHistory() {
+  Rcpp::List GetOnDayClosePerformanceHistory() {
 
     Rcpp::DataFrame performance = ListBuilder()
 
-    .Add( "date"       , IntToDate( statistics.dailyHistoryDates ) )
-    .Add( "return"     , statistics.dailyHistoryMarketValueChange  )
-    .Add( "pnl"        , statistics.dailyHistoryMarketValue        )
-    .Add( "drawdown"   , statistics.dailyHistoryDrawDown           );
+    .Add( "date"       , IntToDate( statistics.onDayCloseHistoryDates ) )
+    .Add( "return"     , statistics.onDayCloseHistoryMarketValueChange  )
+    .Add( "pnl"        , statistics.onDayCloseHistoryMarketValue        )
+    .Add( "drawdown"   , statistics.onDayCloseHistoryDrawDown           );
 
     return performance;
 

@@ -225,6 +225,7 @@ store_iqfeed_data = function( from = NULL, to = format( Sys.Date() ), verbose = 
 
       dir.create( paste0( save_dir, '/' , symbol ), recursive = TRUE, showWarnings = FALSE )
 
+      time = NULL
       ticks[, date := format( time, '%Y-%m-%d' ) ]
       ticks[ , {
 
@@ -276,6 +277,7 @@ store_iqfeed_data = function( from = NULL, to = format( Sys.Date() ), verbose = 
 
       dir.create( paste0( save_dir, '/' , symbol ), recursive = TRUE, showWarnings = FALSE )
 
+      time = NULL
       mins[, month := format( time, '%Y-%m' ) ]
       mins[ , {
 
@@ -330,6 +332,7 @@ store_iqfeed_data = function( from = NULL, to = format( Sys.Date() ), verbose = 
 
     time_range = as.POSIXct( format( as.Date( c( from, to ) ) + c( 0, 1 ) ), 'UTC' )
 
+    time = NULL
     data = data[ time > time_range[1] & time <= time_range[2] ]
 
     return( data )
@@ -409,6 +412,7 @@ store_moex_data = function( from = NULL, to = format( Sys.Date() ), verbose = TR
 
     format_trades = function( trades ) {
 
+      code = contract = dat_time = NULL
       trades[, code := as.factor( code ) ]
       trades[, contract := as.factor( contract ) ]
       trades[, dat_time := fasttime::fastPOSIXct( dat_time, 'UTC' ) ]
