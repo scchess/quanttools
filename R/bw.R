@@ -101,12 +101,13 @@ bw = function( x, interval ) {
         x = unlist( strsplit( text_time, ':' ) )
         x = as.numeric( x )
 
-        sum( x / 60^( seq_along( x ) - 1 ) )
+        h = sum( x / 60^( seq_along( x ) - 1 ) )
+        round( h, 6 )
 
       }
       interval = c( to_hours( interval[1] ), to_hours( interval[2] ) )
 
-      return( ( as.numeric( to_UTC( x ) ) / ( 3600 ) ) %% 24 %bw% interval )
+      return( round( ( as.numeric( to_UTC( x ) ) / ( 3600 ) ) %% 24, 6 ) %bw% interval )
 
 
     }
