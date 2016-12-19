@@ -31,8 +31,18 @@
 #' \cr \code{Feed( \link{Tick} tick )}         \tab \code{void}                \tab process by individual tick
 #' \cr \code{Feed( Rcpp::DataFrame ticks )}    \tab \code{void}                \tab batch process, see 'Ticks' section
 #' \cr \code{SendOrder( \link{Order}* order )} \tab \code{void}                \tab send order to exchange
+#'
 #' \cr \code{SetCost( \link{Cost} cost )}      \tab \code{void}                \tab set trading costs
 #' \cr \code{SetCost( Rcpp::List cost )}       \tab \code{void}                \tab same as above but with R list with columns as in \link{Cost}
+#' \cr \code{SetStop( Rcpp::List stop )}       \tab \code{void}                \tab set stop parameters, see 'Stop' section
+#' \cr \code{SetStartTradingTime( double t )}  \tab \code{void}                \tab all orders ignored until time \code{t}
+#' \cr \code{SetLatencyReceive( double x )}    \tab \code{void}                \tab set latency receive, see 'Execution model' section
+#' \cr \code{SetLatencySend( double x )}       \tab \code{void}                \tab set latency send, see 'Execution model' section
+#' \cr \code{SetLatency( double x )}           \tab \code{void}                \tab set latency. Sets send and receive latency as \code{x / 2}
+#' \cr \code{SetOptions( Rcpp::List options )} \tab \code{void}                \tab all above setters can be set using single R list with corresponding items \code{cost, stop, trade_start, latency_receive, latency_send, latency}.
+#'
+#' \cr \code{StopTrading()}                    \tab \code{void}                \tab same as above but with R list with columns as in \link{Cost}
+#' \cr \code{CanTrade()}                       \tab \code{bool}                \tab check if trading not stopped
 #' \cr \code{CancelOrders()}                   \tab \code{void}                \tab cancel active orders
 #' \cr \code{GetPosition()}                    \tab \code{int}                 \tab total executed position, positive means long, negative means short
 #' \cr \code{GetPositionPlanned()}             \tab \code{int}                 \tab total number of orders processing ( not executed or cancelled yet )
@@ -45,7 +55,6 @@
 #' \cr \code{GetOnCandleDrawDownHistory()}     \tab \code{std::vector<double>} \tab vector of portfolio drawdown history recalculated on candle complete
 #' \cr \code{GetOnDayClosePerformanceHistory()}\tab \code{Rcpp::List}          \tab data.table of daily performance history with columns \code{date, return, pnl, drawdown}
 #' \cr \code{Reset()}                          \tab \code{void}                \tab resets to initial state
-#' \cr \code{SetCost( \link{Cost} cost )}      \tab \code{void}                \tab sets trading commissions cost
 #' }
 #' @section Execution model:
 #' System sends new order and after \code{latencySend} seconds it reaches exchange.
@@ -150,6 +159,12 @@
 #' \cr r_squared     \tab R Squared calulated on daily PnL values
 #' \cr avg_dd        \tab average drawdown calulated on daily drawdown history
 #' }
+#' @section Stop:
+#' Stop rules can be added using \code{SetStop(Rcpp::List stop)} method.
+#' Method expects data.table with at least one column \code{drawdown} or \code{loss}.
+#' If stop rule triggered no orders sent to exchange and opened trades closed by market orders.
+#' E.g. if \code{drawdown} set to \code{-0.02} then when drawdown exceeds 2\% trading stops.
+#' if \code{loss} set to \code{-0.05} then when market value (pnl) is lower than -5\% trading stops.
 #' @name Processor
 #' @rdname cpp_Processor
 NULL

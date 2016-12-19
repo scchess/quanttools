@@ -99,7 +99,9 @@ private:
   double sumRR;
   double tdv;
 
-  const int nTradingDaysInYear = 252;
+public:
+
+  int nTradingDaysInYear = 252;
   std::string timeZone = "UTC";
 
 public:
@@ -164,6 +166,19 @@ public:
     sumR  = 0;
     sumRR = 0;
     tdv   = 0;
+
+  }
+
+  void Update( double timeTrade ) {
+
+    int date = timeTrade / nSecondsInDay;
+
+    if( date != this->date ) {
+
+      this->date = date;
+      nDaysTraded++;
+
+    }
 
   }
 

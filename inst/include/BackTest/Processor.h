@@ -42,7 +42,7 @@ private:
   std::vector< std::string > TradeSideString  = { "long", "short" };
   std::vector< std::string > OrderTypeString  = { "market", "limit" };
   std::vector< std::string > OrderStateString = { "new", "registered", "executed", "cancelling", "cancelled" };
-  std::vector< std::string > TradeStateString = { "new", "opened", "closed" };
+  std::vector< std::string > TradeStateString = { "new", "opened", "closed", "closing" };
 
   std::vector<Order*> orders;
   std::vector<Order*> ordersProcessed;
@@ -61,6 +61,11 @@ private:
   Cost   cost;
 
   std::string timeZone;
+
+  double startTradingTime    = 0;
+  double stopTradingDrawdown = NAN;
+  double stopTradingLoss     = NAN;
+  bool   isTradingStopped = false;
 
   void FormCandle( const Tick& tick ) {
 
@@ -131,10 +136,72 @@ public:
     if( hasShortRel   ) this->cost.shortRel   = cost["shortRel"  ];
 
   }
+  void SetStop( Rcpp::List stop ) {
+
+    Rcpp::StringVector names = stop.attr( "names" );
+
+    bool hasDrawDown = std::find( names.begin(), names.end(), "drawdown" ) != names.end();
+    bool hasLoss	   = std::find( names.begin(), names.end(), "loss"     ) != names.end();
+
+    if( hasDrawDown ) stopTradingDrawdown = stop["drawdown" ];
+    if( hasLoss     ) stopTradingLoss     = stop["loss"     ];
+
+
+  }
+  void SetLatencyReceive( double latencyReceive ) {
+
+    this->latencyReceive = latencyReceive;
+
+  }
+  void SetLatencySend( double latencySend ) {
+
+    this->latencySend = latencySend;
+
+  }
+  void SetLatency( double latency ) {
+
+    latencySend    = latency / 2;
+    latencyReceive = latency / 2;
+
+  }
+  void SetStartTradingTime( double startTradingTime ) {
+
+    this->startTradingTime = startTradingTime;
+
+  }
+
+  void SetOptions( Rcpp::List options ) {
+
+    Rcpp::StringVector names = options.attr( "names" );
+
+    bool hasCost           = std::find( names.begin(), names.end(), "cost"            ) != names.end();
+    bool hasStop           = std::find( names.begin(), names.end(), "stop"            ) != names.end();
+    bool hasTradeStart     = std::find( names.begin(), names.end(), "trade_start"     ) != names.end();
+    bool hasLatency        = std::find( names.begin(), names.end(), "latency"         ) != names.end();
+    bool hasLatencyReceive = std::find( names.begin(), names.end(), "latency_receive" ) != names.end();
+    bool hasLatencySend    = std::find( names.begin(), names.end(), "latency_send"    ) != names.end();
+
+    if( hasCost ) {
+
+      Rcpp::List cost = options["cost"];
+      SetCost( cost );
+
+    }
+    if( hasStop           ) SetStop            ( options["stop"           ] );
+    if( hasTradeStart     ) SetStartTradingTime( options["trade_start"    ] );
+    if( hasLatency        ) SetLatency         ( options["latency"        ] );
+    if( hasLatencyReceive ) SetLatencyReceive  ( options["latency_receive"] );
+    if( hasLatencySend    ) SetLatencySend     ( options["latency_send"   ] );
+
+  }
+
 
   void Feed( const Tick& tick ) {
 
     if( tick.time < prevTickTime ) { throw std::invalid_argument( "ticks must be time ordered tick.id = " + std::to_string( tick.id + 1 ) ); }
+
+    if( statistics.drawDown < stopTradingDrawdown ) StopTrading();
+    if( statistics.marketValue < stopTradingLoss )  StopTrading();
 
     FormCandle( tick );
 
@@ -166,7 +233,7 @@ public:
         Trade* trade = trades[ order->idTrade ];
         if( order->IsExecuted() ) {
 
-          if( trade->IsOpened() ) {
+          if( trade->IsOpened() or trade->IsClosing() ) {
 
             trade->idExit    = order->idProcessed;
             trade->timeExit  = order->timeProcessed;
@@ -239,6 +306,17 @@ public:
 
         }
 
+        if( isTradingStopped and not trade->IsClosing() ) {
+
+          Order* order = new Order( trade->IsLong() ? OrderSide::SELL : OrderSide::BUY, OrderType::MARKET, NA_REAL, "stop", trade->idTrade );
+
+          orders.push_back( order );
+          statistics.Update( order );
+
+          trade->state = TradeState::CLOSING;
+
+        }
+
       }
 
       if( trade->IsClosed() ) {
@@ -257,6 +335,12 @@ public:
   }
 
   Statistics GetStatistics() { return statistics; }
+
+  void StopTrading() {
+
+    isTradingStopped = true;
+
+  }
 
   void Feed( Rcpp::NumericVector times, Rcpp::NumericVector prices, Rcpp::IntegerVector volumes ) {
 
@@ -327,12 +411,21 @@ public:
 
   void SendOrder( Order* order ) {
 
+    if( not CanTrade() ) {
+
+      delete order;
+      return;
+
+    }
+
     orders.push_back( order );
     statistics.Update( order );
 
   }
 
   void CancelOrders() { for( auto order: orders ) order->Cancel( ); }
+
+  bool CanTrade() { return not( prevTickTime < startTradingTime or isTradingStopped ); }
 
   int GetPosition() { return statistics.position; }
 
@@ -356,6 +449,7 @@ public:
 
     statistics.Reset();
     prevTickTime = 0;
+    isTradingStopped = false;
   }
 
   std::vector<double> GetOnCandleMarketValueHistory() {  return statistics.onCandleHistoryMarketValue;  }
