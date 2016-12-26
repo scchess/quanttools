@@ -453,6 +453,25 @@ NULL
   markets[]
 }
 
+.get_iqfeed_security_types_info = function( ){
+  security_types = .get_iqfeed( cmd = 'SST\r\n' )[,1:3, with = FALSE]
+  setnames( security_types, c( 'type_id', 'short_name', 'long_name' ) )
+  security_types[]
+}
+
+.get_iqfeed_symbol_info = function( symbol, type_ids ){
+
+  cmd = paste0( 'SBF,s,', symbol, ',t,', paste( type_ids, collapse = ' ' ), '\r\n' )
+  info = .get_iqfeed( cmd )
+  if( is.null( info ) ) return()
+  setnames( info, c( 'symbol', 'market', 'type', 'description' ) )
+  .symbol = symbol
+  info = info[ symbol == .symbol ]
+  if( nrow( info ) == 0 ) return()
+  info[]
+
+}
+
 .get_iqfeed_trade_conditions_info = function( ){
   codes = .get_iqfeed( cmd = 'STC\r\n' )[,1:3, with = FALSE]
   setnames( codes, c( 'condition_code', 'short_name', 'description' ) )
