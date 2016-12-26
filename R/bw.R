@@ -77,6 +77,7 @@
 #' @export
 bw = function( x, interval ) {
 
+  if( is.null( interval ) ) return( rep( T, length( x ) ) )
   len  = length( interval )
 
   if( len > 2 ) stop( "interval must be a vector of length 1 or 2" )
