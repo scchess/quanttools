@@ -40,7 +40,10 @@ to_ticks = function( x ){
     price  = c( open         , high             , low              , close               ),
     volume = c( volume / 4   , volume / 4       , volume / 4       , volume / 4          )
   ) ][ order( time ) ]
+  ticks[, volume := pmax( volume, 1 ) ]
   attributes( ticks$time ) = attributes( x$time )
+
+
 
   return( ticks )
 
