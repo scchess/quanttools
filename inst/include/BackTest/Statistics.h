@@ -283,9 +283,9 @@ public:
     sumR    += marketValueChange;
     sumRR   += marketValueChange * marketValueChange;
 
-    double covNV = nDaysTested * sumNV - sumV * nDaysTested * ( nDaysTested + 1 ) / 2; // * 1.0 / ( n * ( n - 1 ) )
-    double sdN  = nDaysTested * std::sqrt( ( nDaysTested * nDaysTested - 1 ) / 12 );   // * sqrt( 1.0 / ( n * ( n - 1 ) ) )
-    double sdV  = std::sqrt( nDaysTested * sumVV - sumV * sumV );                      // * sqrt( 1.0 / ( n * ( n - 1 ) ) )
+    double covNV = nDaysTested * sumNV - sumV * nDaysTested * ( nDaysTested + 1 ) / 2;    // * 1.0 / ( n * ( n - 1 ) )
+    double sdN  = nDaysTested * std::sqrt( ( nDaysTested * nDaysTested - 1 ) * 1. / 12 ); // * sqrt( 1.0 / ( n * ( n - 1 ) ) )
+    double sdV  = std::sqrt( nDaysTested * sumVV - sumV * sumV );                         // * sqrt( 1.0 / ( n * ( n - 1 ) ) )
 
     double r = /*varV == 0 or varN == 0 ? NAN : */covNV / sdN / sdV;
 
