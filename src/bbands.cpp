@@ -28,7 +28,7 @@
 //' @description Bollinger bands is a mix of Rolling Range and SMA indicators. It shows the average price and its range over n past values based on price volatility.
 //' @export
 // [[Rcpp::export]]
-Rcpp::DataFrame bbands( Rcpp::NumericVector x, std::size_t n, double k ) {
+Rcpp::List bbands( Rcpp::NumericVector x, std::size_t n, double k ) {
 
   BBands bbands( n, k );
 

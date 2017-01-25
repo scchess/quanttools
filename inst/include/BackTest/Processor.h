@@ -114,14 +114,14 @@ public:
     Rcpp::StringVector names = cost.attr( "names" );
 
     bool hasPointValue = std::find( names.begin(), names.end(), "pointValue" ) != names.end();
-    bool hasCancel	   = std::find( names.begin(), names.end(), "cancel"     ) != names.end();
-    bool hasOrder	     = std::find( names.begin(), names.end(), "order"      ) != names.end();
+    bool hasCancel     = std::find( names.begin(), names.end(), "cancel"     ) != names.end();
+    bool hasOrder      = std::find( names.begin(), names.end(), "order"      ) != names.end();
     bool hasStockAbs   = std::find( names.begin(), names.end(), "stockAbs"   ) != names.end();
-    bool hasTradeAbs	 = std::find( names.begin(), names.end(), "tradeAbs"   ) != names.end();
-    bool hasTradeRel	 = std::find( names.begin(), names.end(), "tradeRel"   ) != names.end();
-    bool hasLongAbs	   = std::find( names.begin(), names.end(), "longAbs"    ) != names.end();
-    bool hasLongRel	   = std::find( names.begin(), names.end(), "longRel"    ) != names.end();
-    bool hasShortAbs	 = std::find( names.begin(), names.end(), "shortAbs"   ) != names.end();
+    bool hasTradeAbs   = std::find( names.begin(), names.end(), "tradeAbs"   ) != names.end();
+    bool hasTradeRel   = std::find( names.begin(), names.end(), "tradeRel"   ) != names.end();
+    bool hasLongAbs    = std::find( names.begin(), names.end(), "longAbs"    ) != names.end();
+    bool hasLongRel    = std::find( names.begin(), names.end(), "longRel"    ) != names.end();
+    bool hasShortAbs   = std::find( names.begin(), names.end(), "shortAbs"   ) != names.end();
     bool hasShortRel   = std::find( names.begin(), names.end(), "shortRel"   ) != names.end();
 
     if( hasPointValue ) this->cost.pointValue = cost["pointValue"];
@@ -458,12 +458,11 @@ public:
 
   Rcpp::List GetOnDayClosePerformanceHistory() {
 
-    Rcpp::DataFrame performance = ListBuilder()
-
-    .Add( "date"       , IntToDate( statistics.onDayCloseHistoryDates ) )
-    .Add( "return"     , statistics.onDayCloseHistoryMarketValueChange  )
-    .Add( "pnl"        , statistics.onDayCloseHistoryMarketValue        )
-    .Add( "drawdown"   , statistics.onDayCloseHistoryDrawDown           );
+    Rcpp::List performance = ListBuilder().AsDataTable()
+      .Add( "date"    , IntToDate( statistics.onDayCloseHistoryDates ) )
+      .Add( "return"  , statistics.onDayCloseHistoryMarketValueChange  )
+      .Add( "pnl"     , statistics.onDayCloseHistoryMarketValue        )
+      .Add( "drawdown", statistics.onDayCloseHistoryDrawDown           );
 
     return performance;
 
@@ -498,7 +497,7 @@ public:
 
     for( auto it = candles.begin(); it != candles.end(); it++ ) convertCandle( it );
 
-    Rcpp::DataFrame candles = ListBuilder()
+    Rcpp::List candles = ListBuilder().AsDataTable()
 
       .Add( "time"  , time   )
       .Add( "open"  , open   )
@@ -508,7 +507,7 @@ public:
       .Add( "volume", volume )
       .Add( "id"    , id     );
 
-      return candles;
+    return candles;
 
   }
 
@@ -550,7 +549,7 @@ public:
     for( auto it = ordersProcessed.begin(); it != ordersProcessed.end(); it++ ) convertOrder( *it );
     for( auto it = orders         .begin(); it != orders         .end(); it++ ) convertOrder( *it );
 
-    Rcpp::DataFrame orders = ListBuilder()
+    Rcpp::List orders = ListBuilder().AsDataTable()
 
       .Add( "id_trade"      , id_trade       )
       .Add( "id_sent"       , id_sent        )
@@ -564,7 +563,7 @@ public:
       .Add( "state"         , state          )
       .Add( "comment"       , comment        );
 
-      return orders;
+    return orders;
 
   }
 
@@ -624,7 +623,7 @@ public:
     for( auto it = tradesProcessed.begin(); it != tradesProcessed.end(); it++ ) convertTrade( it->second );
     for( auto it = trades         .begin(); it != trades         .end(); it++ ) convertTrade( it->second );
 
-    Rcpp::DataFrame trades = ListBuilder()
+    Rcpp::List trades = ListBuilder().AsDataTable()
 
       .Add( "id_trade"   , id_trade    )
       .Add( "id_sent"    , id_sent     )
@@ -646,11 +645,11 @@ public:
       .Add( "cost_rel"   , cost_rel    )
       .Add( "state"      , state       );
 
-      return trades;
+    return trades;
 
   }
 
-  Rcpp::DataFrame GetSummary() { return statistics.GetSummary(); }
+  Rcpp::List GetSummary() { return statistics.GetSummary(); }
 
 };
 

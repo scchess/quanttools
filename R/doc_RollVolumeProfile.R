@@ -33,7 +33,7 @@
 #' \cr \code{Reset()}                \tab \code{void}                   \tab reset to initial state
 #' \cr \code{IsFormed()}             \tab \code{bool}                   \tab is indicator value valid?
 #' \cr \code{GetValue()}             \tab \code{std::map<double,double>}\tab histogram where first is price and second is volume
-#' \cr \code{GetHistory()}           \tab \code{DataFrame}              \tab return values history data.table with columns \code{time, profile} where profile is data.table with columns \code{time, price, volume}
+#' \cr \code{GetHistory()}           \tab \code{List}                   \tab return values history data.table with columns \code{time, profile} where profile is data.table with columns \code{time, price, volume}
 #' }
 #'
 #' @name RollVolumeProfile

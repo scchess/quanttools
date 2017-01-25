@@ -36,7 +36,7 @@
 #' \cr \code{GetKFastnHistory()}     \tab \code{std::vector< double >}\tab return k fast history
 #' \cr \code{GetDFastHistory()}      \tab \code{std::vector< double >}\tab return d fast history
 #' \cr \code{GetDSlowHistory()}      \tab \code{std::vector< double >}\tab return d slow history
-#' \cr \code{GetHistory()}           \tab \code{DataFrame}            \tab return values history data.table with columns \code{k_fast, d_fast, d_slow}
+#' \cr \code{GetHistory()}           \tab \code{List}                 \tab return values history data.table with columns \code{k_fast, d_fast, d_slow}
 #' }
 #'
 #' @name Stochastic

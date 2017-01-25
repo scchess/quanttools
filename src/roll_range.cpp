@@ -29,7 +29,7 @@
 //' @description Rolling range is minimum and maximum values over n past values. Can be used to identify price range.
 //' @export
 // [[Rcpp::export]]
-Rcpp::DataFrame roll_range( Rcpp::NumericVector x, std::size_t n ) {
+Rcpp::List roll_range( Rcpp::NumericVector x, std::size_t n ) {
 
   RollRange range( n );
 

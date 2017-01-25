@@ -34,7 +34,7 @@ public:
 
 };
 
-class RollRange : public Indicator< double, double, Rcpp::DataFrame > {
+class RollRange : public Indicator< double, double, Rcpp::List > {
 
 private:
 
@@ -87,13 +87,13 @@ public:
 
   Range GetValue() { return range; }
 
-  std::vector< double > GetMinHistory() { return minHistory; }
-  std::vector< double > GetMaxHistory() { return maxHistory; }
+  std::vector< double > GetMinHistory()      { return minHistory     ; }
+  std::vector< double > GetMaxHistory()      { return maxHistory     ; }
   std::vector< double > GetQuantileHistory() { return quantileHistory; }
 
-  Rcpp::DataFrame GetHistory() {
+  Rcpp::List GetHistory() {
 
-    Rcpp::DataFrame history = ListBuilder()
+    Rcpp::List history = ListBuilder().AsDataTable()
     .Add( "min", minHistory )
     .Add( "max", maxHistory );
     return history;

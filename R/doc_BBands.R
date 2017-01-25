@@ -34,7 +34,7 @@
 #' \cr \code{GetUpperHistory()}      \tab \code{std::vector< double >}\tab return upper band history
 #' \cr \code{GetLowerHistory()}      \tab \code{std::vector< double >}\tab return lower history
 #' \cr \code{GetSmaHistory()}        \tab \code{std::vector< double >}\tab return sma history
-#' \cr \code{GetHistory()}           \tab \code{DataFrame}            \tab return values history data.table with columns \code{upper, lower, sma}
+#' \cr \code{GetHistory()}           \tab \code{List}                 \tab return values history data.table with columns \code{upper, lower, sma}
 #' }
 #'
 #' @name BBands

@@ -27,7 +27,7 @@
 //' \cr Others return numeric vector
 //' @export
 // [[Rcpp::export]]
-Rcpp::DataFrame roll_lm( Rcpp::NumericVector x, Rcpp::NumericVector y, std::size_t n ) {
+Rcpp::List roll_lm( Rcpp::NumericVector x, Rcpp::NumericVector y, std::size_t n ) {
 
   RollLinReg lm( n );
 

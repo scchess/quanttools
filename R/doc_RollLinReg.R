@@ -34,7 +34,7 @@
 #' \cr \code{GetRHistory()}           \tab \code{std::vector< double >}\tab return r history
 #' \cr \code{GetRSquaredHistory()}    \tab \code{std::vector< double >}\tab return r squared history
 #' \cr \code{GetValue()}             \tab \code{LinRegCoeffs}         \tab has members \code{double alpha, beta, r, rSquared}
-#' \cr \code{GetHistory()}           \tab \code{DataFrame}            \tab return values history data.table with columns \code{alpha, beta, r, r.squared}
+#' \cr \code{GetHistory()}           \tab \code{List}                 \tab return values history data.table with columns \code{alpha, beta, r, r.squared}
 #' }
 #'
 #' @name RollLinReg

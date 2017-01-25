@@ -31,7 +31,7 @@
 //' @name back_test
 //' @export
 // [[Rcpp::export]]
-Rcpp::DataFrame back_test( Rcpp::LogicalVector enter, Rcpp::LogicalVector exit, Rcpp::NumericVector price, double stop_loss = -1000, int side = 1 ) {
+Rcpp::List back_test( Rcpp::LogicalVector enter, Rcpp::LogicalVector exit, Rcpp::NumericVector price, double stop_loss = -1000, int side = 1 ) {
 
   int n = enter.size();
 
@@ -115,7 +115,7 @@ Rcpp::DataFrame back_test( Rcpp::LogicalVector enter, Rcpp::LogicalVector exit, 
   enters = enters[ enters > 0 ];
   exits = exits[ exits > 0 ];
 
-  Rcpp::DataFrame output = ListBuilder()
+  Rcpp::List output = ListBuilder().AsDataTable()
     .Add( "price_enter", enters   )
     .Add( "price_exit" , exits    )
     .Add( "mtm_min"    , mtm_mins )

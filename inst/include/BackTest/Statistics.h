@@ -26,6 +26,7 @@
 #include "../CppToR.h"
 #include "../ListBuilder.h"
 #include "../NPeriods.h"
+#include "../setDT.h"
 #include <cmath>
 #include <Rcpp.h>
 
@@ -382,13 +383,13 @@ public:
 
   }
 
-  Rcpp::DataFrame GetSummary() {
+  Rcpp::List GetSummary() {
 
     double percents    = 100;
     double basisPoints = 10000;
     double epsilon     = 0.01;
 
-    Rcpp::DataFrame summary = ListBuilder()
+    Rcpp::List summary = ListBuilder().AsDataTable()
 
       .Add( "from"          , DoubleToDateTime( testStart, timeZone )                      )
       .Add( "to"            , DoubleToDateTime( testEnd  , timeZone )                      )
