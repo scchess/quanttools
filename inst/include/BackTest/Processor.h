@@ -459,10 +459,12 @@ public:
   Rcpp::List GetOnDayClosePerformanceHistory() {
 
     Rcpp::List performance = ListBuilder().AsDataTable()
-      .Add( "date"    , IntToDate( statistics.onDayCloseHistoryDates ) )
-      .Add( "return"  , statistics.onDayCloseHistoryMarketValueChange  )
-      .Add( "pnl"     , statistics.onDayCloseHistoryMarketValue        )
-      .Add( "drawdown", statistics.onDayCloseHistoryDrawDown           );
+      .Add( "date"     , IntToDate( statistics.onDayCloseHistoryDates ) )
+      .Add( "return"   , statistics.onDayCloseHistoryMarketValueChange  )
+      .Add( "pnl"      , statistics.onDayCloseHistoryMarketValue        )
+      .Add( "drawdown" , statistics.onDayCloseHistoryDrawDown           )
+      .Add( "avg_pnl"  , statistics.onDayCloseHistoryAvgTradePnl        )
+      .Add( "n_per_day", statistics.onDayCloseHistoryNTrades            );
 
     return performance;
 

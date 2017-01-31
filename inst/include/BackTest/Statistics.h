@@ -81,6 +81,11 @@ private:
   std::vector<double> onDayCloseHistoryMarketValueChange;
   std::vector<double> onDayCloseHistoryDrawDown;
   std::vector<int>    onDayCloseHistoryDates;
+  std::vector<int>    onDayCloseHistoryNTrades;
+  std::vector<double> onDayCloseHistoryAvgTradePnl;
+
+  int onDayCloseNTrades;
+  double onDayCloseTradePnl;
 
   std::vector<double> onCandleHistoryMarketValue;
   std::vector<double> onCandleHistoryDrawDown;
@@ -154,6 +159,10 @@ public:
     onDayCloseHistoryMarketValueChange.clear();
     onDayCloseHistoryDrawDown         .clear();
     onDayCloseHistoryDates            .clear();
+    onDayCloseHistoryAvgTradePnl      .clear();
+    onDayCloseHistoryNTrades          .clear();
+    onDayCloseNTrades  = 0;
+    onDayCloseTradePnl = 0;
 
     onCandleHistoryMarketValue   .clear();
     onCandleHistoryDrawDown      .clear();
@@ -188,7 +197,6 @@ public:
     if( order->IsNew() ) {
 
       positionPlanned += order->side == OrderSide::BUY ? +1 : -1;
-
 
     }
 
@@ -264,6 +272,9 @@ public:
 
     }
 
+    onDayCloseTradePnl += trade->pnlRel;
+    onDayCloseNTrades ++;
+
   }
 
   void onDayStart() { // previous day close
@@ -275,6 +286,8 @@ public:
     onDayCloseHistoryMarketValueChange.push_back( marketValueChange );
     onDayCloseHistoryMarketValue      .push_back( marketValue );
     onDayCloseHistoryDrawDown         .push_back( drawDown );
+    onDayCloseHistoryAvgTradePnl      .push_back( onDayCloseNTrades == 0 ? 0 : onDayCloseTradePnl / onDayCloseNTrades );
+    onDayCloseHistoryNTrades          .push_back( onDayCloseNTrades );
 
     nDaysTested++;
 
@@ -305,6 +318,10 @@ public:
     sortino = /*tdv == 0 ? NAN : */avgR / std::sqrt( tdv ) * std::sqrt( nTradingDaysInYear );
 
     avgDrawDown = ( avgDrawDown * ( nDaysTested - 1 ) + drawDown ) / nDaysTested;
+
+    onDayCloseNTrades  = 0;
+    onDayCloseTradePnl = 0;
+
 
   }
 
