@@ -15,13 +15,10 @@
 # You should have received a copy of the GNU General Public License
 # along with QuantTools. If not, see <http://www.gnu.org/licenses/>.
 
-#' Round numbers to specified interval
-#'
+#' @title Round numbers to specified interval
 #' @param x numeric vector to be rounded
 #' @param interval the interval the values should be rounded towards
 #' @return A numeric vector with x rounded to the desired interval.
-#'
-#'
 #' @name iround
 #' @export
 iround <- function(x, interval){

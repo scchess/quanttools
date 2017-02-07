@@ -15,18 +15,14 @@
 # You should have received a copy of the GNU General Public License
 # along with QuantTools. If not, see <http://www.gnu.org/licenses/>.
 
-#' Add legend to active time series plot
-#'
+#' @title Add legend to active time series plot
 #' @param position same as in \code{\link{plot_ts}} except \code{'n'}
 #' @param names line labels
 #' @param col same as in \code{\link{plot_ts}}
 #' @param lty,lwd same as in \code{\link[graphics]{lines}}
 #' @param pch same as in \code{\link[graphics]{points}}
 #' @family graphical functions
-#'
-#' @details
-#' Used in \code{\link{plot_ts}} internally.
-#'
+#' @details Used in \code{\link{plot_ts}} internally.
 #' @export
 add_legend <- function(position = 'topright', names, col = 'auto', lty = 1, lwd = 1, pch = NA){
 

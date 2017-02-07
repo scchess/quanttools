@@ -15,11 +15,9 @@
 # You should have received a copy of the GNU General Public License
 # along with QuantTools. If not, see <http://www.gnu.org/licenses/>.
 
-#' Example intraday tick data
-#'
+#' @title Example intraday tick data
 #' @name ticks
 #' @docType data
 #' @keywords data
-#' @description
-#' Example intraday tick data.
+#' @description Example intraday tick data.
 NULL

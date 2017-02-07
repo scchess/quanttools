@@ -18,9 +18,6 @@ lines_ohlc(x = 1:nrow(ohlc), ohlc, width = 0.3, candle.col.up = "blue",
 
 \item{ch}{use Chinese style?}
 }
-\description{
-Add candles to active time series plot
-}
 \details{
 Used in \code{\link{plot_ts}} internally.
 }
@@ -32,4 +29,3 @@ Other graphical functions: \code{\link{add_last_values}},
   \code{\link{multi_heatmap}}, \code{\link{plot_table}},
   \code{\link{plot_ts}}
 }
-

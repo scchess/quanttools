@@ -15,15 +15,13 @@
 # You should have received a copy of the GNU General Public License
 # along with QuantTools. If not, see <http://www.gnu.org/licenses/>.
 
-#' Generate futures contract codes and schedule between dates
-#'
+#' @title Generate futures contract codes and schedule between dates
 #' @param contract contract base name
 #' @param from,to text dates in format \code{"YYYY-MM-DD"}
 #' @param frequency expiration frequency, e.g. 3 for quarterly contracts
 #' @param day_exp expiration day number, e.g. 15 for middle of month
 #' @param year_last_digit should only last digit of year present in code?
 #' @return returns \code{data.table} with columns \code{code, from, to, contract_id}.
-#'
 #' @export
 gen_futures_codes = function( contract, from, to, frequency, day_exp, year_last_digit = FALSE ){
 

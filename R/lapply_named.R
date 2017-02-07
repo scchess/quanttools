@@ -15,8 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with QuantTools. If not, see <http://www.gnu.org/licenses/>.
 
-#' lapply which returns named list
-#'
+#' @title lapply which returns named list
 #' @param X,FUN,... same as \code{\link[base]{lapply}} arguments
 #' @name lapply_named
 #' @export

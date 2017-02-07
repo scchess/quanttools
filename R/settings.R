@@ -15,7 +15,6 @@
 # You should have received a copy of the GNU General Public License
 # along with QuantTools. If not, see <http://www.gnu.org/licenses/>.
 
-#' QuantTools package settings
 #' @title QuantTools settings
 #' @name settings
 #' @param settings named list of settings values or settings names vector

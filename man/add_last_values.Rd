@@ -13,9 +13,6 @@ add_last_values(data, ylim, col)
 
 \item{col}{same as in \code{\link{plot_ts}}}
 }
-\description{
-Add last values marks to the right of active time series plot
-}
 \details{
 Used in \code{\link{plot_ts}} internally.
 }
@@ -27,4 +24,3 @@ Other graphical functions: \code{\link{add_legend}},
   \code{\link{multi_heatmap}}, \code{\link{plot_table}},
   \code{\link{plot_ts}}
 }
-

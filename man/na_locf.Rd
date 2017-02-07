@@ -9,7 +9,3 @@ na_locf(x)
 \arguments{
 \item{x}{numeric vector to roll through}
 }
-\description{
-Last Observation Carried Forward
-}
-

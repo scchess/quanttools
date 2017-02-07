@@ -21,7 +21,3 @@ gen_futures_codes(contract, from, to, frequency, day_exp,
 \value{
 returns \code{data.table} with columns \code{code, from, to, contract_id}.
 }
-\description{
-Generate futures contract codes and schedule between dates
-}
-

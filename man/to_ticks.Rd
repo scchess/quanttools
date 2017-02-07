@@ -9,9 +9,6 @@ to_ticks(x)
 \arguments{
 \item{x}{candles, read 'Candles' in \link{Processor}}
 }
-\description{
-Convert Candles To Ticks
-}
 \details{
 Convert OHLCV candles to ticks using the following model. One candle is equivalent to four ticks \code{( time, price, volume )}: \code{( time - period, open, volume / 4 ); ( time - period / 2, high, volume / 4 ); ( time - period / 2, low, volume / 4 ); ( time - period / 100, close, volume / 4 )}. Assuming provided candles have frequent period ( less than a minute ) it is a good approximation for tick data which can be used to speed up back testing or if no raw tick data available.
 }
@@ -24,4 +21,3 @@ to_ticks( candles )
 
 }
 }
-

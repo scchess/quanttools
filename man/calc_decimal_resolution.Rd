@@ -9,10 +9,6 @@ calc_decimal_resolution(x)
 \arguments{
 \item{x}{numeric vector}
 }
-\description{
-Calculate decimal resolution
-}
 \details{
 Used in \code{\link{add_last_values}} internally.
 }
-

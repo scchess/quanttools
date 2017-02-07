@@ -15,14 +15,14 @@
 # You should have received a copy of the GNU General Public License
 # along with QuantTools. If not, see <http://www.gnu.org/licenses/>.
 
-#' Plot empty plot
-#'
+#' @title Plot empty plot
 #' @family graphical functions
 #' @export
-empty_plot <- function(){
+empty_plot <- function() {
+
   mar = par( 'mar' )
-  par(mar = c(0,0,0,0))
-  plot(1, type="n", axes=F, xlab="", ylab="")
+  par( mar = c( 0, 0, 0, 0 ) )
+  plot( 1, type = "n", axes = F, xlab = "", ylab = "" )
   par( mar = mar )
 
 }

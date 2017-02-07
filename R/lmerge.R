@@ -15,13 +15,11 @@
 # You should have received a copy of the GNU General Public License
 # along with QuantTools. If not, see <http://www.gnu.org/licenses/>.
 
-#' Merge list of data.frames into data.table by key column
-#'
+#' @title Merge list of data.frames into data.table by key column
 #' @param x named list of data.frames
 #' @param key column name to merge by
 #' @param value column name of value variable
 #' @param na.omit should leading NA values be omitted?
-#'
 #' @examples
 #' \donttest{
 #' from = '1990-01-01'

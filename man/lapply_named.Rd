@@ -9,7 +9,3 @@ lapply_named(X, FUN, ...)
 \arguments{
 \item{X, FUN, ...}{same as \code{\link[base]{lapply}} arguments}
 }
-\description{
-lapply which returns named list
-}
-

@@ -16,15 +16,12 @@
 # along with QuantTools. If not, see <http://www.gnu.org/licenses/>.
 
 
-#' Round POSIXct timestamps
-#'
+#' @title Round POSIXct timestamps
 #' @param x POSIXct vector
 #' @param n number of units to round off
 #' @param units to round off to
 #' @param method round method, see \link[base]{Round}
-#' @details
-#' Rounds POSIXct vector with specified method.
-#'
+#' @details Rounds POSIXct vector with specified method.
 #' @name round_POSIXct
 #' @export
 round_POSIXct = function( x, n = 1, units = c( 'secs','mins', 'hours', 'days' ), method = round ) {

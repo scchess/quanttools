@@ -15,16 +15,16 @@
 # You should have received a copy of the GNU General Public License
 # along with QuantTools. If not, see <http://www.gnu.org/licenses/>.
 
-#' c++ Rolling Volume Profile class
-#' @description c++ class documentation
+#' @title C++ Rolling Volume Profile class
+#' @description C++ class documentation
 #' @section Usage: \code{RollVolumeProfile( int timeFrame, double step, double alpha, double cut )}
 #' @param timeFrame indicator period in seconds, when to apply alpha correction
 #' @param step price round off value, bar width
 #' @param alpha multiplication coefficient must be between (0,1]
 #' @param cut threshold volume when to delete bar
 #' @details R functions \link{roll_volume_profile}.
-#' @family c++ indicators
-#' @family c++ classes
+#' @family C++ indicators
+#' @family C++ classes
 #'
 #' @section Public Members and Methods:
 #' \tabular{lll}{

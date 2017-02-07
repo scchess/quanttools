@@ -9,9 +9,6 @@ to_UTC(x)
 \arguments{
 \item{x}{\code{POSIXct} vector}
 }
-\description{
-Convert time zone to 'UTC' without changing value
-}
 \examples{
 \donttest{
 
@@ -21,4 +18,3 @@ to_UTC( Sys.time() )
 }
 
 }
-

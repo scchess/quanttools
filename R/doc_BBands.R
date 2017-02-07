@@ -15,14 +15,14 @@
 # You should have received a copy of the GNU General Public License
 # along with QuantTools. If not, see <http://www.gnu.org/licenses/>.
 
-#' c++ Bollinger Bands class
-#' @description c++ class documentation
+#' @title C++ Bollinger Bands class
+#' @description C++ class documentation
 #' @section Usage: \code{BBands( int n, double k )}
 #' @param n indicator period
 #' @param k number of standard deviations
 #' @details R function \link{bbands}.
-#' @family c++ indicators
-#' @family c++ classes
+#' @family C++ indicators
+#' @family C++ classes
 #'
 #' @section Public Members and Methods:
 #' \tabular{lll}{

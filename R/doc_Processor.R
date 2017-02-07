@@ -15,13 +15,13 @@
 # You should have received a copy of the GNU General Public License
 # along with QuantTools. If not, see <http://www.gnu.org/licenses/>.
 
-#' c++ Processor class
-#' @description c++ class documentation
+#' @title C++ Processor class
+#' @description C++ class documentation
 #' @section Usage: \code{Processor( int timeFrame, double latencySend, double latencyReceive )}
 #' @param timeFrame candle timeframe in seconds
 #' @param latencySend,latencyReceive latency in seconds
 #' @family backtesting classes
-#' @family c++ classes
+#' @family C++ classes
 #'
 #' @section Public Members and Methods:
 #' \tabular{lll}{

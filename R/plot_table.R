@@ -15,14 +15,13 @@
 # You should have received a copy of the GNU General Public License
 # along with QuantTools. If not, see <http://www.gnu.org/licenses/>.
 
-#' Plot data.table as table
-#'
+#' @title Plot data.table as table
 #' @param dt data.table
 #' @param transpose should table be transposed?
 #' @param justify \code{'middle','left','right'}
 #' @param ... further graphical parameters as in \code{\link[graphics]{par}}
 #' @family graphical functions
-#'@export
+#' @export
 plot_table = function( dt, transpose = F, justify = c( 'middle', 'left', 'right' ), ... ) {
 
   justify = match.arg( justify )

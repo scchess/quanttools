@@ -2,14 +2,14 @@
 % Please edit documentation in R/doc_Processor.R
 \name{Processor}
 \alias{Processor}
-\title{c++ Processor class}
+\title{C++ Processor class}
 \arguments{
 \item{timeFrame}{candle timeframe in seconds}
 
 \item{latencySend, latencyReceive}{latency in seconds}
 }
 \description{
-c++ class documentation
+C++ class documentation
 }
 \section{Usage}{
  \code{Processor( int timeFrame, double latencySend, double latencyReceive )}
@@ -46,7 +46,7 @@ c++ class documentation
 \cr \code{GetSummary()}                     \tab \code{Rcpp::List}          \tab trades summary, see 'Summary' section
 \cr \code{GetOnCandleMarketValueHistory()}  \tab \code{std::vector<double>} \tab vector of portfolio value history recalculated on candle complete
 \cr \code{GetOnCandleDrawDownHistory()}     \tab \code{std::vector<double>} \tab vector of portfolio drawdown history recalculated on candle complete
-\cr \code{GetOnDayClosePerformanceHistory()}\tab \code{Rcpp::List}          \tab data.table of daily performance history with columns \code{date, return, pnl, drawdown}
+\cr \code{GetOnDayClosePerformanceHistory()}\tab \code{Rcpp::List}          \tab data.table of daily performance history with columns \code{date, return, pnl, drawdown, n_per_day, avg_pnl}
 \cr \code{Reset()}                          \tab \code{void}                \tab resets to initial state
 }
 }
@@ -180,12 +180,13 @@ If stop rule triggered no orders sent to exchange and opened trades closed by ma
 E.g. if \code{drawdown} set to \code{-0.02} then when drawdown exceeds 2\% trading stops.
 if \code{loss} set to \code{-0.05} then when market value (pnl) is lower than -5\% trading stops.
 }
+
 \seealso{
 Other backtesting classes: \code{\link{Candle}},
   \code{\link{Cost}}, \code{\link{Indicator}},
   \code{\link{Order}}, \code{\link{Tick}}
 
-Other c++ classes: \code{\link{BBands}},
+Other C++ classes: \code{\link{BBands}},
   \code{\link{Candle}}, \code{\link{Cost}},
   \code{\link{Crossover}}, \code{\link{Ema}},
   \code{\link{Indicator}}, \code{\link{Order}},
@@ -195,4 +196,3 @@ Other c++ classes: \code{\link{BBands}},
   \code{\link{Sma}}, \code{\link{Stochastic}},
   \code{\link{Tick}}
 }
-

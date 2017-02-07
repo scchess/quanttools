@@ -15,16 +15,12 @@
 # You should have received a copy of the GNU General Public License
 # along with QuantTools. If not, see <http://www.gnu.org/licenses/>.
 
-#' Add last values marks to the right of active time series plot
-#'
+#' @title Add last values marks to the right of active time series plot
 #' @param data \code{data.frame} or \code{data.table} object of plotted data
 #' @param ylim user specified range of \code{data}
 #' @param col same as in \code{\link{plot_ts}}
 #' @family graphical functions
-#'
-#' @details
-#' Used in \code{\link{plot_ts}} internally.
-#'
+#' @details Used in \code{\link{plot_ts}} internally.
 #' @export
 add_last_values <- function(data,ylim,col){
 

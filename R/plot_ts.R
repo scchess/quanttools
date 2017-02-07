@@ -15,8 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with QuantTools. If not, see <http://www.gnu.org/licenses/>.
 
-#' Plot time series
-#'
+#' @title Plot time series
 #' @param dt \code{data.table} with date/time index represented by first column. If OHLC detected then only candles plotted. Use \code{\link[graphics]{lines}} for the rest of data
 #' @param resolution frequency of time marks on time axis. Supported resolutions are \code{'auto','minute','hour','day','month','year','years'}. Default is \code{'auto'}
 #' @param col color vector or single value. Default is \code{'auto'} so colors generated automatically
@@ -34,11 +33,8 @@
 #' @param xaxt same as in \code{\link[graphics]{par}}
 #' @param t date/time vector to be converted to plot x coordinates
 #' @family graphical functions
-#'
-#' @details
-#' Plots time series each represented by columns of \code{times_series} on single plot.
+#' @details Plots time series each represented by columns of \code{times_series} on single plot. \cr
 #' As for OHLC series, only one can be plotted and should be passed as \code{times_series} with 4 columns \code{'open','high','low','close'}.
-#'
 #' @examples
 #' \donttest{
 #'
@@ -258,7 +254,7 @@ plot_ts_frame = function( xlim, ylim, resolution = 'auto', log = par( 'ylog' ), 
   axis( 2, at = ax_ticks, labels = prettyNum( ax_ticks, ' ' ), las = 1, tick = FALSE )
 
   x_d = basis[, x_from ]
-  t_d = basis[, t_from ]
+  t_d = basis[, t_to   ]
 
   id_month = !duplicated( format( t_d, '%Y-%m' ) )
   id_years = !duplicated( format( t_d, '%Y' ) )

@@ -15,9 +15,6 @@ lmerge(x, key, value, na.omit = T)
 
 \item{na.omit}{should leading NA values be omitted?}
 }
-\description{
-Merge list of data.frames into data.table by key column
-}
 \examples{
 \donttest{
 from = '1990-01-01'
@@ -56,4 +53,3 @@ plot_ts( data.table( dates, performance ), legend = 'topleft' )
 
 }
 }
-

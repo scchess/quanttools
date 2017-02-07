@@ -15,14 +15,12 @@
 # You should have received a copy of the GNU General Public License
 # along with QuantTools. If not, see <http://www.gnu.org/licenses/>.
 
-#' Plot histogram of data.table by columns
-#'
+#' @title Plot histogram of data.table by columns
 #' @param dt data.table
 #' @param bin_width truncate data by this value
 #' @param coeff group width in [0,1]
 #' @param main plot title
 #' @family graphical functions
-#'
 #' @export
 hist_dt = function( dt, bin_width = diff( range( dt, na.rm = TRUE ) ) / 10, coeff = 0.8, main = '' ) {
 

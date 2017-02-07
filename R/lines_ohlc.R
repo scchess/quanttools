@@ -15,18 +15,14 @@
 # You should have received a copy of the GNU General Public License
 # along with QuantTools. If not, see <http://www.gnu.org/licenses/>.
 
-#' Add candles to active time series plot
-#'
+#' @title Add candles to active time series plot
 #' @param x location coordinates
 #' @param ohlc time_series \code{data.frame} or \code{data.table} object with 4 columns \code{'open','high','low','close'}
 #' @param width width of candles body
 #' @param candle.col.up,candle.col.dn colors of up and down candles
 #' @param ch use Chinese style?
 #' @family graphical functions
-#'
-#' @details
-#' Used in \code{\link{plot_ts}} internally.
-#'
+#' @details Used in \code{\link{plot_ts}} internally.
 #' @export
 lines_ohlc <- function(x = 1:nrow(ohlc), ohlc ,width = 0.3, candle.col.up = 'blue', candle.col.dn = 'red', ch = TRUE ){
 

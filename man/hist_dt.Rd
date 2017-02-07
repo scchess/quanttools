@@ -16,9 +16,6 @@ hist_dt(dt, bin_width = diff(range(dt, na.rm = TRUE))/10, coeff = 0.8,
 
 \item{main}{plot title}
 }
-\description{
-Plot histogram of data.table by columns
-}
 \seealso{
 Other graphical functions: \code{\link{add_last_values}},
   \code{\link{add_legend}}, \code{\link{distinct_colors}},
@@ -27,4 +24,3 @@ Other graphical functions: \code{\link{add_last_values}},
   \code{\link{multi_heatmap}}, \code{\link{plot_table}},
   \code{\link{plot_ts}}
 }
-

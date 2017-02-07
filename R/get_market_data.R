@@ -15,7 +15,6 @@
 # You should have received a copy of the GNU General Public License
 # along with QuantTools. If not, see <http://www.gnu.org/licenses/>.
 
-#' Download historical market data
 #' @title Download historical market data
 #' @param symbol symbol name
 #' @param from,to text dates in format \code{"YYYY-mm-dd"}
@@ -25,8 +24,7 @@
 #' @param code futures or option code name, e.g. \code{"RIU6"}
 #' @param contract,frequency,day_exp same as in \code{\link{gen_futures_codes}}
 #' @name get_market_data
-#' @details
-#' Use external websites to get desired symbol name for
+#' @details Use external websites to get desired symbol name for
 #' \href{https://www.finam.ru/profile/moex-akcii/sberbank/export/}{Finam},
 #' \href{https://www.moex.com/en/derivatives/contracts.aspx}{MOEX},
 #' \href{https://www.iqfeed.net/symbolguide/index.cfm?symbolguide=lookup}{IQFeed},

@@ -22,12 +22,10 @@
 #include "../inst/include/ListBuilder.h"
 #include "../inst/include/CppToR.h"
 
-//' Convert ticks to candles.
 //' @title Convert ticks to candles
 //' @name to_candles
 //' @param ticks read 'Ticks' section in \link{Processor}
 //' @param timeframe candle timeframe in seconds
-//'
 //' @return data.table with columns \code{time, open, high, low, close, volume, id}. Where \code{id} is row number of last tick in candle. \cr
 //' Note: last candle is always omitted.
 //' @rdname to_candles

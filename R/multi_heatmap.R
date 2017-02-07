@@ -15,20 +15,15 @@
 # You should have received a copy of the GNU General Public License
 # along with QuantTools. If not, see <http://www.gnu.org/licenses/>.
 
-#' Multi Dimensional Heat Map
-#'
+#' @title Multi Dimensional Heat Map
 #' @param x \code{data.table} object
 #' @param pars names of parameters. Parameters combinations must be unique. To specify x and y axes use \code{list( x = ..., y = ... )}.
 #' @param value name of value parameter
 #' @param col_pos,col_neg used to generate gradient
 #' @param peak_value normalization value
 #' @family graphical functions
-#'
-#' @details
-#' Plots multi dimensional heatmap. Axes drawn automatically by layers.
+#' @details Plots multi dimensional heatmap. Axes drawn automatically by layers.
 #' Inner axes are most frequent and outer axes are less frequent.
-#'
-#'
 #' @export
 multi_heatmap = function( x, pars, value, col_neg = c( 'darkblue', 'lightblue' ), col_pos = c( 'yellow', 'darkgreen' ), peak_value = x[ , max( abs( get( value ) ), na.rm = T ) ] ) {
 

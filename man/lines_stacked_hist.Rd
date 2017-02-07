@@ -18,9 +18,6 @@ lines_stacked_hist(x = 1:nrow(data), data, width = "auto", col = "auto",
 
 \item{ordered}{should stacked bars be in order?}
 }
-\description{
-Add stacked histogram to active time series plot
-}
 \details{
 Used in \code{\link{plot_ts}} internally.
 }
@@ -31,4 +28,3 @@ Other graphical functions: \code{\link{add_last_values}},
   \code{\link{lines_ohlc}}, \code{\link{multi_heatmap}},
   \code{\link{plot_table}}, \code{\link{plot_ts}}
 }
-

@@ -15,7 +15,6 @@
 # You should have received a copy of the GNU General Public License
 # along with QuantTools. If not, see <http://www.gnu.org/licenses/>.
 
-#' Store historical market data
 #' @title Store historical market data
 #' @param from,to text dates in format \code{"YYYY-mm-dd"}
 #' @param verbose show progress?

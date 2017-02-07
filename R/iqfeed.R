@@ -15,10 +15,8 @@
 # You should have received a copy of the GNU General Public License
 # along with QuantTools. If not, see <http://www.gnu.org/licenses/>.
 
-#' IQFeed
 #' @title IQFeed
 #' @name iqfeed
-#'
 #' @examples
 #' \donttest{
 #' symbol = 'MSFT'
@@ -33,8 +31,7 @@
 #' get_iqfeed_data( symbol, from, to )
 #' }
 #'
-#' @details
-#' Retrieves IQFeed historical market data like ticks and candles.
+#' @details Retrieves IQFeed historical market data like ticks and candles.
 #'
 #' @section Basis For Last:
 #' \tabular{ll}{

@@ -18,8 +18,11 @@
 #ifndef ROLLRANGE_H
 #define ROLLRANGE_H
 
+#include <Rcpp.h>
+
 #include "Indicator.h"
 #include <math.h>
+#include <vector>
 #include <queue>
 #include <set>
 #include "../ListBuilder.h"

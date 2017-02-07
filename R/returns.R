@@ -15,14 +15,11 @@
 # You should have received a copy of the GNU General Public License
 # along with QuantTools. If not, see <http://www.gnu.org/licenses/>.
 
-#' Calculate returns
-#'
+#' @title Calculate returns
 #' @param x numeric vector
 #' @param type \code{'r' = x[t] / x[t-n] - 1 }, \code{'l' = ln( x[t] / x[t-n] ) }
 #' @param n lookback
-#'
 #' @return Vector of same length as x with absent returns converted to 0 for relative and 1 for logarithmic.
-#'
 #' @export
 returns = function( x, type = 'r', n = 1 ) {
   if( !is.numeric( x ) ) return( x )

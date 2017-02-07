@@ -3,9 +3,6 @@
 \name{iqfeed}
 \alias{iqfeed}
 \title{IQFeed}
-\description{
-IQFeed
-}
 \details{
 Retrieves IQFeed historical market data like ticks and candles.
 }
@@ -344,6 +341,7 @@ S \tab Settle = Daily settle, only applicable to commodities.
 }
 * to retireve above table use \code{QuantTools:::.get_iqfeed_trade_conditions_info()}
 }
+
 \examples{
 \donttest{
 symbol = 'MSFT'
@@ -359,4 +357,3 @@ get_iqfeed_data( symbol, from, to )
 }
 
 }
-

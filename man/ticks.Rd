@@ -8,4 +8,3 @@
 Example intraday tick data.
 }
 \keyword{data}
-

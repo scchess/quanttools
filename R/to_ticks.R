@@ -15,7 +15,6 @@
 # You should have received a copy of the GNU General Public License
 # along with QuantTools. If not, see <http://www.gnu.org/licenses/>.
 
-#' Convert Candles To Ticks
 #' @title Convert candles to ticks
 #' @param x candles, read 'Candles' in \link{Processor}
 #' @name to_ticks
