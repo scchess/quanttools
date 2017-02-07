@@ -233,6 +233,8 @@ public:
         Trade* trade = trades[ order->idTrade ];
         if( order->IsExecuted() ) {
 
+          trade->cost += cost.stockAbs + cost.tradeAbs + cost.tradeRel * order->priceExecuted * cost.pointValue;
+
           if( trade->IsOpened() or trade->IsClosing() ) {
 
             trade->idExit    = order->idProcessed;
@@ -255,8 +257,6 @@ public:
             trade->state = TradeState::OPENED;
 
           }
-
-          trade->cost += cost.stockAbs + cost.tradeAbs + cost.tradeRel * order->priceExecuted * cost.pointValue;
 
         }
 
