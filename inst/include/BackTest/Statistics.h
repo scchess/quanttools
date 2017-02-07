@@ -281,7 +281,7 @@ public:
 
     onDayCloseHistoryDates.push_back( prevTickTime / nSecondsInDay );
 
-    double marketValueChange = nDaysTested == 0 ? 0 : marketValue - onDayCloseHistoryMarketValue.back();
+    double marketValueChange = nDaysTested == 0 ? marketValue : marketValue - onDayCloseHistoryMarketValue.back();
 
     onDayCloseHistoryMarketValueChange.push_back( marketValueChange );
     onDayCloseHistoryMarketValue      .push_back( marketValue );
