@@ -27,6 +27,7 @@
 #include "../CppToR.h"
 #include "../ListBuilder.h"
 #include "../NPeriods.h"
+#include "../Alarm.h"
 #include <map>
 #include <cmath>
 #include <Rcpp.h>
@@ -62,6 +63,10 @@ private:
 
   std::string timeZone;
 
+  Alarm alarmMarketOpen;
+  Alarm alarmMarketClose;
+
+
   double startTradingTime    = 0;
   double stopTradingDrawdown = NAN;
   double stopTradingLoss     = NAN;
@@ -91,6 +96,8 @@ public:
 
   std::function< void( const Tick&   ) > onTick;
   std::function< void( const Candle& ) > onCandle;
+  std::function< void( ) > onMarketOpen;
+  std::function< void( ) > onMarketClose;
 
   Processor( int timeFrame, double latencySend = 0.001, double latencyReceive = 0.001 ) :
 
@@ -136,6 +143,7 @@ public:
     if( hasShortRel   ) this->cost.shortRel   = cost["shortRel"  ];
 
   }
+
   void SetStop( Rcpp::List stop ) {
 
     Rcpp::StringVector names = stop.attr( "names" );
@@ -148,6 +156,13 @@ public:
 
 
   }
+  void SetTradingHours( double start, double end ) {
+
+    alarmMarketOpen .Set( start );
+    alarmMarketClose.Set( end   );
+
+  }
+  bool IsTradingHoursSet() { return alarmMarketClose.IsSet() and alarmMarketOpen.IsSet(); }
   void SetLatencyReceive( double latencyReceive ) {
 
     this->latencyReceive = latencyReceive;
@@ -180,6 +195,15 @@ public:
     bool hasLatency        = std::find( names.begin(), names.end(), "latency"         ) != names.end();
     bool hasLatencyReceive = std::find( names.begin(), names.end(), "latency_receive" ) != names.end();
     bool hasLatencySend    = std::find( names.begin(), names.end(), "latency_send"    ) != names.end();
+    bool hasTradingHours   = std::find( names.begin(), names.end(), "trading_hours"   ) != names.end();
+
+    if( hasTradingHours ) {
+
+      Rcpp::NumericVector tradingHours = options["trading_hours"];
+      if( tradingHours.size() != 2 ) { throw std::invalid_argument( "trading_hours must have two elements" ); }
+      SetTradingHours( tradingHours[0], tradingHours[1] );
+
+    }
 
     if( hasCost ) {
 
@@ -202,6 +226,9 @@ public:
 
     if( statistics.drawDown < stopTradingDrawdown ) StopTrading();
     if( statistics.marketValue < stopTradingLoss )  StopTrading();
+
+    if( onMarketOpen  != nullptr and alarmMarketOpen .IsRinging( tick.time ) ) onMarketOpen();
+    if( onMarketClose != nullptr and alarmMarketClose.IsRinging( tick.time ) ) onMarketClose();
 
     FormCandle( tick );
 
