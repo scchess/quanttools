@@ -341,7 +341,7 @@ get_iqfeed_data = function( symbol, from, to = from, period = 'day', local = FAL
 
   curr_date = format( Sys.Date() )
   if( from > curr_date ) from = to = curr_date
-  if( to   > curr_date ) to = curr_date
+  #if( to   > curr_date ) to = curr_date
 
   if( local ){
 
