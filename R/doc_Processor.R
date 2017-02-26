@@ -60,6 +60,7 @@
 #' \cr \code{GetOnDayClosePerformanceHistory()}\tab \code{Rcpp::List}          \tab data.table of daily performance history with columns \code{date, return, pnl, drawdown, n_per_day, avg_pnl}
 #' \cr \code{Reset()}                          \tab \code{void}                \tab resets to initial state
 #' }
+#' @example /inst/examples/sma_crossover.R
 #' @section Execution Model:
 #' System sends new order and after \code{latencySend} seconds it reaches exchange.
 #' System receives confirmation of order placement \code{latencyReceive} seconds later.
