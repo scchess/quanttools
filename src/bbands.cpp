@@ -17,7 +17,8 @@
 
 #include "../inst/include/Indicators/BBands.h"
 
-//' @title Bollinger Bands
+//' Bollinger Bands
+//'
 //' @name bbands
 //' @param x numeric vectors
 //' @param n window size

@@ -15,7 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with QuantTools. If not, see <http://www.gnu.org/licenses/>.
 
-#' @title Select values in one vector not present in another
+#' Select values in one vector not present in another
 #'
 #' @param x,y vectors
 #' @return x elements without y elements

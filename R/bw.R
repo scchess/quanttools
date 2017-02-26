@@ -15,7 +15,8 @@
 # You should have received a copy of the GNU General Public License
 # along with QuantTools. If not, see <http://www.gnu.org/licenses/>.
 
-#' @title Check if values are between specified interval
+#' Check if values are between specified interval
+#'
 #' @param x vector
 #' @param interval vector of length 1 or 2, see 'Examples' section
 #' @details If second element of interval contains time selection is closed on the left only (\code{a <= x < b}) otherwise selection is closed (\code{a <= x <= b}).

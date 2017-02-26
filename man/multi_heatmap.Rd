@@ -19,6 +19,9 @@ multi_heatmap(x, pars, value, col_neg = c("darkblue", "lightblue"),
 
 \item{peak_value}{normalization value}
 }
+\description{
+Multi Dimensional Heat Map
+}
 \details{
 Plots multi dimensional heatmap. Axes drawn automatically by layers.
 Inner axes are most frequent and outer axes are less frequent.

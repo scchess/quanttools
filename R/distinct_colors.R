@@ -15,7 +15,8 @@
 # You should have received a copy of the GNU General Public License
 # along with QuantTools. If not, see <http://www.gnu.org/licenses/>.
 
-#' @title Distinct colors vector
+#' Distinct colors vector
+#'
 #' @family graphical functions
 #' @details Distinct colors vector.
 #' @name distinct_colors

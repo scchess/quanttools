@@ -11,3 +11,6 @@ roll_futures(prices_by_contract, days_before_expiry)
 
 \item{days_before_expiry}{number of dates before expiration to roll}
 }
+\description{
+Combine multiple futures market data into continuous contract
+}

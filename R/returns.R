@@ -15,7 +15,8 @@
 # You should have received a copy of the GNU General Public License
 # along with QuantTools. If not, see <http://www.gnu.org/licenses/>.
 
-#' @title Calculate returns
+#' Calculate returns
+#'
 #' @param x numeric vector
 #' @param type \code{'r' = x[t] / x[t-n] - 1 }, \code{'l' = ln( x[t] / x[t-n] ) }
 #' @param n lookback

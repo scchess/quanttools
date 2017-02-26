@@ -15,7 +15,8 @@
 # You should have received a copy of the GNU General Public License
 # along with QuantTools. If not, see <http://www.gnu.org/licenses/>.
 
-#' @title Download historical market data
+#' Download historical market data
+#'
 #' @param symbol symbol name
 #' @param from,to text dates in format \code{"YYYY-mm-dd"}
 #' @param period candle period \code{tick, 1min, 5min, 10min, 15min, 30min, hour, day, week, month}

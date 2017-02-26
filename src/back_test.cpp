@@ -19,7 +19,8 @@
 #include <algorithm>
 #include "../inst/include/ListBuilder.h"
 
-//' @title Generic back test function
+//' Generic back test function
+//'
 //' @name back_test
 //' @param enter bool vector of length n of enter signals
 //' @param exit bool vector of length n of exit signals

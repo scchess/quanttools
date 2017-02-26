@@ -15,3 +15,6 @@ to_candles(ticks, timeframe)
 data.table with columns \code{time, open, high, low, close, volume, id}. Where \code{id} is row number of last tick in candle. \cr
 Note: last candle is always omitted.
 }
+\description{
+Convert ticks to candles
+}

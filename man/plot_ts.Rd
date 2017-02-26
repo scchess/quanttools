@@ -48,6 +48,9 @@ t_to_x(t)
 
 \item{t}{date/time vector to be converted to plot x coordinates}
 }
+\description{
+Plot time series
+}
 \details{
 Plots time series each represented by columns of \code{times_series} on single plot. \cr
 As for OHLC series, only one can be plotted and should be passed as \code{times_series} with 4 columns \code{'open','high','low','close'}.

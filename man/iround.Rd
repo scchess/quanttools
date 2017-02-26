@@ -14,3 +14,6 @@ iround(x, interval)
 \value{
 A numeric vector with x rounded to the desired interval.
 }
+\description{
+Round numbers to specified interval
+}

@@ -15,7 +15,8 @@
 # You should have received a copy of the GNU General Public License
 # along with QuantTools. If not, see <http://www.gnu.org/licenses/>.
 
-#' @title Add stacked histogram to active time series plot
+#' Add stacked histogram to active time series plot
+#'
 #' @param x location coordinates
 #' @param data time_series \code{data.frame} or \code{data.table} object with 4 columns \code{'open','high','low','close'}
 #' @param width width of histogram segment

@@ -15,7 +15,8 @@
 # You should have received a copy of the GNU General Public License
 # along with QuantTools. If not, see <http://www.gnu.org/licenses/>.
 
-#' @title Do calculation on data.table excluding first column
+#' Do calculation on data.table excluding first column
+#'
 #' @param obj data.table
 #' @param action function or text string with actions to perform
 #' @param ... additional parameters to function if \code{action} is function

@@ -22,6 +22,9 @@ trunc_POSIXct(x, n = 1, units = c("secs", "mins", "hours", "days"))
 
 \item{method}{round method, see \link[base]{Round}}
 }
+\description{
+Round POSIXct timestamps
+}
 \details{
 Rounds POSIXct vector with specified method.
 }

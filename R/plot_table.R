@@ -15,7 +15,8 @@
 # You should have received a copy of the GNU General Public License
 # along with QuantTools. If not, see <http://www.gnu.org/licenses/>.
 
-#' @title Plot data.table as table
+#' Plot data.table as table
+#'
 #' @param dt data.table
 #' @param transpose should table be transposed?
 #' @param justify \code{'middle','left','right'}

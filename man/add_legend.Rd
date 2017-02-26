@@ -18,6 +18,9 @@ add_legend(position = "topright", names, col = "auto", lty = 1, lwd = 1,
 
 \item{pch}{same as in \code{\link[graphics]{points}}}
 }
+\description{
+Add legend to active time series plot
+}
 \details{
 Used in \code{\link{plot_ts}} internally.
 }

@@ -22,7 +22,8 @@
 #include "../inst/include/ListBuilder.h"
 #include "../inst/include/CppToR.h"
 
-//' @title Convert ticks to candles
+//' Convert ticks to candles
+//'
 //' @name to_candles
 //' @param ticks read 'Ticks' section in \link{Processor}
 //' @param timeframe candle timeframe in seconds

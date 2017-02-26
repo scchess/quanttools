@@ -18,6 +18,9 @@ store_moex_data(from = NULL, to = format(Sys.Date()), verbose = TRUE)
 
 \item{verbose}{show progress?}
 }
+\description{
+Store historical market data
+}
 \details{
 See example below.
 }

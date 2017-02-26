@@ -15,7 +15,8 @@
 # You should have received a copy of the GNU General Public License
 # along with QuantTools. If not, see <http://www.gnu.org/licenses/>.
 
-#' @title Generate futures contract codes and schedule between dates
+#' Generate futures contract codes and schedule between dates
+#'
 #' @param contract contract base name
 #' @param from,to text dates in format \code{"YYYY-MM-DD"}
 #' @param frequency expiration frequency, e.g. 3 for quarterly contracts

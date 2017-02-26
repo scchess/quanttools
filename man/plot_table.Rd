@@ -15,6 +15,9 @@ plot_table(dt, transpose = F, justify = c("middle", "left", "right"), ...)
 
 \item{...}{further graphical parameters as in \code{\link[graphics]{par}}}
 }
+\description{
+Plot data.table as table
+}
 \seealso{
 Other graphical functions: \code{\link{add_last_values}},
   \code{\link{add_legend}}, \code{\link{distinct_colors}},

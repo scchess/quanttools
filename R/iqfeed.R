@@ -15,7 +15,8 @@
 # You should have received a copy of the GNU General Public License
 # along with QuantTools. If not, see <http://www.gnu.org/licenses/>.
 
-#' @title IQFeed
+#' IQFeed
+#'
 #' @name iqfeed
 #' @examples
 #' \donttest{

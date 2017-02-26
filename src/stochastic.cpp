@@ -17,7 +17,8 @@
 
 #include "../inst/include/Indicators/Stochastic.h"
 
-//' @title Stochastic
+//' Stochastic
+//'
 //' @name stochastic
 //' @param n window size
 //' @param x \code{high, low, close} data.frame or numeric vector

@@ -16,3 +16,6 @@ obj \%dof\% action
 
 \item{...}{additional parameters to function if \code{action} is function}
 }
+\description{
+Do calculation on data.table excluding first column
+}

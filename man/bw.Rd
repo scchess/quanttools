@@ -15,6 +15,9 @@ x \%bw\% interval
 
 \item{interval}{vector of length 1 or 2, see 'Examples' section}
 }
+\description{
+Check if values are between specified interval
+}
 \details{
 If second element of interval contains time selection is closed on the left only (\code{a <= x < b}) otherwise selection is closed (\code{a <= x <= b}).
 }

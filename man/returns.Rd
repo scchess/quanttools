@@ -16,3 +16,6 @@ returns(x, type = "r", n = 1)
 \value{
 Vector of same length as x with absent returns converted to 0 for relative and 1 for logarithmic.
 }
+\description{
+Calculate returns
+}

@@ -15,7 +15,8 @@
 # You should have received a copy of the GNU General Public License
 # along with QuantTools. If not, see <http://www.gnu.org/licenses/>.
 
-#' @title Plot time series
+#' Plot time series
+#'
 #' @param dt \code{data.table} with date/time index represented by first column. If OHLC detected then only candles plotted. Use \code{\link[graphics]{lines}} for the rest of data
 #' @param resolution frequency of time marks on time axis. Supported resolutions are \code{'auto','minute','hour','day','month','year','years'}. Default is \code{'auto'}
 #' @param col color vector or single value. Default is \code{'auto'} so colors generated automatically

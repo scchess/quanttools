@@ -45,6 +45,9 @@ get_moex_continuous_futures_data(contract, from, to, frequency, day_exp)
 
 \item{contract, frequency, day_exp}{same as in \code{\link{gen_futures_codes}}}
 }
+\description{
+Download historical market data
+}
 \details{
 Use external websites to get desired symbol name for
 \href{https://www.finam.ru/profile/moex-akcii/sberbank/export/}{Finam},

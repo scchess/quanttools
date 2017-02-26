@@ -15,7 +15,8 @@
 # You should have received a copy of the GNU General Public License
 # along with QuantTools. If not, see <http://www.gnu.org/licenses/>.
 
-#' @title Combine multiple futures market data into continuous contract
+#' Combine multiple futures market data into continuous contract
+#'
 #' @param prices_by_contract list of data.tables with futures market data
 #' @param days_before_expiry number of dates before expiration to roll
 #' @export

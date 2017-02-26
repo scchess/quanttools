@@ -8,6 +8,9 @@
 \usage{
 distinct_colors
 }
+\description{
+Distinct colors vector
+}
 \details{
 Distinct colors vector.
 }

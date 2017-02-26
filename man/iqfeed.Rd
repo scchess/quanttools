@@ -3,6 +3,9 @@
 \name{iqfeed}
 \alias{iqfeed}
 \title{IQFeed}
+\description{
+IQFeed
+}
 \details{
 Retrieves IQFeed historical market data like ticks and candles.
 }

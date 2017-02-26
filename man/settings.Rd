@@ -13,6 +13,9 @@ QuantTools_settings_defaults()
 \arguments{
 \item{settings}{named list of settings values or settings names vector}
 }
+\description{
+QuantTools settings
+}
 \details{
 Controls package settings.
 

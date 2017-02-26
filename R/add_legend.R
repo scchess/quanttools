@@ -15,7 +15,8 @@
 # You should have received a copy of the GNU General Public License
 # along with QuantTools. If not, see <http://www.gnu.org/licenses/>.
 
-#' @title Add legend to active time series plot
+#' Add legend to active time series plot
+#'
 #' @param position same as in \code{\link{plot_ts}} except \code{'n'}
 #' @param names line labels
 #' @param col same as in \code{\link{plot_ts}}

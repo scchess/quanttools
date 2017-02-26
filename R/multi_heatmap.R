@@ -15,7 +15,8 @@
 # You should have received a copy of the GNU General Public License
 # along with QuantTools. If not, see <http://www.gnu.org/licenses/>.
 
-#' @title Multi Dimensional Heat Map
+#' Multi Dimensional Heat Map
+#'
 #' @param x \code{data.table} object
 #' @param pars names of parameters. Parameters combinations must be unique. To specify x and y axes use \code{list( x = ..., y = ... )}.
 #' @param value name of value parameter

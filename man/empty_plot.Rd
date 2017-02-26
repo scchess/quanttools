@@ -6,6 +6,9 @@
 \usage{
 empty_plot()
 }
+\description{
+Plot empty plot
+}
 \seealso{
 Other graphical functions: \code{\link{add_last_values}},
   \code{\link{add_legend}}, \code{\link{distinct_colors}},

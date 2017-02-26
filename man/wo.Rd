@@ -13,3 +13,6 @@ x \%w/o\% y
 \value{
 x elements without y elements
 }
+\description{
+Select values in one vector not present in another
+}

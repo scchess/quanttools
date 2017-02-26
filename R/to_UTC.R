@@ -15,7 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with QuantTools. If not, see <http://www.gnu.org/licenses/>.
 
-#' @title Convert time zone to 'UTC' without changing value
+#' Convert time zone to 'UTC' without changing value
 #'
 #' @param x \code{POSIXct} vector
 #'

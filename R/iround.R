@@ -15,7 +15,8 @@
 # You should have received a copy of the GNU General Public License
 # along with QuantTools. If not, see <http://www.gnu.org/licenses/>.
 
-#' @title Round numbers to specified interval
+#' Round numbers to specified interval
+#'
 #' @param x numeric vector to be rounded
 #' @param interval the interval the values should be rounded towards
 #' @return A numeric vector with x rounded to the desired interval.

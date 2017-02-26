@@ -17,7 +17,8 @@
 
 #include "../inst/include/Indicators/RollRange.h"
 
-//' @title Rolling Range
+//' Rolling Range
+//'
 //' @name roll_range
 //' @param x numeric vectors
 //' @param n window size

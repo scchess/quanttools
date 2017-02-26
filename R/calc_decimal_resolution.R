@@ -15,7 +15,8 @@
 # You should have received a copy of the GNU General Public License
 # along with QuantTools. If not, see <http://www.gnu.org/licenses/>.
 
-#' @title Calculate decimal resolution
+#' Calculate decimal resolution
+#'
 #' @param x numeric vector
 #' @details Used in \code{\link{add_last_values}} internally.
 #' @export

@@ -15,7 +15,8 @@
 # You should have received a copy of the GNU General Public License
 # along with QuantTools. If not, see <http://www.gnu.org/licenses/>.
 
-#' @title Plot histogram of data.table by columns
+#' Plot histogram of data.table by columns
+#'
 #' @param dt data.table
 #' @param bin_width truncate data by this value
 #' @param coeff group width in [0,1]
