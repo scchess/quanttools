@@ -53,13 +53,8 @@ ema <- function(x, n) {
     .Call('QuantTools_ema', PACKAGE = 'QuantTools', x, n)
 }
 
-#' Last Observation Carried Forward
-#'
-#' @param x numeric vector to roll through
-#' @name na_locf
-#' @export
-na_locf <- function(x) {
-    .Call('QuantTools_na_locf', PACKAGE = 'QuantTools', x)
+na_locf_numeric <- function(x) {
+    .Call('QuantTools_na_locf_numeric', PACKAGE = 'QuantTools', x)
 }
 
 #' Rolling Linear Regression
@@ -128,6 +123,18 @@ roll_max <- function(x, n) {
     .Call('QuantTools_roll_max', PACKAGE = 'QuantTools', x, n)
 }
 
+#' Rolling Standard Deviation
+#'
+#' @name roll_sd
+#' @param x numeric vector
+#' @param n window size
+#' @family technical indicators
+#' @description Rolling standard deviation shows standard deviation over n past values.
+#' @export
+roll_sd <- function(x, n) {
+    .Call('QuantTools_roll_sd', PACKAGE = 'QuantTools', x, n)
+}
+
 #' Rolling Filter
 #'
 #' @name roll_sd_filter
@@ -139,18 +146,6 @@ roll_max <- function(x, n) {
 #' @export
 roll_sd_filter <- function(x, n, k = 1, m = 10L) {
     .Call('QuantTools_roll_sd_filter', PACKAGE = 'QuantTools', x, n, k, m)
-}
-
-#' Rolling Standard Deviation
-#'
-#' @name roll_sd
-#' @param x numeric vector
-#' @param n window size
-#' @family technical indicators
-#' @description Rolling standard deviation shows standard deviation over n past values.
-#' @export
-roll_sd <- function(x, n) {
-    .Call('QuantTools_roll_sd', PACKAGE = 'QuantTools', x, n)
 }
 
 #' Rolling Volume Profile
