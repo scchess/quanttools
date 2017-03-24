@@ -166,7 +166,13 @@ x_to_t = function( x ) {
 }
 match_between = function( x, from, to ) {
 
-  epsilon = 1e-5
+  if( length( from ) > 1 && from[2] == to[1] ) {
+    # connected intervals
+    breaks = c( from, to[ length( to ) ] )
+    return( cut( x, breaks, labels = F, include.lowest = T ) )
+  }
+
+  epsilon = +1e-6
   breaks = c( from - epsilon, to + epsilon )
   intervals = cut( x, breaks, labels = F )
   intervals[ intervals %% 2 == 0 ] = NA
