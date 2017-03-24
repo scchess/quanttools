@@ -227,8 +227,8 @@ public:
     if( statistics.drawDown < stopTradingDrawdown ) StopTrading();
     if( statistics.marketValue < stopTradingLoss )  StopTrading();
 
-    if( onMarketOpen  != nullptr and alarmMarketOpen .IsRinging( tick.time ) ) onMarketOpen();
     if( onMarketClose != nullptr and alarmMarketClose.IsRinging( tick.time ) ) onMarketClose();
+    if( onMarketOpen  != nullptr and alarmMarketOpen .IsRinging( tick.time ) ) onMarketOpen();
 
     FormCandle( tick );
 
