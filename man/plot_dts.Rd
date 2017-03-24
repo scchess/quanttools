@@ -12,7 +12,7 @@ Plot data.table time series
  \item{\bold{\code{plot_dts}}}{
  Add data to be plotted.
  }
- \item{\bold{\code{$add_lines}}}{
+ \item{\bold{\code{$lines}}}{
  Add lines with following arguments:
  \tabular{ll}{
     \code{names}                        \tab vector of column names to plot                        \cr
@@ -21,19 +21,19 @@ Plot data.table time series
     \code{lty,pch,col,lwd,lend}         \tab vector or single value, see \link[graphics]{par}      \cr
  }
  }
- \item{\bold{\code{$add_candles}}}{
+ \item{\bold{\code{$candles}}}{
  Add candles with following arguments:
     \tabular{ll}{
     \code{ohlc}                         \tab vector of open, high, low and close names             \cr
     \code{position}                     \tab relative to time position only \code{'end'} supported \cr
-    \code{type}                         \tab \code{'candlestick'} or \code{'barchart'}             \cr
+    \code{type}                         \tab \code{'barchart'} or \code{'candlestick'}             \cr
     \code{gap}                          \tab gap between candles in fraction of \code{width}       \cr
-    \code{monochromatic}                \tab all candles have same color?                          \cr
+    \code{mono}                         \tab should all candles have same color?                   \cr
     \code{col,col_up,col_flat,col_down} \tab colors                                                \cr
     \code{width}                        \tab candle width in minutes for intraday candles          \cr
  }
  }
- \item{\bold{\code{$set_limits}}}{
+ \item{\bold{\code{$limits}}}{
  \tabular{ll}{
     \code{xlim}                         \tab vector of length two to limit plot area horizontally  \cr
     \code{ylim}                         \tab vector of length two to limit plot area vertically    \cr
@@ -41,7 +41,7 @@ Plot data.table time series
     \code{time_range}                   \tab intraday time limit in format 'H:M:S/H:M:S'           \cr
  }
  }
- \item{\bold{\code{$set_style}}}{
+ \item{\bold{\code{$style}}}{
  Change default plot options. Available options are:
  \tabular{lll}{
     \code{\bold{grid}}\cr
@@ -51,31 +51,31 @@ Plot data.table time series
     \code{month}       \tab \code{list(col,lty)} \tab month vertical gridline color and line type  \cr
     \code{year}        \tab \code{list(col,lty)} \tab year vertical gridline color and line type   \cr
     \code{zero}        \tab \code{list(col,lty)} \tab zero horizontal gridline color and line type \cr
-    \code{\bold{time_axis}}\cr
-    \code{round}       \tab \code{numeric}   \tab time axis rounding in minutes                         \cr
-    \code{resolution}  \tab \code{character} \tab auto, minute, hour, day, month, year or years         \cr
-    \code{visible}     \tab \code{logical}   \tab should time axis be plotted?                          \cr
+    \code{\bold{time}}\cr
     \code{grid}        \tab \code{logical}   \tab should vertical gridlines be plotted?                 \cr
-    \code{\bold{y_axis}}\cr
+    \code{resolution}  \tab \code{character} \tab auto, minute, hour, day, month, year or years         \cr
+    \code{round}       \tab \code{numeric}   \tab time axis rounding in minutes                         \cr
+    \code{visible}     \tab \code{logical}   \tab should time axis be plotted?                          \cr
+    \code{\bold{value}}\cr
+    \code{grid}        \tab \code{logical}  \tab should horizontal gridlines be plotted? \cr
+    \code{last}        \tab \code{logical}  \tab should last values be plotted?          \cr
     \code{log}         \tab \code{logical}  \tab should y axis be in logarithmic scale?  \cr
     \code{visible}     \tab \code{logical}  \tab should y axis be plotted?               \cr
-    \code{grid}        \tab \code{logical}  \tab should horizontal gridlines be plotted? \cr
-    \code{last_values} \tab \code{logical}  \tab should last_values be plotted?          \cr
     \code{\bold{candle}}\cr
     \code{auto}          \tab \code{logical}           \tab shoud candles be automatically detected and plotted?  \cr
+    \code{col}           \tab \code{list(up,flat,down)}\tab colors                                                \cr
+    \code{gap}           \tab \code{numeric}           \tab gap between candles in fraction of \code{width}       \cr
+    \code{mono}          \tab \code{logical}           \tab should all candles have same color?                   \cr
     \code{position}      \tab \code{character}         \tab relative to time position only \code{'end'} supported \cr
     \code{type}          \tab \code{character}         \tab \code{'candlestick'} or \code{'barchart'}             \cr
-    \code{gap}           \tab \code{numeric}           \tab gap between candles in fraction of \code{width}       \cr
-    \code{monochromatic} \tab \code{logical}           \tab should all candles have same color?                   \cr
-    \code{col}           \tab \code{list(up,flat,down)} \tab colors                                                \cr
     \code{\bold{line}}\cr
     \code{auto}          \tab \code{logical}           \tab shoud lines be automatically detected and plotted?    \cr
     \code{\bold{legend}}\cr
-    \code{position}      \tab \code{character}              \tab see \link[graphics]{legend}  \cr
-    \code{visible}       \tab \code{logical}                \tab should legend be plotted?    \cr
-    \code{inset}         \tab \code{numeric}                \tab see \link[graphics]{legend}  \cr
     \code{col}           \tab \code{list(background,frame)} \tab colors                       \cr
     \code{horizontal}    \tab \code{logical}                \tab should legend be horizontal? \cr
+    \code{inset}         \tab \code{numeric}                \tab see \link[graphics]{legend}  \cr
+    \code{position}      \tab \code{character}              \tab see \link[graphics]{legend}  \cr
+    \code{visible}       \tab \code{logical}                \tab should legend be plotted?    \cr
  }
  }
 }

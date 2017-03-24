@@ -22,7 +22,7 @@
 #'  Add data to be plotted.
 #'  }
 
-#'  \item{\bold{\code{$add_lines}}}{
+#'  \item{\bold{\code{$lines}}}{
 #'  Add lines with following arguments:
 #'  \tabular{ll}{
 #'     \code{names}                        \tab vector of column names to plot                        \cr
@@ -31,19 +31,19 @@
 #'     \code{lty,pch,col,lwd,lend}         \tab vector or single value, see \link[graphics]{par}      \cr
 #'  }
 #'  }
-#'  \item{\bold{\code{$add_candles}}}{
+#'  \item{\bold{\code{$candles}}}{
 #'  Add candles with following arguments:
 #'     \tabular{ll}{
 #'     \code{ohlc}                         \tab vector of open, high, low and close names             \cr
 #'     \code{position}                     \tab relative to time position only \code{'end'} supported \cr
-#'     \code{type}                         \tab \code{'candlestick'} or \code{'barchart'}             \cr
+#'     \code{type}                         \tab \code{'barchart'} or \code{'candlestick'}             \cr
 #'     \code{gap}                          \tab gap between candles in fraction of \code{width}       \cr
-#'     \code{monochromatic}                \tab all candles have same color?                          \cr
+#'     \code{mono}                         \tab should all candles have same color?                   \cr
 #'     \code{col,col_up,col_flat,col_down} \tab colors                                                \cr
 #'     \code{width}                        \tab candle width in minutes for intraday candles          \cr
 #'  }
 #'  }
-#'  \item{\bold{\code{$set_limits}}}{
+#'  \item{\bold{\code{$limits}}}{
 #'  \tabular{ll}{
 #'     \code{xlim}                         \tab vector of length two to limit plot area horizontally  \cr
 #'     \code{ylim}                         \tab vector of length two to limit plot area vertically    \cr
@@ -51,7 +51,7 @@
 #'     \code{time_range}                   \tab intraday time limit in format 'H:M:S/H:M:S'           \cr
 #'  }
 #'  }
-#'  \item{\bold{\code{$set_style}}}{
+#'  \item{\bold{\code{$style}}}{
 #'  Change default plot options. Available options are:
 #'  \tabular{lll}{
 #'     \code{\bold{grid}}\cr
@@ -61,31 +61,31 @@
 #'     \code{month}       \tab \code{list(col,lty)} \tab month vertical gridline color and line type  \cr
 #'     \code{year}        \tab \code{list(col,lty)} \tab year vertical gridline color and line type   \cr
 #'     \code{zero}        \tab \code{list(col,lty)} \tab zero horizontal gridline color and line type \cr
-#'     \code{\bold{time_axis}}\cr
-#'     \code{round}       \tab \code{numeric}   \tab time axis rounding in minutes                         \cr
-#'     \code{resolution}  \tab \code{character} \tab auto, minute, hour, day, month, year or years         \cr
-#'     \code{visible}     \tab \code{logical}   \tab should time axis be plotted?                          \cr
+#'     \code{\bold{time}}\cr
 #'     \code{grid}        \tab \code{logical}   \tab should vertical gridlines be plotted?                 \cr
-#'     \code{\bold{y_axis}}\cr
+#'     \code{resolution}  \tab \code{character} \tab auto, minute, hour, day, month, year or years         \cr
+#'     \code{round}       \tab \code{numeric}   \tab time axis rounding in minutes                         \cr
+#'     \code{visible}     \tab \code{logical}   \tab should time axis be plotted?                          \cr
+#'     \code{\bold{value}}\cr
+#'     \code{grid}        \tab \code{logical}  \tab should horizontal gridlines be plotted? \cr
+#'     \code{last}        \tab \code{logical}  \tab should last values be plotted?          \cr
 #'     \code{log}         \tab \code{logical}  \tab should y axis be in logarithmic scale?  \cr
 #'     \code{visible}     \tab \code{logical}  \tab should y axis be plotted?               \cr
-#'     \code{grid}        \tab \code{logical}  \tab should horizontal gridlines be plotted? \cr
-#'     \code{last_values} \tab \code{logical}  \tab should last_values be plotted?          \cr
 #'     \code{\bold{candle}}\cr
 #'     \code{auto}          \tab \code{logical}           \tab shoud candles be automatically detected and plotted?  \cr
+#'     \code{col}           \tab \code{list(up,flat,down)}\tab colors                                                \cr
+#'     \code{gap}           \tab \code{numeric}           \tab gap between candles in fraction of \code{width}       \cr
+#'     \code{mono}          \tab \code{logical}           \tab should all candles have same color?                   \cr
 #'     \code{position}      \tab \code{character}         \tab relative to time position only \code{'end'} supported \cr
 #'     \code{type}          \tab \code{character}         \tab \code{'candlestick'} or \code{'barchart'}             \cr
-#'     \code{gap}           \tab \code{numeric}           \tab gap between candles in fraction of \code{width}       \cr
-#'     \code{monochromatic} \tab \code{logical}           \tab should all candles have same color?                   \cr
-#'     \code{col}           \tab \code{list(up,flat,down)} \tab colors                                                \cr
 #'     \code{\bold{line}}\cr
 #'     \code{auto}          \tab \code{logical}           \tab shoud lines be automatically detected and plotted?    \cr
 #'     \code{\bold{legend}}\cr
-#'     \code{position}      \tab \code{character}              \tab see \link[graphics]{legend}  \cr
-#'     \code{visible}       \tab \code{logical}                \tab should legend be plotted?    \cr
-#'     \code{inset}         \tab \code{numeric}                \tab see \link[graphics]{legend}  \cr
 #'     \code{col}           \tab \code{list(background,frame)} \tab colors                       \cr
 #'     \code{horizontal}    \tab \code{logical}                \tab should legend be horizontal? \cr
+#'     \code{inset}         \tab \code{numeric}                \tab see \link[graphics]{legend}  \cr
+#'     \code{position}      \tab \code{character}              \tab see \link[graphics]{legend}  \cr
+#'     \code{visible}       \tab \code{logical}                \tab should legend be plotted?    \cr
 #'  }
 #'  }
 #' }
@@ -107,7 +107,7 @@ PlotTs <- R6Class( 'PlotTs', lock_objects = F )
 
 PlotTs$set( 'public', 'initialize', function() {
 
-  self$style = list(
+  self$style_info = list(
 
     grid = list(
 
@@ -120,7 +120,7 @@ PlotTs$set( 'public', 'initialize', function() {
 
     ),
 
-    time_axis = list(
+    time = list(
 
       round      = 15,
       resolution = 'auto',
@@ -129,23 +129,23 @@ PlotTs$set( 'public', 'initialize', function() {
 
     ),
 
-    y_axis = list(
+    value = list(
 
-      log         = FALSE,
-      visible     = TRUE,
-      grid        = TRUE,
-      last_values = TRUE
+      log     = FALSE,
+      visible = TRUE,
+      grid    = TRUE,
+      last    = TRUE
 
     ),
 
     candle = list(
 
-      auto          = TRUE,
-      position      = 'end', # 'middle', 'start'
-      type          = 'barchart', # candlestick
-      gap           = 0,
-      monochromatic = TRUE,
-      col           = list(
+      auto     = TRUE,
+      position = 'end', # 'middle', 'start'
+      type     = 'barchart', # candlestick
+      gap      = 0,
+      mono     = TRUE,
+      col      = list(
 
         up   = 'steelblue',
         flat = 'yellowgreen',
@@ -179,11 +179,11 @@ PlotTs$set( 'public', 'initialize', function() {
   invisible( self )
 } )
 
-PlotTs$set( 'public', 'set_style', function( ... ) {
+PlotTs$set( 'public', 'style', function( ... ) {
 
   args = list(...)
-  if( !is.null( args$style ) ) args = args$style
-  self$style = modifyList( self$style, args )
+  if( names( args )[1] == 1 ) args = args[[1]]
+  self$style_info = modifyList( self$style_info, args )
   self
 
 } )
@@ -230,8 +230,11 @@ PlotTs$set( 'public', 'set_time_range', function( text_time_range ) {
 
 } )
 
-PlotTs$set( 'public', 'set_limits', function( xlim = NULL, ylim = NULL, tlim = NULL, time_range = NULL ) {
 
+PlotTs$set( 'public', 'limits', function( xlim = NULL, ylim = NULL, tlim = NULL, time_range = NULL ) {
+
+  if( is.null( self$candles_info ) ) self$candles()
+  if( is.null( self$lines_info   ) ) self$lines()
   if( !is.null( time_range ) ) self$set_time_range( time_range )
 
   self$frame$limited = !is.null( xlim ) | !is.null( ylim ) | !is.null( tlim )
@@ -244,6 +247,7 @@ PlotTs$set( 'public', 'set_limits', function( xlim = NULL, ylim = NULL, tlim = N
 
     if( is.character( tlim ) ) {
       tlim = .text_to_time_interval( tlim )
+      if( self$x_type == 'date' ) tlim = as.Date( tlim )
     } else {
         if( length( tlim ) != 2 ) stop( 'tlim must have two elements' )
     }
@@ -265,7 +269,7 @@ PlotTs$set( 'public', 'set_limits', function( xlim = NULL, ylim = NULL, tlim = N
 
     xlim = self$basis[, c( x_from[1], x_to[.N] ) ]
     self$basis_limited = self$basis
-    tlim = xlim
+    #tlim = xlim
 
   }
 
@@ -307,7 +311,7 @@ PlotTs$set( 'public', 'set_limits', function( xlim = NULL, ylim = NULL, tlim = N
 
     basis_limited[ 1 , ':='( x_from = xlim[1], t_from = tlim[1] ) ]
     basis_limited[ .N, ':='( x_to   = xlim[2], t_to   = tlim[2] ) ]
-    basis_limited = basis_limited[ x_from != x_to ]
+    if( self$x_type == 'time' ) basis_limited = basis_limited[ x_from != x_to ]
 
 
     self$basis_limited = basis_limited
@@ -344,8 +348,8 @@ PlotTs$set( 'public', 'calc_basis', function() {
 
       } else {
 
-        basis[, t_from := round_POSIXct( t_from, self$style$time_axis$round, 'mins', floor   ) ]
-        basis[, t_to   := round_POSIXct( t_to  , self$style$time_axis$round, 'mins', ceiling ) ]
+        basis[, t_from := round_POSIXct( t_from, self$style_info$time$round, 'mins', floor   ) ]
+        basis[, t_to   := round_POSIXct( t_to  , self$style_info$time$round, 'mins', ceiling ) ]
 
       }
 
@@ -386,17 +390,17 @@ PlotTs$set( 'public', 'calc_data_x', function() {
 
 PlotTs$set( 'public', 'plot_frame', function() {
 
-  plot( 1, 1, type = 'n', xlab = '', ylab = '', main = '', xaxt = 'n', yaxt = 'n', xlim = self$frame$xlim, ylim = self$frame$ylim, xaxs = 'i', bty = 'n', log = if( self$style$y_axis$log ) 'y' else ''  )
+  plot( 1, 1, type = 'n', xlab = '', ylab = '', main = '', xaxt = 'n', yaxt = 'n', xlim = self$frame$xlim, ylim = self$frame$ylim, xaxs = 'i', bty = 'n', log = if( self$style_info$value$log ) 'y' else ''  )
 
   ax_ticks = round( axTicks( 2 ), 10 )
-  if( self$style$y_axis$visible ) axis( 2, at = ax_ticks, labels = format( ax_ticks ), las = 1, tick = FALSE )
+  if( self$style_info$value$visible ) axis( 2, at = ax_ticks, labels = format( ax_ticks ), las = 1, tick = FALSE )
 
-  if( self$style$y_axis$grid )
-    if( self$x_grid$hours ) abline( h = ax_ticks, col = self$style$grid$hour$col, lty = self$style$grid$hour$lty ) else
-    if( self$x_grid$dates ) abline( h = ax_ticks, col = self$style$grid$day $col, lty = self$style$grid$day $lty ) else
-     abline( h = ax_ticks, col = self$style$grid$month$col, lty = self$style$grid$month$lty )
+  if( self$style_info$value$grid )
+    if( self$x_grid$hours ) abline( h = ax_ticks, col = self$style_info$grid$hour$col, lty = self$style_info$grid$hour$lty ) else
+    if( self$x_grid$dates ) abline( h = ax_ticks, col = self$style_info$grid$day $col, lty = self$style_info$grid$day $lty ) else
+     abline( h = ax_ticks, col = self$style_info$grid$month$col, lty = self$style_info$grid$month$lty )
 
-  abline( h = 0, col = self$style$grid$zero$col, lty = self$style$grid$zero$lty )
+  abline( h = 0, col = self$style_info$grid$zero$col, lty = self$style_info$grid$zero$lty )
 
   invisible( self )
 
@@ -429,7 +433,7 @@ PlotTs$set( 'public', 'calc_time_grid_and_labels', function() {
   if( is.null( self$x_type ) ) stop( 'add data first' )
   if( is.null( self$basis ) ) self$calc_basis()
 
-  resolution = match.arg( self$style$time_axis$resolution, choices = c( 'auto', 'minute', 'hour', 'day', 'month', 'year', 'years' ) )
+  resolution = match.arg( self$style_info$time$resolution, choices = c( 'auto', 'minute', 'hour', 'day', 'month', 'year', 'years' ) )
 
   if( resolution == 'auto' ) resolution =
 
@@ -547,21 +551,21 @@ PlotTs$set( 'public', 'calc_time_grid_and_labels', function() {
 
 PlotTs$set( 'public', 'plot_time_grid', function() {
 
-  if( !self$style$time_axis$grid ) return( invisible( self ) )
+  if( !self$style_info$time$grid ) return( invisible( self ) )
 
-  if( self$x_grid$'10min' ) abline( v = self$x_grid_coord$min10$x, lty = self$style$grid$minute$lty, col = self$style$grid$minute$col )
-  if( self$x_grid$'hours' ) abline( v = self$x_grid_coord$hours$x, lty = self$style$grid$hour  $lty, col = self$style$grid$hour  $col )
-  if( self$x_grid$'dates' ) abline( v = self$x_grid_coord$dates$x, lty = self$style$grid$day   $lty, col = self$style$grid$day   $col )
-  if( self$x_grid$'month' ) abline( v = self$x_grid_coord$month$x, lty = self$style$grid$month $lty, col = self$style$grid$month $col )
-  if( self$x_grid$'years' ) abline( v = self$x_grid_coord$years$x, lty = self$style$grid$year  $lty, col = self$style$grid$year  $col )
+  if( self$x_grid$'10min' ) abline( v = self$x_grid_coord$min10$x, lty = self$style_info$grid$minute$lty, col = self$style_info$grid$minute$col )
+  if( self$x_grid$'hours' ) abline( v = self$x_grid_coord$hours$x, lty = self$style_info$grid$hour  $lty, col = self$style_info$grid$hour  $col )
+  if( self$x_grid$'dates' ) abline( v = self$x_grid_coord$dates$x, lty = self$style_info$grid$day   $lty, col = self$style_info$grid$day   $col )
+  if( self$x_grid$'month' ) abline( v = self$x_grid_coord$month$x, lty = self$style_info$grid$month $lty, col = self$style_info$grid$month $col )
+  if( self$x_grid$'years' ) abline( v = self$x_grid_coord$years$x, lty = self$style_info$grid$year  $lty, col = self$style_info$grid$year  $col )
 
   invisible( self )
 
 } )
 
-PlotTs$set( 'public', 'plot_time_axis', function() {
+PlotTs$set( 'public', 'plot_time', function() {
 
-  if( !self$style$time_axis$visible ) return( invisible( self ) )
+  if( !self$style_info$time$visible ) return( invisible( self ) )
 
   if( self$x_labs$'10min' ) {
 
@@ -588,7 +592,7 @@ PlotTs$set( 'public', 'print', function(...) {
 
 } )
 
-PlotTs$set( 'public', 'add_lines',
+PlotTs$set( 'public', 'lines',
             function( names = NULL, labels = names, type = 'l', lty = 1, pch = 19, col = 'auto', lwd = 1, lend = 'round' ) {
 
     # names = 'auto'; type = 'l'; lty = 1; pch = 19; col = 'auto'; lwd = 1; lend = 'round'
@@ -634,12 +638,12 @@ PlotTs$set( 'public', 'add_lines',
 
 } )
 
-PlotTs$set( 'public', 'add_candles', function(
+PlotTs$set( 'public', 'candles', function(
   ohlc = c( 'open', 'high', 'low', 'close' ),
   position = c( 'end', 'middle', 'start' ),
   type = c( 'barchart', 'candlestick' ),
   gap = 0,
-  monochromatic = TRUE,
+  mono = TRUE,
   col = 'steelblue',
   col_up = 'steelblue',
   col_flat = 'purple',
@@ -649,13 +653,13 @@ PlotTs$set( 'public', 'add_candles', function(
 
   if( !is.null( self$candles_info ) ) stop( 'only single candles trace supported' )
 
-  self$style$candle$position      = match.arg( position )
-  self$style$candle$type          = match.arg( type )
+  self$style_info$candle$position      = match.arg( position )
+  self$style_info$candle$type          = match.arg( type )
   if( gap < 0 | gap > 1.0 ) stop( 'candles gap must be [ 0, 1 ]' )
-  self$style$candle$gap           = gap
-  self$style$candle$monochromatic = monochromatic
-  self$style$candle$col           = list( mono = col, up = col_up, down = col_down, flat = col_flat )
-  self$style$candle$width         = width
+  self$style_info$candle$gap           = gap
+  self$style_info$candle$mono = mono
+  self$style_info$candle$col           = list( mono = col, up = col_up, down = col_down, flat = col_flat )
+  self$style_info$candle$width         = width
 
   # scan data for ohlc
   data_id = which( sapply( self$data, function( x ) all( ohlc %in% names( x ) ) ) )
@@ -687,22 +691,22 @@ PlotTs$set( 'public', 'plot_candles', function() {
 
   x = self$data_x[[ self$candles_info$data_id ]]
 
-  width = if( self$style$candle$width == 'auto' ) min( diff( x ), na.rm = T ) / 2 else self$style$candle$width
-  width = width * ( 1 - self$style$candle$gap )
+  width = if( self$style_info$candle$width == 'auto' ) min( diff( x ), na.rm = T ) / 2 else self$style_info$candle$width
+  width = width * ( 1 - self$style_info$candle$gap )
 
   y = self$data[[ self$candles_info$data_id ]][ x >= self$frame$xlim[1] & x <= self$frame$xlim[2] & !is.na( x ) ]
   x = x[ x >= self$frame$xlim[1] & x <= self$frame$xlim[2] & !is.na( x ) ]
 
-  col = if( !self$style$candle$monochromatic ) {
+  col = if( !self$style_info$candle$mono ) {
 
-    ifelse( y[[ open  ]] < y[[ close ]], self$style$candle$col$up,
-            ifelse( y[[ open  ]] > y[[ close ]], self$style$candle$col$down,
-                    self$style$candle$col$flat ) )
+    ifelse( y[[ open  ]] < y[[ close ]], self$style_info$candle$col$up,
+            ifelse( y[[ open  ]] > y[[ close ]], self$style_info$candle$col$down,
+                    self$style_info$candle$col$flat ) )
 
-  } else self$style$candle$col$mono
+  } else self$style_info$candle$col$mono
 
   switch(
-    self$style$candle$type,
+    self$style_info$candle$type,
     barchart = {
 
       segments( x - width    , y[[ high  ]], x - width, y[[ low   ]], col = col )
@@ -755,7 +759,7 @@ PlotTs$set( 'public', 'plot_lines', function() {
 
 PlotTs$set( 'public', 'plot_legend', function() {
 
-  if( !self$style$legend$visible ) return( invisible( self ) )
+  if( !self$style_info$legend$visible ) return( invisible( self ) )
 
   legend_info = self$lines_info
 
@@ -763,12 +767,12 @@ PlotTs$set( 'public', 'plot_legend', function() {
     legend_info[, {
 
       legend( legend = label, col = col, lty = lty, pch = pch, lwd = lwd,
-              x = self$style$legend$position,
-              bg = self$style$legend$col$background,
-              box.col = self$style$legend$col$frame,
-              inset = self$style$legend$inset,
+              x = self$style_info$legend$position,
+              bg = self$style_info$legend$col$background,
+              box.col = self$style_info$legend$col$frame,
+              inset = self$style_info$legend$inset,
               xpd = TRUE,
-              horiz = self$style$legend$horizontal )
+              horiz = self$style_info$legend$horizontal )
 
     } ]
 
@@ -779,12 +783,10 @@ PlotTs$set( 'public', 'plot_legend', function() {
 PlotTs$set( 'public', 'plot', function() {
 
   if( all( sapply( self$data, ncol ) == 1 ) ) stop( 'at least one data set must have data columns' )
-  if( is.null( self$candles_info ) ) self$add_candles()
-  if( is.null( self$lines_info   ) ) self$add_lines()
-  if( is.null( self$basis        ) ) self$set_limits()
+  if( is.null( self$basis        ) ) self$limits()
   self$calc_time_grid_and_labels()
   self$plot_frame()
-  self$plot_time_axis()
+  self$plot_time()
   self$plot_time_grid()
   self$plot_candles()
   self$plot_lines()
@@ -797,7 +799,7 @@ PlotTs$set( 'public', 'plot', function() {
 
 PlotTs$set( 'public', 'plot_last_values', function() {
 
-  if( !self$style$y_axis$last_values ) return( invisible( self ) )
+  if( !self$style_info$value$last ) return( invisible( self ) )
 
   if( !is.null( self$lines_info ) ){
 
