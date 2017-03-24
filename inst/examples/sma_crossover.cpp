@@ -4,7 +4,12 @@
 #include "BackTest.h"
 
 // [[Rcpp::export]]
-Rcpp::List sma_crossover( Rcpp::DataFrame ticks, Rcpp::List parameters, Rcpp::List options, bool fast = false ) {
+Rcpp::List sma_crossover(
+    Rcpp::DataFrame ticks,
+    Rcpp::List parameters,
+    Rcpp::List options,
+    bool fast = false
+  ) {
 
   int    fastPeriod = parameters["period_fast" ];
   int    slowPeriod = parameters["period_slow" ];
@@ -114,8 +119,8 @@ Rcpp::List sma_crossover( Rcpp::DataFrame ticks, Rcpp::List parameters, Rcpp::Li
   // run back test on tick data
   bt.Feed( ticks );
 
-  // combine parameters and test summary
-  Rcpp::List summary = ListBuilder().AsDataTable().Add( parameters ).Add( bt.GetSummary() );
+  // test summary
+  Rcpp::List summary = bt.GetSummary();
 
   // if fast return only summary
   if( fast ) return summary;

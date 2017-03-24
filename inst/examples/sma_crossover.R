@@ -1,47 +1,51 @@
-\dontrun{
+######################################
+## Simple Moving Averages Crossover ##
+######################################
 
 # load tick data
 data( 'ticks' )
+
 # define strategy
 strategy_source = system.file( package = 'QuantTools', 'examples/sma_crossover.cpp' )
 # compile strategy
 Rcpp::sourceCpp( strategy_source )
+
 # set strategy parameters
 parameters = data.table(
   period_fast = 50,
   period_slow = 30,
   timeframe   = 60
 )
+
 # set options, see 'Options' section
 options = list(
-  cost = list( tradeAbs = -0.01 ),
-  latency = 0.1
+  cost    = list( tradeAbs = -0.01 ),
+  latency = 0.1 # 100 milliseconds
 )
+
 # run test
-test_summary = sma_crossover( ticks, parameters, options, fast = T )
+test_summary = sma_crossover( ticks, parameters, options, fast = TRUE )
 print( test_summary )
-# run test on single date
-interval = '2016-09-08'
-test = sma_crossover( ticks[ time %bw% '2016-09-08' ], parameters, options, fast = F )
+
+# run test
+test = sma_crossover( ticks, parameters, options, fast = FALSE )
+
 # plot result
-# leave only closed trades and executed orders
-test$trades = test$trades[ state == 'closed' ]
-test$orders = test$orders[ state == 'executed' ]
+indicators = plot_dts(
+  test$indicators,
+  test$orders[ side == 'buy' , .( time_processed, buy  = price_exec ) ],
+  test$orders[ side == 'sell', .( time_processed, sell = price_exec ) ] )$
+  add_candles( type = 'candlestick', monochromatic = F, gap = 0.5 )$
+  add_lines( c( 'sma_fast', 'sma_slow' ), c( 'SMA Fast', 'Sma Slow' ) )$
+  add_lines( c( 'buy', 'sell' ), type = 'p', pch = c( 24, 25 ), col = c( 'blue', 'red' ) )
 
-layout( matrix( 1:2, ncol = 1 ), height = c( 2, 1 ) )
+performance = plot_dts( test$indicators[, .( time, pnl = pnl * 100, drawdown = drawdown * 100 ) ] )$
+  add_lines( c( 'pnl', 'drawdown' ), c( 'P&L, %', 'Draw Down, %' ), col = c( 'darkolivegreen', 'darkred' ) )
 
-par( mar = c( 0, 4, 2, 4 ), family = 'sans' )
-par( xaxt = 'n' )
-plot_ts( test$indicators[ time %bw% interval ], type = 'candle' )
-plot_ts( test$indicators[ ,.( time, sma_slow, sma_fast ) ],
-         col = c( 'goldenrod', 'darkmagenta' ), legend = 'topleft', add = T )
-test$orders[, points( t_to_x( time_processed ), price_exec,
-                     pch = ifelse( side == 'buy', 24, 25 ),
-                     col = ifelse( side == 'buy', 'blue', 'red' ) )
-]
-par( xaxt = 's', mar = c( 4, 4, 0, 4 ) )
-plot_ts( test$indicators[, .( time, `P&L, %` = pnl * 100, `Draw Down, %` = drawdown * 100 ) ],
-         col = c( 'blue', 'red' ), legend = 'bottomleft' )
-
-
-}
+interval = '2016-01-19 12/13'
+par( mfrow = c( 2, 1 ), oma = c( 5, 4, 2, 4 ) + 0.1, mar = c( 0, 0, 2, 0 ) )
+indicators $set_limits( tlim = interval )$set_style( time_axis = list( visible = F ) )
+title( 'Indicators' , adj = 0 )
+performance$set_limits( tlim = interval )
+title( 'Performance', adj = 0 )
+par( mfrow = c( 1, 1 ), oma = c( 0, 0, 0, 0 ), mar = c( 5, 4, 4, 2 ) + 0.1 )

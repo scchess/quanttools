@@ -61,6 +61,7 @@
 #' \cr \code{Reset()}                          \tab \code{void}                \tab resets to initial state
 #' }
 #' @example /inst/examples/sma_crossover.R
+#' @example /inst/examples/bbands.R
 #' @section Execution Model:
 #' System sends new order and after \code{latencySend} seconds it reaches exchange.
 #' System receives confirmation of order placement \code{latencyReceive} seconds later.
