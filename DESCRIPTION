@@ -18,7 +18,8 @@ Imports:
     fasttime,
     RCurl,
     readxl,
-    Rcpp (>= 0.12.6)
+    Rcpp (>= 0.12.6),
+    R6
 LinkingTo: Rcpp
 SystemRequirements: C++11
 RoxygenNote: 6.0.1
