@@ -253,20 +253,20 @@ test = sma_crossover( ticks, parameters, options, fast = FALSE )
 
 # plot result
 indicators = plot_dts(
-  test$indicators,
-  test$orders[ side == 'buy' , .( time_processed, buy  = price_exec ) ],
-  test$orders[ side == 'sell', .( time_processed, sell = price_exec ) ] )$
-  lines( c( 'sma_fast', 'sma_slow' ) )$
-  lines( c( 'buy', 'sell' ), type = 'p', pch = c( 24, 25 ), col = c( 'blue', 'red' ) )
+test$indicators,
+test$orders[ side == 'buy' , .( time_processed, buy  = price_exec ) ],
+test$orders[ side == 'sell', .( time_processed, sell = price_exec ) ] )$
+lines( c( 'sma_fast', 'sma_slow' ) )$
+lines( c( 'buy', 'sell' ), type = 'p', pch = c( 24, 25 ), col = c( 'blue', 'red' ) )
 
 performance = plot_dts( test$indicators[, .( time, pnl = pnl * 100, drawdown = drawdown * 100 ) ] )$
-  lines( c( 'pnl', 'drawdown' ), c( '\% pnl', '\% drawdown' ), col = c( 'darkolivegreen', 'darkred' ) )
+lines( c( 'pnl', 'drawdown' ), c( '\% pnl', '\% drawdown' ), col = c( 'darkolivegreen', 'darkred' ) )
 
 interval = '2016-01-19 12/13'
 par( mfrow = c( 2, 1 ), oma = c( 5, 4, 2, 4 ) + 0.1, mar = c( 0, 0, 0, 0 ) )
-indicators $limits( tlim = interval )$style( time = list( visible = F ) )
+indicators $limits( tlim = interval )$style( time = list( visible = FALSE ) )
 performance$limits( tlim = interval )
-title( 'Simple Moving Averages Crossover', outer = T )
+title( 'Simple Moving Averages Crossover', outer = TRUE )
 par( mfrow = c( 1, 1 ), oma = c( 0, 0, 0, 0 ), mar = c( 5, 4, 4, 2 ) + 0.1 )
 #####################
 ## Bollinger Bands ##
@@ -302,20 +302,20 @@ test = bbands( ticks, parameters, options, fast = FALSE )
 
 # plot result
 indicators = plot_dts(
-  test$indicators,
-  test$orders[ side == 'buy' , .( time_processed, buy  = price_exec ) ],
-  test$orders[ side == 'sell', .( time_processed, sell = price_exec ) ] )$
-  lines( c( 'lower', 'sma', 'upper' ) )$
-  lines( c( 'buy', 'sell' ), type = 'p', pch = c( 24, 25 ), col = c( 'blue', 'red' ) )
+test$indicators,
+test$orders[ side == 'buy' , .( time_processed, buy  = price_exec ) ],
+test$orders[ side == 'sell', .( time_processed, sell = price_exec ) ] )$
+lines( c( 'lower', 'sma', 'upper' ) )$
+lines( c( 'buy', 'sell' ), type = 'p', pch = c( 24, 25 ), col = c( 'blue', 'red' ) )
 
 performance = plot_dts( test$indicators[, .( time, pnl = pnl * 100, drawdown = drawdown * 100 ) ] )$
-  lines( c( 'pnl', 'drawdown' ), c( '\% pnl', '\% drawdown' ), col = c( 'darkolivegreen', 'darkred' ) )
+lines( c( 'pnl', 'drawdown' ), c( '\% pnl', '\% drawdown' ), col = c( 'darkolivegreen', 'darkred' ) )
 
 interval = '2016-01-19 12/13'
 par( mfrow = c( 2, 1 ), oma = c( 5, 4, 2, 4 ) + 0.1, mar = c( 0, 0, 0, 0 ) )
-indicators $limits( tlim = interval )$style( time = list( visible = F ) )
+indicators $limits( tlim = interval )$style( time = list( visible = FALSE ) )
 performance$limits( tlim = interval )
-title( 'Bollinger Bands', outer = T )
+title( 'Bollinger Bands', outer = TRUE )
 par( mfrow = c( 1, 1 ), oma = c( 0, 0, 0, 0 ), mar = c( 5, 4, 4, 2 ) + 0.1 )
 }
 \seealso{

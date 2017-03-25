@@ -54,33 +54,33 @@
 #'  \item{\bold{\code{$style}}}{
 #'  Change default plot options. Available options are:
 #'  \tabular{lll}{
-#'     \code{\bold{grid}}\cr
+#'     \bold{\code{grid}}\cr
 #'     \code{minute}      \tab \code{list(col,lty)} \tab minute vertical gridline color and line type \cr
 #'     \code{hour}        \tab \code{list(col,lty)} \tab hour vertical gridline color and line type   \cr
 #'     \code{day}         \tab \code{list(col,lty)} \tab day vertical gridline color and line type    \cr
 #'     \code{month}       \tab \code{list(col,lty)} \tab month vertical gridline color and line type  \cr
 #'     \code{year}        \tab \code{list(col,lty)} \tab year vertical gridline color and line type   \cr
 #'     \code{zero}        \tab \code{list(col,lty)} \tab zero horizontal gridline color and line type \cr
-#'     \code{\bold{time}}\cr
+#'     \bold{\code{time}}\cr
 #'     \code{grid}        \tab \code{logical}   \tab should vertical gridlines be plotted?                 \cr
 #'     \code{resolution}  \tab \code{character} \tab auto, minute, hour, day, month, year or years         \cr
 #'     \code{round}       \tab \code{numeric}   \tab time axis rounding in minutes                         \cr
 #'     \code{visible}     \tab \code{logical}   \tab should time axis be plotted?                          \cr
-#'     \code{\bold{value}}\cr
+#'     \bold{\code{value}}\cr
 #'     \code{grid}        \tab \code{logical}  \tab should horizontal gridlines be plotted? \cr
 #'     \code{last}        \tab \code{logical}  \tab should last values be plotted?          \cr
 #'     \code{log}         \tab \code{logical}  \tab should y axis be in logarithmic scale?  \cr
 #'     \code{visible}     \tab \code{logical}  \tab should y axis be plotted?               \cr
-#'     \code{\bold{candle}}\cr
+#'     \bold{\code{candle}}\cr
 #'     \code{auto}          \tab \code{logical}           \tab shoud candles be automatically detected and plotted?  \cr
 #'     \code{col}           \tab \code{list(up,flat,down)}\tab colors                                                \cr
 #'     \code{gap}           \tab \code{numeric}           \tab gap between candles in fraction of \code{width}       \cr
 #'     \code{mono}          \tab \code{logical}           \tab should all candles have same color?                   \cr
 #'     \code{position}      \tab \code{character}         \tab relative to time position only \code{'end'} supported \cr
 #'     \code{type}          \tab \code{character}         \tab \code{'candlestick'} or \code{'barchart'}             \cr
-#'     \code{\bold{line}}\cr
+#'     \bold{\code{line}}\cr
 #'     \code{auto}          \tab \code{logical}           \tab shoud lines be automatically detected and plotted?    \cr
-#'     \code{\bold{legend}}\cr
+#'     \bold{\code{legend}}\cr
 #'     \code{col}           \tab \code{list(background,frame)} \tab colors                       \cr
 #'     \code{horizontal}    \tab \code{logical}                \tab should legend be horizontal? \cr
 #'     \code{inset}         \tab \code{numeric}                \tab see \link[graphics]{legend}  \cr
@@ -182,7 +182,7 @@ PlotTs$set( 'public', 'initialize', function() {
 PlotTs$set( 'public', 'style', function( ... ) {
 
   args = list(...)
-  if( names( args )[1] == 1 ) args = args[[1]]
+  if( is.null( names( args ) ) ) args = args[[1]]
   self$style_info = modifyList( self$style_info, args )
   self
 
@@ -657,7 +657,7 @@ PlotTs$set( 'public', 'candles', function(
   self$style_info$candle$type          = match.arg( type )
   if( gap < 0 | gap > 1.0 ) stop( 'candles gap must be [ 0, 1 ]' )
   self$style_info$candle$gap           = gap
-  self$style_info$candle$mono = mono
+  self$style_info$candle$mono          = mono
   self$style_info$candle$col           = list( mono = col, up = col_up, down = col_down, flat = col_flat )
   self$style_info$candle$width         = width
 
