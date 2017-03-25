@@ -21,6 +21,7 @@
 #' @importFrom utils read.delim tail capture.output download.file unzip
 #' @importFrom Rcpp evalCpp
 #' @importFrom R6 R6Class
+#' @importFrom fasttime fastPOSIXct
 #' @import data.table
 #' @useDynLib QuantTools, .registration = TRUE
 NULL
