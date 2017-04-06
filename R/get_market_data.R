@@ -207,9 +207,9 @@ get_finam_data = function( symbol, from, to = from, period = 'day', local = FALS
   # Finam host address
   host = 'export.finam.ru'
   # referer to successfully download data from Finam server
-  referer = 'http://www.finam.ru/analysis/profile041CA00007/default.asp'
+  referer = 'https://www.finam.ru/analysis/profile041CA00007/default.asp'
   # urls of Finam instruments information files
-  source_urls = c( 'http://www.finam.ru/scripts/export.js', 'http://www.finam.ru/cache/icharts/icharts.js' )
+  source_urls = c( 'https://www.finam.ru/scripts/export.js', 'https://www.finam.ru/cache/icharts/icharts.js' )
   # download available instruments info
   is_instruments_info_present_in_system = exists( 'instruments_info', envir = finam_downloader_env )
   #is_instruments_info_present_in_system = exists( 'finam_downloader_env', mode = 'environment' )
@@ -217,8 +217,8 @@ get_finam_data = function( symbol, from, to = from, period = 'day', local = FALS
     # define function to download available instruments information from Finam server
     get_finam_instruments_info = function( source_url ) {
 
-      # source_url = 'http://www.finam.ru/cache/icharts/icharts.js'
-      # source_url = 'http://www.finam.ru/scripts/export.js'
+      # source_url = 'https://www.finam.ru/cache/icharts/icharts.js'
+      # source_url = 'https://www.finam.ru/scripts/export.js'
 
       # read file from url
       con <- file( source_url, 'r', blocking = FALSE )
