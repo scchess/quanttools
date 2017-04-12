@@ -19,18 +19,19 @@ Plot data.table time series
     \code{labels}                       \tab vector of labels if different from column names       \cr
     \code{type}                         \tab vector or single value, see \link[graphics]{lines}    \cr
     \code{lty,pch,col,lwd,lend}         \tab vector or single value, see \link[graphics]{par}      \cr
+    \code{bg}                           \tab vector or single value, see \link[graphics]{points}   \cr
  }
  }
  \item{\bold{\code{$candles}}}{
  Add candles with following arguments:
     \tabular{ll}{
     \code{ohlc}                         \tab vector of open, high, low and close names             \cr
+    \code{timeframe}                    \tab candle timeframe in minutes for intraday candles      \cr
     \code{position}                     \tab relative to time position only \code{'end'} supported \cr
     \code{type}                         \tab \code{'barchart'} or \code{'candlestick'}             \cr
     \code{gap}                          \tab gap between candles in fraction of \code{width}       \cr
     \code{mono}                         \tab should all candles have same color?                   \cr
     \code{col,col_up,col_flat,col_down} \tab colors                                                \cr
-    \code{width}                        \tab candle width in minutes for intraday candles          \cr
  }
  }
  \item{\bold{\code{$limits}}}{
@@ -62,14 +63,14 @@ Plot data.table time series
     \code{log}         \tab \code{logical}  \tab should y axis be in logarithmic scale?  \cr
     \code{visible}     \tab \code{logical}  \tab should y axis be plotted?               \cr
     \bold{\code{candle}}\cr
-    \code{auto}          \tab \code{logical}           \tab shoud candles be automatically detected and plotted?  \cr
-    \code{col}           \tab \code{list(up,flat,down)}\tab colors                                                \cr
-    \code{gap}           \tab \code{numeric}           \tab gap between candles in fraction of \code{width}       \cr
-    \code{mono}          \tab \code{logical}           \tab should all candles have same color?                   \cr
-    \code{position}      \tab \code{character}         \tab relative to time position only \code{'end'} supported \cr
-    \code{type}          \tab \code{character}         \tab \code{'candlestick'} or \code{'barchart'}             \cr
+    \code{auto}          \tab \code{logical}                 \tab shoud candles be automatically detected and plotted?  \cr
+    \code{col}           \tab \code{list(mono,up,flat,down)} \tab colors                                                \cr
+    \code{gap}           \tab \code{numeric}                 \tab gap between candles in fraction of \code{width}       \cr
+    \code{mono}          \tab \code{logical}                 \tab should all candles have same color?                   \cr
+    \code{position}      \tab \code{character}               \tab relative to time position only \code{'end'} supported \cr
+    \code{type}          \tab \code{character}               \tab \code{'candlestick'} or \code{'barchart'}             \cr
     \bold{\code{line}}\cr
-    \code{auto}          \tab \code{logical}           \tab shoud lines be automatically detected and plotted?    \cr
+    \code{auto}          \tab \code{logical}                 \tab shoud lines be automatically detected and plotted?    \cr
     \bold{\code{legend}}\cr
     \code{col}           \tab \code{list(background,frame)} \tab colors                       \cr
     \code{horizontal}    \tab \code{logical}                \tab should legend be horizontal? \cr

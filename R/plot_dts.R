@@ -29,18 +29,19 @@
 #'     \code{labels}                       \tab vector of labels if different from column names       \cr
 #'     \code{type}                         \tab vector or single value, see \link[graphics]{lines}    \cr
 #'     \code{lty,pch,col,lwd,lend}         \tab vector or single value, see \link[graphics]{par}      \cr
+#'     \code{bg}                           \tab vector or single value, see \link[graphics]{points}   \cr
 #'  }
 #'  }
 #'  \item{\bold{\code{$candles}}}{
 #'  Add candles with following arguments:
 #'     \tabular{ll}{
 #'     \code{ohlc}                         \tab vector of open, high, low and close names             \cr
+#'     \code{timeframe}                    \tab candle timeframe in minutes for intraday candles      \cr
 #'     \code{position}                     \tab relative to time position only \code{'end'} supported \cr
 #'     \code{type}                         \tab \code{'barchart'} or \code{'candlestick'}             \cr
 #'     \code{gap}                          \tab gap between candles in fraction of \code{width}       \cr
 #'     \code{mono}                         \tab should all candles have same color?                   \cr
 #'     \code{col,col_up,col_flat,col_down} \tab colors                                                \cr
-#'     \code{width}                        \tab candle width in minutes for intraday candles          \cr
 #'  }
 #'  }
 #'  \item{\bold{\code{$limits}}}{
@@ -72,14 +73,14 @@
 #'     \code{log}         \tab \code{logical}  \tab should y axis be in logarithmic scale?  \cr
 #'     \code{visible}     \tab \code{logical}  \tab should y axis be plotted?               \cr
 #'     \bold{\code{candle}}\cr
-#'     \code{auto}          \tab \code{logical}           \tab shoud candles be automatically detected and plotted?  \cr
-#'     \code{col}           \tab \code{list(up,flat,down)}\tab colors                                                \cr
-#'     \code{gap}           \tab \code{numeric}           \tab gap between candles in fraction of \code{width}       \cr
-#'     \code{mono}          \tab \code{logical}           \tab should all candles have same color?                   \cr
-#'     \code{position}      \tab \code{character}         \tab relative to time position only \code{'end'} supported \cr
-#'     \code{type}          \tab \code{character}         \tab \code{'candlestick'} or \code{'barchart'}             \cr
+#'     \code{auto}          \tab \code{logical}                 \tab shoud candles be automatically detected and plotted?  \cr
+#'     \code{col}           \tab \code{list(mono,up,flat,down)} \tab colors                                                \cr
+#'     \code{gap}           \tab \code{numeric}                 \tab gap between candles in fraction of \code{width}       \cr
+#'     \code{mono}          \tab \code{logical}                 \tab should all candles have same color?                   \cr
+#'     \code{position}      \tab \code{character}               \tab relative to time position only \code{'end'} supported \cr
+#'     \code{type}          \tab \code{character}               \tab \code{'candlestick'} or \code{'barchart'}             \cr
 #'     \bold{\code{line}}\cr
-#'     \code{auto}          \tab \code{logical}           \tab shoud lines be automatically detected and plotted?    \cr
+#'     \code{auto}          \tab \code{logical}                 \tab shoud lines be automatically detected and plotted?    \cr
 #'     \bold{\code{legend}}\cr
 #'     \code{col}           \tab \code{list(background,frame)} \tab colors                       \cr
 #'     \code{horizontal}    \tab \code{logical}                \tab should legend be horizontal? \cr
@@ -147,6 +148,7 @@ PlotTs$set( 'public', 'initialize', function() {
       mono     = TRUE,
       col      = list(
 
+        mono = 'steelblue',
         up   = 'steelblue',
         flat = 'yellowgreen',
         down = 'tomato'
@@ -182,7 +184,7 @@ PlotTs$set( 'public', 'initialize', function() {
 PlotTs$set( 'public', 'style', function( ... ) {
 
   args = list(...)
-  if( is.null( names( args ) ) ) args = args[[1]]
+  #if( is.null( names( args ) ) ) args = args[[1]]
   self$style_info = modifyList( self$style_info, args )
   self
 
@@ -593,19 +595,18 @@ PlotTs$set( 'public', 'print', function(...) {
 } )
 
 PlotTs$set( 'public', 'lines',
-            function( names = NULL, labels = names, type = 'l', lty = 1, pch = 19, col = 'auto', lwd = 1, lend = 'round' ) {
+            function( names = NULL, labels = names, type = 'l', lty = 1, pch = 19, col = 'auto', bg = NA, lwd = 1, lend = 'round' ) {
 
     # names = 'auto'; type = 'l'; lty = 1; pch = 19; col = 'auto'; lwd = 1; lend = 'round'
 
-    auto_lines = FALSE
-    if( is.null( names ) ) if( !is.null( self$lines_info ) ) return( invisible( self ) ) else {
-      auto_lines = TRUE
-    }
+    if( !is.null( names ) && length( names ) == 0 ) return( self )
+    auto_lines = is.null( names )
 
     if( auto_lines ) {
 
       names = unique( unlist( lapply( self$data, function( x ) names( x )[ -1 ] ) ) )
       if( !is.null( self$candles_info ) ) names = names %w/o% self$candles_info$name
+      if( !is.null( self$lines_info   ) ) names = names %w/o% self$lines_info$name
       labels = names
 
     }
@@ -615,6 +616,7 @@ PlotTs$set( 'public', 'lines',
     if( !length( lty    ) %in% c( 1, n_lines ) ) stop( 'lty must be same size as names or single value'  )
     if( !length( pch    ) %in% c( 1, n_lines ) ) stop( 'pch must be same size as names or single value'  )
     if( !length( col    ) %in% c( 1, n_lines ) ) stop( 'col must be same size as names or single value'  )
+    if( !length( bg     ) %in% c( 1, n_lines ) ) stop( 'bg must be same size as names or single value'   )
     if( !length( lwd    ) %in% c( 1, n_lines ) ) stop( 'lwd must be same size as names or single value'  )
     if( !length( lend   ) %in% c( 1, n_lines ) ) stop( 'lend must be same size as names or single value' )
     if( !length( labels ) %in% n_lines         ) stop( 'labels must be same size as names'               )
@@ -628,7 +630,7 @@ PlotTs$set( 'public', 'lines',
     if( nrow( lines_info ) == 0 & !is.null( names ) ) if( auto_lines ) return( self ) else stop( 'no data sets found having specified lines names' )
 
 
-    lines_info[, ':='( type = type, lty = lty, pch = pch, col = col, lwd = lwd, lend = lend, label = labels ) ]
+    lines_info[, ':='( type = type, lty = lty, pch = pch, col = col, bg = bg, lwd = lwd, lend = lend, label = labels ) ]
 
     if( lines_info[ , .N != uniqueN( name ) ] ) warning( 'multiple data sets found having specified names: using first data set' )
 
@@ -638,28 +640,18 @@ PlotTs$set( 'public', 'lines',
 
 } )
 
-PlotTs$set( 'public', 'candles', function(
-  ohlc = c( 'open', 'high', 'low', 'close' ),
-  position = c( 'end', 'middle', 'start' ),
-  type = c( 'barchart', 'candlestick' ),
-  gap = 0,
-  mono = TRUE,
-  col = 'steelblue',
-  col_up = 'steelblue',
-  col_flat = 'purple',
-  col_down = 'tomato',
-  width = 'auto'
-) {
+PlotTs$set( 'public', 'candles', function( ohlc = c( 'open', 'high', 'low', 'close' ), timeframe = 'auto', position, type, gap, mono, col, col_up, col_flat, col_down ) {
+
+  if( !missing( position ) ) self$style_info$candle$position = position
+  if( !missing( type     ) ) self$style_info$candle$type     = type
+  if( !missing( gap      ) ) self$style_info$candle$gap      = gap
+  if( !missing( mono     ) ) self$style_info$candle$mono     = mono
+  if( !missing( col      ) ) self$style_info$candle$col$mono = col
+  if( !missing( col_up   ) ) self$style_info$candle$col$up   = col_up
+  if( !missing( col_down ) ) self$style_info$candle$col$down = col_down
+  if( !missing( col_flat ) ) self$style_info$candle$col$flat = col_flat
 
   if( !is.null( self$candles_info ) ) stop( 'only single candles trace supported' )
-
-  self$style_info$candle$position      = match.arg( position )
-  self$style_info$candle$type          = match.arg( type )
-  if( gap < 0 | gap > 1.0 ) stop( 'candles gap must be [ 0, 1 ]' )
-  self$style_info$candle$gap           = gap
-  self$style_info$candle$mono          = mono
-  self$style_info$candle$col           = list( mono = col, up = col_up, down = col_down, flat = col_flat )
-  self$style_info$candle$width         = width
 
   # scan data for ohlc
   data_id = which( sapply( self$data, function( x ) all( ohlc %in% names( x ) ) ) )
@@ -672,8 +664,9 @@ PlotTs$set( 'public', 'candles', function(
   if( length( data_id ) == 0 ) return( self )#stop( 'no data sets found having specified ohlc names' )
 
   self$candles_info = list(
-    data_id = data_id,
-    name    = ohlc
+    data_id   = data_id,
+    name      = ohlc,
+    timeframe = timeframe
   )
 
   self
@@ -691,8 +684,8 @@ PlotTs$set( 'public', 'plot_candles', function() {
 
   x = self$data_x[[ self$candles_info$data_id ]]
 
-  width = if( self$style_info$candle$width == 'auto' ) min( diff( x ), na.rm = T ) / 2 else self$style_info$candle$width
-  width = width * ( 1 - self$style_info$candle$gap )
+  timeframe = if( self$candles_info$timeframe == 'auto' ) min( diff( x ), na.rm = T ) / 2 else self$candles_info$timeframe
+  width = timeframe * ( 1 - self$style_info$candle$gap )
 
   y = self$data[[ self$candles_info$data_id ]][ x >= self$frame$xlim[1] & x <= self$frame$xlim[2] & !is.na( x ) ]
   x = x[ x >= self$frame$xlim[1] & x <= self$frame$xlim[2] & !is.na( x ) ]
@@ -747,7 +740,7 @@ PlotTs$set( 'public', 'plot_lines', function() {
     y = self$data[[ data_id ]][[ name_id ]]#[ x >= self$frame$xlim[1] & x <= self$frame$xlim[2] ]
     #x = x[ x >= self$frame$xlim[1] & x <= self$frame$xlim[2] ]
 
-    lines( x, y, type = type[1], lty = lty[1], pch = pch[1], col = col[1], lwd = lwd[1], lend = lend[1] )
+    lines( x, y, type = type[1], lty = lty[1], pch = pch[1], col = col[1], lwd = lwd[1], lend = lend[1], bg = bg[1] )
     as.double( tail( y[ x <= self$frame$xlim[2] ], 1 ) )
 
 
@@ -766,7 +759,7 @@ PlotTs$set( 'public', 'plot_legend', function() {
   if( !is.null( legend_info ) )
     legend_info[, {
 
-      legend( legend = label, col = col, lty = lty, pch = pch, lwd = lwd,
+      legend( legend = label, col = col, pt.bg = bg, lty = lty, pch = pch, lwd = lwd,
               x = self$style_info$legend$position,
               bg = self$style_info$legend$col$background,
               box.col = self$style_info$legend$col$frame,
