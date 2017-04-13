@@ -48,6 +48,7 @@
 #' \cr \code{CanTrade()}                       \tab \code{bool}                \tab check if trading not stopped
 #' \cr \code{IsTradingHoursSet()}              \tab \code{bool}                \tab check if trading hours set
 #' \cr \code{CancelOrders()}                   \tab \code{void}                \tab cancel active orders
+#' \cr \code{GetCandle()}                      \tab \code{Candle}              \tab get current candle
 #' \cr \code{GetPosition()}                    \tab \code{int}                 \tab total executed position, positive means long, negative means short
 #' \cr \code{GetPositionPlanned()}             \tab \code{int}                 \tab total number of orders processing ( not executed or cancelled yet )
 #' \cr \code{GetMarketValue()}                 \tab \code{double}              \tab total portfolio percent value ( initial value is 0 )

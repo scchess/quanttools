@@ -362,6 +362,7 @@ public:
   }
 
   Statistics GetStatistics() { return statistics; }
+  Candle GetCandle() const { return candle; }
 
   void StopTrading() {
 
