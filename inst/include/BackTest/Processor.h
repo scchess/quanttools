@@ -234,6 +234,10 @@ public:
 
     if( onTick != nullptr ) onTick( tick );
 
+    // allocate memory to prevent iterators invalidation in case some orders have callbacks which send new orders
+    auto reserve = orders.size() < 10 ? 20 : orders.size() * 2;
+    orders.reserve( reserve );
+
     for( auto it = orders.begin(); it != orders.end();  ) {
 
       Order* order = (*it);
