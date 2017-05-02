@@ -254,7 +254,6 @@ public:
         trade->state    = TradeState::NEW;
         trade->idSent   = order->idSent;
         trade->timeSent = order->timeSent;
-        trade->side     = order->IsBuy() ? TradeSide::LONG : TradeSide::SHORT;
         trade->cost     = cost.order;
 
         trades[ order->idTrade ] = trade;
@@ -284,6 +283,7 @@ public:
             trade->idEnter    = order->idProcessed;
             trade->timeEnter  = order->timeProcessed;
             trade->priceEnter = order->priceExecuted;
+            trade->side       = order->IsBuy() ? TradeSide::LONG : TradeSide::SHORT;
 
             trade->state = TradeState::OPENED;
 
