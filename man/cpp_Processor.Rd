@@ -36,6 +36,7 @@ C++ class documentation
 \cr \code{SetLatency( double x )}           \tab \code{void}                \tab see 'latency' in 'Options' section
 \cr \code{SetTradingHours( double start, double end )}
                                             \tab \code{void}                \tab see 'trading_hours' in 'Options' section
+\cr \code{AllowLimitToHitMarket()}          \tab \code{void}                \tab see 'allow_limit_to_hit_market' in 'Options' section
 \cr \code{SetOptions( Rcpp::List options )} \tab \code{void}                \tab see 'Options' section
 \cr \code{StopTrading()}                    \tab \code{void}                \tab if called trading stop triggered. See 'stop' in 'Options' section
 \cr \code{CanTrade()}                       \tab \code{bool}                \tab check if trading not stopped
@@ -214,6 +215,9 @@ List of following elements. All options are optional.
    \cr E.g. if set to \code{c( 10.25, 17.5 )} means \code{onMarketOpen} event called every day at '10:15' and \code{onMarketClose} event called every day at '17:30'.
    \cr For convenience \code{IsTradingHoursSet()} method can be used to check wether trading hours are set.
 
+ }
+ \item{\strong{allow_limit_to_hit_market}}{
+   if TRUE, limit order execution price set to market price if executed on same tick as registered.
  }
 
 }

@@ -71,6 +71,7 @@ private:
   double stopTradingDrawdown = NAN;
   double stopTradingLoss     = NAN;
   bool   isTradingStopped = false;
+  bool   allowLimitToHitMarket = false;
 
   void FormCandle( const Tick& tick ) {
 
@@ -184,6 +185,9 @@ public:
     this->startTradingTime = startTradingTime;
 
   }
+  void AllowLimitToHitMarket() {
+    allowLimitToHitMarket = true;
+  }
 
   void SetOptions( Rcpp::List options ) {
 
@@ -196,6 +200,9 @@ public:
     bool hasLatencyReceive = std::find( names.begin(), names.end(), "latency_receive" ) != names.end();
     bool hasLatencySend    = std::find( names.begin(), names.end(), "latency_send"    ) != names.end();
     bool hasTradingHours   = std::find( names.begin(), names.end(), "trading_hours"   ) != names.end();
+
+    bool hasAllowLimitToHitMarket = std::find( names.begin(), names.end(), "allow_limit_to_hit_market"   ) != names.end();
+
 
     if( hasTradingHours ) {
 
@@ -216,6 +223,8 @@ public:
     if( hasLatency        ) SetLatency         ( options["latency"        ] );
     if( hasLatencyReceive ) SetLatencyReceive  ( options["latency_receive"] );
     if( hasLatencySend    ) SetLatencySend     ( options["latency_send"   ] );
+    if( hasAllowLimitToHitMarket ) if( options["allow_limit_to_hit_market" ] ) AllowLimitToHitMarket();
+
 
   }
 
@@ -449,6 +458,7 @@ public:
       return;
 
     }
+    order->allowLimitToHitMarket = allowLimitToHitMarket;
 
     orders.push_back( order );
     statistics.Update( order );

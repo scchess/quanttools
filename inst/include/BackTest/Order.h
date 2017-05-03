@@ -77,6 +77,8 @@ class Order {
     double timeCancelled;
     double timeProcessed;
 
+    bool allowLimitToHitMarket;
+
     double priceExchangeExecuted;
 
     void Update( Tick tick, double latencySend, double latencyReceive ) {
@@ -156,7 +158,7 @@ class Order {
           timeExecuted = timeExchangeExecuted + latencyReceive;
 
           idExchangeExecuted = tick.id;
-          if( type == OrderType::LIMIT and idExchangeExecuted == idExchangeRegistered ) {
+          if( allowLimitToHitMarket and type == OrderType::LIMIT and idExchangeExecuted == idExchangeRegistered ) {
 
             priceExchangeExecuted = tick.price;
 
