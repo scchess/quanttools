@@ -9,4 +9,4 @@
 
 [Website](https://quanttools.bitbucket.io)
 
-[ChangeLog](https://cran.r-project.org/web/packages/QuantTools/news.html)
+[ChangeLog](https://CRAN.R-project.org/package=QuantTools/news.html)
