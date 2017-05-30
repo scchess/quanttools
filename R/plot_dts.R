@@ -350,8 +350,8 @@ PlotTs$set( 'public', 'calc_basis', function() {
 
       } else {
 
-        basis[, t_from := round_POSIXct( t_from, self$style_info$time$round, 'mins', floor   ) ]
-        basis[, t_to   := round_POSIXct( t_to  , self$style_info$time$round, 'mins', ceiling ) ]
+        basis[, t_from := round_POSIXct( t_from, self$style_info$time$round, 'mins', floor ) ]
+        basis[, t_to   := round_POSIXct( t_to  , self$style_info$time$round, 'mins', floor ) + as.difftime( self$style_info$time$round, units = 'mins' ) ]
 
       }
 
@@ -510,6 +510,7 @@ PlotTs$set( 'public', 'calc_time_grid_and_labels', function() {
   )
   dates[, x := self$t_to_x( t ) ]
   dates[, l := format( t, '%d' ) ]
+  dates = dates[, .SD[.N], by = x ]
 
   month = dates[ !duplicated( format( t, '%Y-%m' ) ) ]
   month[, l := format( t, '%b' ) ]
