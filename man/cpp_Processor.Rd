@@ -224,6 +224,8 @@ List of following elements. All options are optional.
 }
 
 \examples{
+\donttest{
+
 ######################################
 ## Simple Moving Averages Crossover ##
 ######################################
@@ -234,6 +236,7 @@ data( 'ticks' )
 # define strategy
 strategy_source = system.file( package = 'QuantTools', 'examples/sma_crossover.cpp' )
 # compile strategy
+Sys.setenv( 'USE_CXX11' = 'yes' ) # https://github.com/RcppCore/Rcpp/issues/683
 Rcpp::sourceCpp( strategy_source )
 
 # set strategy parameters
@@ -273,6 +276,10 @@ indicators $limits( tlim = interval )$style( time = list( visible = FALSE ) )
 performance$limits( tlim = interval )
 title( 'Simple Moving Averages Crossover', outer = TRUE )
 par( mfrow = c( 1, 1 ), oma = c( 0, 0, 0, 0 ), mar = c( 5, 4, 4, 2 ) + 0.1 )
+
+}
+\donttest{
+
 #####################
 ## Bollinger Bands ##
 #####################
@@ -283,6 +290,7 @@ data( 'ticks' )
 # define strategy
 strategy_source = system.file( package = 'QuantTools', 'examples/bbands.cpp' )
 # compile strategy
+Sys.setenv( 'USE_CXX11' = 'yes' ) # https://github.com/RcppCore/Rcpp/issues/683
 Rcpp::sourceCpp( strategy_source )
 
 # set strategy parameters
@@ -322,6 +330,8 @@ indicators $limits( tlim = interval )$style( time = list( visible = FALSE ) )
 performance$limits( tlim = interval )
 title( 'Bollinger Bands', outer = TRUE )
 par( mfrow = c( 1, 1 ), oma = c( 0, 0, 0, 0 ), mar = c( 5, 4, 4, 2 ) + 0.1 )
+
+}
 }
 \seealso{
 Other backtesting classes: \code{\link{Candle}},

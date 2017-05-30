@@ -1,3 +1,5 @@
+\donttest{
+
 ######################################
 ## Simple Moving Averages Crossover ##
 ######################################
@@ -47,3 +49,5 @@ indicators $limits( tlim = interval )$style( time = list( visible = FALSE ) )
 performance$limits( tlim = interval )
 title( 'Simple Moving Averages Crossover', outer = TRUE )
 par( mfrow = c( 1, 1 ), oma = c( 0, 0, 0, 0 ), mar = c( 5, 4, 4, 2 ) + 0.1 )
+
+}
