@@ -132,10 +132,12 @@
 #' \cr price_enter   \tab enter order execution price
 #' \cr price_exit    \tab exit order execution price
 #' \cr pnl           \tab trade pnl net
+#' \cr mtm           \tab mark-to-market
 #' \cr mtm_min       \tab min mark-to-market
 #' \cr mtm_max       \tab max mark-to-market
 #' \cr cost          \tab absolute trading cost
 #' \cr pnl_rel       \tab trade pnl net in basis points
+#' \cr mtm_rel       \tab mark-to-market in basis points
 #' \cr mtm_min_rel   \tab min mark-to-market in basis points
 #' \cr mtm_max_rel   \tab max mark-to-market in basis points
 #' \cr cost_rel      \tab relative trading cost in basis points

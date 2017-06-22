@@ -331,18 +331,19 @@ public:
 
         }
 
-        double mtm = ( trade->IsLong() ? +1. : -1. ) * ( tick.price - trade->priceEnter );
+        trade->mtm = ( trade->IsLong() ? +1. : -1. ) * ( tick.price - trade->priceEnter );
+        trade->mtmRel = trade->mtm / trade->priceEnter;
 
-        if( trade->mtmMax < mtm ) {
+        if( trade->mtmMax < trade->mtm ) {
 
-          trade->mtmMax    = mtm;
-          trade->mtmMaxRel = mtm / trade->priceEnter;
+          trade->mtmMax    = trade->mtm;
+          trade->mtmMaxRel = trade->mtmRel;
 
         }
-        if( trade->mtmMin > mtm ) {
+        if( trade->mtmMin > trade->mtm ) {
 
-          trade->mtmMin    = mtm;
-          trade->mtmMinRel = mtm / trade->priceEnter;
+          trade->mtmMin    = trade->mtm;
+          trade->mtmMinRel = trade->mtmRel;
 
         }
 
@@ -626,12 +627,14 @@ public:
     Rcpp::NumericVector time_enter = DoubleToDateTime( std::vector<double>( n ), timeZone );
     Rcpp::NumericVector time_exit  = DoubleToDateTime( std::vector<double>( n ), timeZone );
     Rcpp::NumericVector pnl        ( n );
+    Rcpp::NumericVector mtm        ( n );
     Rcpp::NumericVector mtm_min    ( n );
     Rcpp::NumericVector mtm_max    ( n );
     Rcpp::NumericVector cost       ( n );
     Rcpp::NumericVector pnl_rel    ( n );
     Rcpp::NumericVector mtm_min_rel( n );
     Rcpp::NumericVector mtm_max_rel( n );
+    Rcpp::NumericVector mtm_rel    ( n );
     Rcpp::NumericVector cost_rel   ( n );
     Rcpp::IntegerVector state      = IntToFactor( std::vector<int>( n ), TradeStateString );
 
@@ -651,10 +654,12 @@ public:
       price_enter[i] = trade->priceEnter;
       price_exit [i] = trade->priceExit;
       pnl        [i] = trade->pnl;
+      mtm        [i] = trade->mtm;
       mtm_min    [i] = trade->mtmMin;
       mtm_max    [i] = trade->mtmMax;
       cost       [i] = trade->cost;
       pnl_rel    [i] = trade->pnlRel    * basisPoints;
+      mtm_rel    [i] = trade->mtmRel    * basisPoints;
       mtm_min_rel[i] = trade->mtmMinRel * basisPoints;
       mtm_max_rel[i] = trade->mtmMaxRel * basisPoints;
       cost_rel   [i] = trade->costRel   * basisPoints;
@@ -680,10 +685,12 @@ public:
       .Add( "price_enter", price_enter )
       .Add( "price_exit" , price_exit  )
       .Add( "pnl"        , pnl         )
+      .Add( "mtm"        , mtm         )
       .Add( "mtm_min"    , mtm_min     )
       .Add( "mtm_max"    , mtm_max     )
       .Add( "cost"       , cost        )
       .Add( "pnl_rel"    , pnl_rel     )
+      .Add( "mtm_rel"    , mtm_rel     )
       .Add( "mtm_min_rel", mtm_min_rel )
       .Add( "mtm_max_rel", mtm_max_rel )
       .Add( "cost_rel"   , cost_rel    )
