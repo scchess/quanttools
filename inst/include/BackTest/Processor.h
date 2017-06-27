@@ -28,6 +28,7 @@
 #include "../ListBuilder.h"
 #include "../NPeriods.h"
 #include "../Alarm.h"
+#include "../Utils.h"
 #include <map>
 #include <cmath>
 #include <Rcpp.h>
@@ -72,6 +73,7 @@ private:
   double stopTradingLoss     = NAN;
   bool   isTradingStopped = false;
   bool   allowLimitToHitMarket = false;
+  double priceStep = 0;
 
   void FormCandle( const Tick& tick ) {
 
@@ -180,6 +182,11 @@ public:
     latencyReceive = latency / 2;
 
   }
+  void SetPriceStep( double priceStep ) {
+
+    this->priceStep = priceStep;
+
+  }
   void SetStartTradingTime( double startTradingTime ) {
 
     this->startTradingTime = startTradingTime;
@@ -200,6 +207,7 @@ public:
     bool hasLatencyReceive = std::find( names.begin(), names.end(), "latency_receive" ) != names.end();
     bool hasLatencySend    = std::find( names.begin(), names.end(), "latency_send"    ) != names.end();
     bool hasTradingHours   = std::find( names.begin(), names.end(), "trading_hours"   ) != names.end();
+    bool hasPriceStep      = std::find( names.begin(), names.end(), "price_step"      ) != names.end();
 
     bool hasAllowLimitToHitMarket = std::find( names.begin(), names.end(), "allow_limit_to_hit_market"   ) != names.end();
 
@@ -223,7 +231,10 @@ public:
     if( hasLatency        ) SetLatency         ( options["latency"        ] );
     if( hasLatencyReceive ) SetLatencyReceive  ( options["latency_receive"] );
     if( hasLatencySend    ) SetLatencySend     ( options["latency_send"   ] );
+    if( hasPriceStep      ) SetPriceStep       ( options["price_step"     ] );
     if( hasAllowLimitToHitMarket ) if( options["allow_limit_to_hit_market" ] ) AllowLimitToHitMarket();
+
+
 
 
   }
@@ -459,6 +470,22 @@ public:
       return;
 
     }
+
+    if( order->type == OrderType::LIMIT ) {
+
+      if( priceStep < 0 ) {
+
+        order->price = ( order->side == OrderSide::BUY ? fastFloor( order->price / -priceStep ) : fastCeiling( order->price / -priceStep ) ) * -priceStep;
+
+      }
+      if( priceStep > 0 ) {
+
+        order->price = ( order->side == OrderSide::BUY ? fastCeiling( order->price / priceStep ) : fastFloor( order->price / priceStep ) ) * priceStep;
+
+      }
+
+    }
+
     order->allowLimitToHitMarket = allowLimitToHitMarket;
 
     orders.push_back( order );

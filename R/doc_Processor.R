@@ -43,6 +43,7 @@
 #' \cr \code{SetLatency( double x )}           \tab \code{void}                \tab see 'latency' in 'Options' section
 #' \cr \code{SetTradingHours( double start, double end )}
 #'                                             \tab \code{void}                \tab see 'trading_hours' in 'Options' section
+#' \cr \code{SetPriceStep( double priceStep )} \tab \code{void}                \tab see 'price_step' in 'Options' section
 #' \cr \code{AllowLimitToHitMarket()}          \tab \code{void}                \tab see 'allow_limit_to_hit_market' in 'Options' section
 #' \cr \code{SetOptions( Rcpp::List options )} \tab \code{void}                \tab see 'Options' section
 #' \cr \code{StopTrading()}                    \tab \code{void}                \tab if called trading stop triggered. See 'stop' in 'Options' section
@@ -208,6 +209,10 @@
 #'  }
 #'  \item{\strong{allow_limit_to_hit_market}}{
 #'    if TRUE, limit order execution price set to market price if executed on same tick as registered.
+#'  }
+#'  \item{\strong{price_step}}{
+#'    if positive, limit order init price rounded to \code{price_step} down for buy orders and up for sell orders before placement.
+#'    if negative, limit order init price rounded to \code{price_step} up for buy orders and down for sell orders before placement.
 #'  }
 #'
 #' }

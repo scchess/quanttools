@@ -36,6 +36,7 @@ C++ class documentation
 \cr \code{SetLatency( double x )}           \tab \code{void}                \tab see 'latency' in 'Options' section
 \cr \code{SetTradingHours( double start, double end )}
                                             \tab \code{void}                \tab see 'trading_hours' in 'Options' section
+\cr \code{SetPriceStep( double priceStep )} \tab \code{void}                \tab see 'price_step' in 'Options' section
 \cr \code{AllowLimitToHitMarket()}          \tab \code{void}                \tab see 'allow_limit_to_hit_market' in 'Options' section
 \cr \code{SetOptions( Rcpp::List options )} \tab \code{void}                \tab see 'Options' section
 \cr \code{StopTrading()}                    \tab \code{void}                \tab if called trading stop triggered. See 'stop' in 'Options' section
@@ -138,10 +139,12 @@ Trades returned as data.table with the following columns:
 \cr price_enter   \tab enter order execution price
 \cr price_exit    \tab exit order execution price
 \cr pnl           \tab trade pnl net
+\cr mtm           \tab mark-to-market
 \cr mtm_min       \tab min mark-to-market
 \cr mtm_max       \tab max mark-to-market
 \cr cost          \tab absolute trading cost
 \cr pnl_rel       \tab trade pnl net in basis points
+\cr mtm_rel       \tab mark-to-market in basis points
 \cr mtm_min_rel   \tab min mark-to-market in basis points
 \cr mtm_max_rel   \tab max mark-to-market in basis points
 \cr cost_rel      \tab relative trading cost in basis points
@@ -218,6 +221,10 @@ List of following elements. All options are optional.
  }
  \item{\strong{allow_limit_to_hit_market}}{
    if TRUE, limit order execution price set to market price if executed on same tick as registered.
+ }
+ \item{\strong{price_step}}{
+   if positive, limit order init price rounded to \code{price_step} down for buy orders and up for sell orders before placement.
+   if negative, limit order init price rounded to \code{price_step} up for buy orders and down for sell orders before placement.
  }
 
 }
