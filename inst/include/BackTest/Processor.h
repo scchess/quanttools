@@ -473,12 +473,12 @@ public:
 
     if( order->type == OrderType::LIMIT ) {
 
-      if( priceStep < 0 ) {
+      if( priceStep > 0 ) {
 
         order->price = ( order->side == OrderSide::BUY ? fastFloor( order->price / -priceStep ) : fastCeiling( order->price / -priceStep ) ) * -priceStep;
 
       }
-      if( priceStep > 0 ) {
+      if( priceStep < 0 ) {
 
         order->price = ( order->side == OrderSide::BUY ? fastCeiling( order->price / priceStep ) : fastFloor( order->price / priceStep ) ) * priceStep;
 
