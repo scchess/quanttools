@@ -44,6 +44,10 @@
 #' \cr \code{SetTradingHours( double start, double end )}
 #'                                             \tab \code{void}                \tab see 'trading_hours' in 'Options' section
 #' \cr \code{SetPriceStep( double priceStep )} \tab \code{void}                \tab see 'price_step' in 'Options' section
+#' \cr \code{SetExecutionType( ExecutionType executionType )}
+#'                                             \tab \code{void}                \tab see 'execution_type' in 'Options' section
+#' \cr \code{SetExecutionType( std::string executionType )}
+#'                                             \tab \code{void}                \tab see 'execution_type' in 'Options' section
 #' \cr \code{AllowLimitToHitMarket()}          \tab \code{void}                \tab see 'allow_limit_to_hit_market' in 'Options' section
 #' \cr \code{SetOptions( Rcpp::List options )} \tab \code{void}                \tab see 'Options' section
 #' \cr \code{StopTrading()}                    \tab \code{void}                \tab if called trading stop triggered. See 'stop' in 'Options' section
@@ -72,7 +76,13 @@
 #' execution confirmation \code{latencyReceive} seconds later.\cr
 #' When system sends cancel request to exchange and after \code{latencySend} seconds
 #' when exchange receives cancel request if order is not executed yet it is cancelled and
-#' cancellation confirmation is received by system after \code{latencyReceive} seconds.
+#' cancellation confirmation is received by system after \code{latencyReceive} seconds.\cr
+#' Two execution types supported \code{trade}(default) and \code{bbo}.
+#' \code{trade} type processes orders using tick \code{price}s and \code{bbo} processes orders using preceding tick \code{bid} and \code{ask} values.
+#' Market orders in \code{bbo} mode executed at worst price: at \code{bid} for sells and at \code{ask} for buys, in \code{trade} mode at current tick \code{price}.
+#' Buy limit orders executed when \code{ask} goes under order price and sell orders executed when \code{bid} goes above order price.
+#' In case limit order is placed in the market it is executed as market order if \code{allow_limit_to_hit_market} set to \code{TRUE} (default is \code{FALSE}).\cr
+#'
 #' @section Ticks:
 #' Ticks must be a data.frame/data.table with at least the following columns:
 #' \tabular{ll}{
@@ -213,6 +223,9 @@
 #'  \item{\strong{price_step}}{
 #'    if positive, limit order init price rounded to \code{price_step} down for buy orders and up for sell orders before placement.
 #'    if negative, limit order init price rounded to \code{price_step} up for buy orders and down for sell orders before placement.
+#'  }
+#'  \item{\strong{execution_type}}{
+#'    \code{trade} or \code{bbo}.
 #'  }
 #'
 #' }

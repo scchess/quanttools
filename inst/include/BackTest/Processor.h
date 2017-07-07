@@ -68,12 +68,16 @@ private:
   Alarm alarmMarketClose;
 
 
-  double startTradingTime    = 0;
-  double stopTradingDrawdown = NAN;
-  double stopTradingLoss     = NAN;
-  bool   isTradingStopped = false;
-  bool   allowLimitToHitMarket = false;
-  double priceStep = 0;
+  double        startTradingTime      = 0;
+  double        stopTradingDrawdown   = NAN;
+  double        stopTradingLoss       = NAN;
+  bool          isTradingStopped      = false;
+  bool          allowLimitToHitMarket = false;
+  double        priceStep             = 0;
+  ExecutionType executionType         = ExecutionType::TRADE;
+
+  double bid;
+  double ask;
 
   void FormCandle( const Tick& tick ) {
 
@@ -192,6 +196,23 @@ public:
     this->startTradingTime = startTradingTime;
 
   }
+  void SetExecutionType( ExecutionType executionType ) {
+
+    this->executionType      = executionType;
+    statistics.executionType = executionType;
+
+  }
+  void SetExecutionType( std::string executionType ) {
+
+    std::map< std::string, ExecutionType > executionTypeMap =
+      {
+      { "trade", ExecutionType::TRADE },
+      { "bbo"  , ExecutionType::BBO   }
+      };
+
+    SetExecutionType( executionTypeMap[ executionType ] );
+
+  }
   void AllowLimitToHitMarket() {
     allowLimitToHitMarket = true;
   }
@@ -208,6 +229,7 @@ public:
     bool hasLatencySend    = std::find( names.begin(), names.end(), "latency_send"    ) != names.end();
     bool hasTradingHours   = std::find( names.begin(), names.end(), "trading_hours"   ) != names.end();
     bool hasPriceStep      = std::find( names.begin(), names.end(), "price_step"      ) != names.end();
+    bool hasExecutionType  = std::find( names.begin(), names.end(), "execution_type"  ) != names.end();
 
     bool hasAllowLimitToHitMarket = std::find( names.begin(), names.end(), "allow_limit_to_hit_market"   ) != names.end();
 
@@ -232,10 +254,12 @@ public:
     if( hasLatencyReceive ) SetLatencyReceive  ( options["latency_receive"] );
     if( hasLatencySend    ) SetLatencySend     ( options["latency_send"   ] );
     if( hasPriceStep      ) SetPriceStep       ( options["price_step"     ] );
+    if( hasExecutionType  ) {
+      std::string executionType = options["execution_type" ];
+      SetExecutionType( executionType );
+
+    }
     if( hasAllowLimitToHitMarket ) if( options["allow_limit_to_hit_market" ] ) AllowLimitToHitMarket();
-
-
-
 
   }
 
@@ -342,7 +366,17 @@ public:
 
         }
 
-        trade->mtm = ( trade->IsLong() ? +1. : -1. ) * ( tick.price - trade->priceEnter );
+        if( not tick.system ) {
+
+          if( executionType == ExecutionType::TRADE ) {
+            trade->mtm = ( trade->IsLong() ? +1. : -1. ) * ( tick.price - trade->priceEnter );
+          }
+          if( executionType == ExecutionType::BBO ) {
+            trade->mtm = ( trade->IsLong() ? bid - trade->priceEnter : trade->priceEnter - ask );
+          }
+
+        }
+
         trade->mtmRel = trade->mtm / trade->priceEnter;
 
         if( trade->mtmMax < trade->mtm ) {
@@ -384,6 +418,13 @@ public:
 
     prevTickTime = tick.time;
 
+    if( executionType == ExecutionType::BBO and not tick.system ) {
+
+      bid = tick.bid;
+      ask = tick.ask;
+
+    }
+
   }
 
   Statistics GetStatistics() { return statistics; }
@@ -392,32 +433,6 @@ public:
   void StopTrading() {
 
     isTradingStopped = true;
-
-  }
-
-  void Feed( Rcpp::NumericVector times, Rcpp::NumericVector prices, Rcpp::IntegerVector volumes ) {
-
-    if( times.size() != prices.size() or times.size() != volumes.size() or prices.size() != volumes.size() ) {
-
-      throw std::invalid_argument( "times, prices and volumes must have equal lengths" );
-
-    }
-
-    auto n = times.size();
-
-    Tick tick;
-
-    for( auto id = 0; id < n; id++ ) {
-
-      tick.id = id;
-      tick.time = times[id];
-      tick.price = prices[id];
-      tick.volume = volumes[id];
-      Feed( tick );
-
-    }
-
-    statistics.Finalize();
 
   }
 
@@ -430,13 +445,31 @@ public:
     bool hasPrice  = std::find( names.begin(), names.end(), "price"  ) != names.end();
     bool hasVolume = std::find( names.begin(), names.end(), "volume" ) != names.end();
 
+    bool hasBid    = std::find( names.begin(), names.end(), "bid"    ) != names.end();
+    bool hasAsk    = std::find( names.begin(), names.end(), "ask"    ) != names.end();
+    bool hasSystem = std::find( names.begin(), names.end(), "system" ) != names.end();
+
     if( !hasTime   ) throw std::invalid_argument( "ticks must contain 'time' column"   );
     if( !hasPrice  ) throw std::invalid_argument( "ticks must contain 'price' column"  );
     if( !hasVolume ) throw std::invalid_argument( "ticks must contain 'volume' column" );
 
+    if( executionType == ExecutionType::BBO ) {
+
+      if( !hasBid ) throw std::invalid_argument( "ticks must contain 'bid' column"  );
+      if( !hasAsk ) throw std::invalid_argument( "ticks must contain 'ask' column" );
+
+    }
+
+    Rcpp::NumericVector  bids;
+    Rcpp::NumericVector  asks;
+    Rcpp::LogicalVector  systems;
+
     Rcpp::NumericVector  times   = ticks[ "time"   ];
     Rcpp::NumericVector  prices  = ticks[ "price"  ];
     Rcpp::IntegerVector  volumes = ticks[ "volume" ];
+    if( hasBid    )      bids    = ticks[ "bid"    ];
+    if( hasAsk    )      asks    = ticks[ "ask"    ];
+    if( hasSystem )      systems = ticks[ "system" ];
 
     std::vector<std::string> tzone = times.attr( "tzone" );
 
@@ -451,9 +484,13 @@ public:
     for( auto id = 0; id < n; id++ ) {
 
       tick.id     = id;
-      tick.time   = times[id];
-      tick.price  = prices[id];
+      tick.time   = times  [id];
+      tick.price  = prices [id];
       tick.volume = volumes[id];
+      if( hasBid    ) tick.bid    = bids   [id];
+      if( hasAsk    ) tick.ask    = asks   [id];
+      if( hasSystem ) tick.system = systems[id];
+
       Feed( tick );
 
     }
@@ -475,18 +512,26 @@ public:
 
       if( priceStep > 0 ) {
 
-        order->price = ( order->side == OrderSide::BUY ? fastFloor( order->price / -priceStep ) : fastCeiling( order->price / -priceStep ) ) * -priceStep;
+        order->price = ( order->side == OrderSide::BUY ? fastFloor( order->price / priceStep ) : fastCeiling( order->price / priceStep ) ) * priceStep;
 
       }
       if( priceStep < 0 ) {
 
-        order->price = ( order->side == OrderSide::BUY ? fastCeiling( order->price / priceStep ) : fastFloor( order->price / priceStep ) ) * priceStep;
+        order->price = ( order->side == OrderSide::BUY ? fastCeiling( order->price / -priceStep ) : fastFloor( order->price / -priceStep ) ) * -priceStep;
 
       }
 
     }
 
     order->allowLimitToHitMarket = allowLimitToHitMarket;
+    order->executionType = executionType;
+
+    if( executionType == ExecutionType::BBO ) {
+
+      order->bid = bid;
+      order->ask = ask;
+
+    }
 
     orders.push_back( order );
     statistics.Update( order );

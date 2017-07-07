@@ -26,6 +26,9 @@ public:
   double time;
   double price;
   int    volume;
+  double bid    = 0.   ;
+  double ask    = 0.   ;
+  bool   system = false;
 
 };
 
