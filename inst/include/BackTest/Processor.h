@@ -117,6 +117,7 @@ public:
 
     Reset();
     timeZone = "UTC";
+    statistics.executionType = executionType;
 
   };
 
