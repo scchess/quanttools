@@ -69,6 +69,7 @@
 #' }
 #' @example /inst/examples/sma_crossover.R
 #' @example /inst/examples/bbands.R
+#' @example /inst/examples/bbands_market_maker.R
 #' @section Execution Model:
 #' System sends new order and after \code{latencySend} seconds it reaches exchange.
 #' System receives confirmation of order placement \code{latencyReceive} seconds later.
