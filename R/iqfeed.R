@@ -484,7 +484,7 @@ iqfeed$set( 'public', 'get_trades', function() {
   rbindlist( self$stream_quotes[ 2:self$stream_index - 1 ] )
 
 } )
-iqfeed$set( 'public', 'lookup', function( cmd ) {
+iqfeed$set( 'public', 'lookup', function( cmd, colClasses = NULL ) {
 
   writeChar( cmd, self$connection$lookup )
 
@@ -519,7 +519,7 @@ iqfeed$set( 'public', 'lookup', function( cmd ) {
     }
     message_chunk$complete = gsub( ', ', ';', message_chunk$complete, fixed = TRUE )
 
-    if( message_chunk$complete != '' ) message_chunks[[ message_chunk_index ]] = fread( message_chunk$complete, sep = ',' )
+    if( message_chunk$complete != '' ) message_chunks[[ message_chunk_index ]] = fread( message_chunk$complete, sep = ',', colClasses = colClasses )
 
     if( terminated ) break
     message_chunk_index = message_chunk_index + 1
@@ -617,7 +617,8 @@ iqfeed$set( 'public', 'get_ticks', function( symbol, n_ticks, n_days, from, to )
 
   }
 
-  ticks = self$lookup( cmd )
+  colClasses = c( 'character', rep( 'numeric', 6 ), rep( 'character', 3 ), 'numeric' )
+  ticks = self$lookup( cmd, colClasses )
   if( is.null( ticks ) ) return( NULL )
   setnames( ticks, c( 'time','price','volume','size','bid','ask','tick_id','basis_for_last', 'trade_market_center', 'trade_conditions' ) )
   ticks[, time := fasttime::fastPOSIXct( time, 'UTC' ) ][]
