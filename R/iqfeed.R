@@ -369,8 +369,9 @@
 NULL
 
 iqfeed = R6::R6Class( 'iqfeed', lock_objects = F )
-iqfeed$set( 'public', 'initialize', function( host = .settings$iqfeed_host, port = list( stream = 5009, lookup = .settings$iqfeed_port ), timeout = .settings$iqfeed_timeout, verbose = .settings$iqfeed_verbose ) {
+iqfeed$set( 'public', 'initialize', function( host = .settings$iqfeed_host, port = list( stream = 5009, lookup = .settings$iqfeed_port ), timeout = .settings$iqfeed_timeout, verbose = .settings$iqfeed_verbose, stream = FALSE ) {
 
+  self$stream = stream
   self$settings = list( host = host, port = port, timeout = timeout, verbose = verbose, buffer_size = .settings$iqfeed_buffer )
   self$settings$buffer_size_stream = 1000
 
@@ -401,7 +402,7 @@ iqfeed$set( 'public', 'read_chain', function( prefix, split, con, n ) {
 iqfeed$set( 'public', 'connect', function() {
 
   ## connect
-  self$connection = lapply( self$settings$port, socketConnection,
+  self$connection = lapply( self$settings$port[ c( 'lookup', if( self$stream ) 'stream' ) ], socketConnection,
                             host    = self$settings$host,
                             timeout = self$settings$timeout,
                             open = 'a+b',
@@ -409,7 +410,7 @@ iqfeed$set( 'public', 'connect', function() {
 
   ## set protocol
   protocol = 'S,SET PROTOCOL,5.2\r\n'
-  writeChar( protocol, self$connection$stream )
+  if( self$stream ) writeChar( protocol, self$connection$stream )
   writeChar( protocol, self$connection$lookup )
   ## confirm lookup
   confirmation = gsub( 'SET', 'CURRENT', protocol )
@@ -418,7 +419,7 @@ iqfeed$set( 'public', 'connect', function() {
 } )
 iqfeed$set( 'public', 'disconnect', function() {
 
-  close( self$connection$stream )
+  if( self$stream ) close( self$connection$stream )
   close( self$connection$lookup )
 
 } )
