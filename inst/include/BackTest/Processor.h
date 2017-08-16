@@ -79,6 +79,11 @@ private:
   double bid;
   double ask;
 
+  bool isInInterval = false;
+  std::vector<double> intervalStarts;
+  std::vector<double> intervalEnds;
+  int intervalId = 0;
+
   void FormCandle( const Tick& tick ) {
 
     bool startOver = candle.time != floor( tick.time / timeFrame ) * timeFrame + timeFrame;
@@ -105,6 +110,8 @@ public:
   std::function< void( const Candle& ) > onCandle;
   std::function< void( ) > onMarketOpen;
   std::function< void( ) > onMarketClose;
+  std::function< void( ) > onIntervalOpen;
+  std::function< void( ) > onIntervalClose;
 
   Processor( int timeFrame, double latencySend = 0.001, double latencyReceive = 0.001 ) :
 
@@ -170,6 +177,13 @@ public:
     alarmMarketClose.Set( end   );
 
   }
+  void SetIntervals( std::vector<double> starts, std::vector<double> ends ) {
+
+    if( starts.size() != ends.size() ) { throw std::invalid_argument( "intervals starts and ends must be the same size" ); }
+    intervalStarts = starts;
+    intervalEnds   = ends;
+
+  }
   bool IsTradingHoursSet() { return alarmMarketClose.IsSet() and alarmMarketOpen.IsSet(); }
   void SetLatencyReceive( double latencyReceive ) {
 
@@ -231,9 +245,9 @@ public:
     bool hasTradingHours   = std::find( names.begin(), names.end(), "trading_hours"   ) != names.end();
     bool hasPriceStep      = std::find( names.begin(), names.end(), "price_step"      ) != names.end();
     bool hasExecutionType  = std::find( names.begin(), names.end(), "execution_type"  ) != names.end();
+    bool hasIntervals      = std::find( names.begin(), names.end(), "intervals"       ) != names.end();
 
     bool hasAllowLimitToHitMarket = std::find( names.begin(), names.end(), "allow_limit_to_hit_market"   ) != names.end();
-
 
     if( hasTradingHours ) {
 
@@ -261,6 +275,12 @@ public:
 
     }
     if( hasAllowLimitToHitMarket ) if( options["allow_limit_to_hit_market" ] ) AllowLimitToHitMarket();
+    if( hasIntervals ) {
+
+      Rcpp::List intervals = options[ "intervals" ];
+      SetIntervals( intervals[ "start" ], intervals[ "end" ] );
+
+    }
 
   }
 
@@ -274,6 +294,32 @@ public:
 
     if( onMarketClose != nullptr and alarmMarketClose.IsRinging( tick.time ) ) onMarketClose();
     if( onMarketOpen  != nullptr and alarmMarketOpen .IsRinging( tick.time ) ) onMarketOpen();
+
+    if( intervalId < intervalEnds.size() ) {
+
+      if( isInInterval ) {
+
+        if( tick.time > intervalEnds[ intervalId ] ) {
+
+          if( onIntervalClose != nullptr ) onIntervalClose();
+          isInInterval = false;
+
+        }
+
+      } else {
+
+        while( intervalId < intervalStarts.size() and intervalEnds[ intervalId ] < tick.time ) intervalId++;
+
+        if( intervalId < intervalStarts.size() and tick.time > intervalStarts[ intervalId ] ) {
+
+          if( onIntervalOpen != nullptr ) onIntervalOpen();
+          isInInterval = true;
+
+        }
+
+      }
+
+    }
 
     FormCandle( tick );
 

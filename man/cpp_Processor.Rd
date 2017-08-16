@@ -23,6 +23,8 @@ C++ class documentation
 \cr \code{onTick( \link{Tick} tick )}       \tab \code{std::function}       \tab called on new tick event
 \cr \code{onMarketOpen()}                   \tab \code{std::function}       \tab called on trading hours start
 \cr \code{onMarketClose()}                  \tab \code{std::function}       \tab called on trading hours end
+\cr \code{onIntervalOpen()}                 \tab \code{std::function}       \tab called on intervals start
+\cr \code{onIntervalClose()}                \tab \code{std::function}       \tab called on intervals end
 \cr \code{Feed( \link{Tick} tick )}         \tab \code{void}                \tab process by individual tick
 \cr \code{Feed( Rcpp::DataFrame ticks )}    \tab \code{void}                \tab batch process, see 'Ticks' section
 \cr \code{SendOrder( \link{Order}* order )} \tab \code{void}                \tab send order to exchange
@@ -41,6 +43,8 @@ C++ class documentation
                                             \tab \code{void}                \tab see 'execution_type' in 'Options' section
 \cr \code{SetExecutionType( std::string executionType )}
                                             \tab \code{void}                \tab see 'execution_type' in 'Options' section
+\cr \code{SetIntervals( std::vector<double> starts, std::vector<double> ends )}
+                                            \tab \code{void}                \tab see 'intervals' in 'Options' section
 \cr \code{AllowLimitToHitMarket()}          \tab \code{void}                \tab see 'allow_limit_to_hit_market' in 'Options' section
 \cr \code{SetOptions( Rcpp::List options )} \tab \code{void}                \tab see 'Options' section
 \cr \code{StopTrading()}                    \tab \code{void}                \tab if called trading stop triggered. See 'stop' in 'Options' section
@@ -237,6 +241,9 @@ List of following elements. All options are optional.
  }
  \item{\strong{execution_type}}{
    \code{trade} or \code{bbo}.
+ }
+ \item{\strong{intervals}}{
+   sorted multi row data.table with POSIXct timestamps columns \code{start, end}. Represents time intervals. At time start \code{onIntervalOpen} called and at time end \code{onIntervalClose} called.
  }
 
 }
