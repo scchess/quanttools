@@ -68,7 +68,7 @@
 #' \cr \code{GetSummary()}                     \tab \code{Rcpp::List}          \tab trades summary, see 'Summary' section
 #' \cr \code{GetOnCandleMarketValueHistory()}  \tab \code{std::vector<double>} \tab vector of portfolio value history recalculated on candle complete
 #' \cr \code{GetOnCandleDrawDownHistory()}     \tab \code{std::vector<double>} \tab vector of portfolio drawdown history recalculated on candle complete
-#' \cr \code{GetOnDayClosePerformanceHistory()}\tab \code{Rcpp::List}          \tab data.table of daily performance history with columns \code{date, return, pnl, drawdown, n_per_day, avg_pnl}
+#' \cr \code{GetOnDayClosePerformanceHistory()}\tab \code{Rcpp::List}          \tab daily performance history, see 'Daily Performance' section
 #' \cr \code{Reset()}                          \tab \code{void}                \tab resets to initial state
 #' }
 #' @example /inst/examples/sma_crossover.R
@@ -190,6 +190,19 @@
 #' \cr r_squared     \tab R Squared calulated on daily PnL values
 #' \cr avg_dd        \tab average drawdown calulated on daily drawdown history
 #' }
+#'
+#' @section Daily Performance:
+#' Back test daily performance history:
+#' \tabular{ll}{
+#' \cr \strong{Name} \tab \strong{Description}
+#' \cr date          \tab date
+#' \cr return        \tab return
+#' \cr pnl           \tab cumulative pnl
+#' \cr drawdown      \tab drawdown
+#' \cr n_per_day     \tab number of closed trades
+#' \cr avg_pnl       \tab average trade pnl
+#' }
+#'
 #' @section Options:
 #' List of following elements. All options are optional.
 #' \describe{
