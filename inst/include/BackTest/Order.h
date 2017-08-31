@@ -315,6 +315,9 @@ class Order {
     bool IsLimit() { return type == OrderType::LIMIT; }
     bool IsMarket() { return type == OrderType::MARKET; }
     double GetExecutionPrice() { return priceExecuted; }
+    double GetExecutionTime() { return timeExecuted; }
+    double GetProcessedTime() { return timeProcessed; }
+    OrderState GetState() { return state; }
     int GetTradeId() { return idTrade; }
 
 
