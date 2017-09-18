@@ -520,7 +520,16 @@ iqfeed$set( 'public', 'lookup', function( cmd, colClasses = NULL ) {
     }
     message_chunk$complete = gsub( ', ', ';', message_chunk$complete, fixed = TRUE )
 
-    if( message_chunk$complete != '' ) message_chunks[[ message_chunk_index ]] = fread( message_chunk$complete, sep = ',', colClasses = colClasses )
+    if( message_chunk$complete != '' ) { 
+      
+      message_chunks[[ message_chunk_index ]] = fread( message_chunk$complete, sep = ',', colClasses = colClasses, fill = T )
+      
+    } else {
+      
+      retry_index = retry_index + 1
+      if( retry_index > max_n_retry ) return( message( 'Tried 10 times with no result. Check IQFeed client and try again. NULL returned.' ) )
+      
+    }
 
     if( terminated ) break
     message_chunk_index = message_chunk_index + 1
