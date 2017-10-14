@@ -352,6 +352,7 @@ public:
       } else {
 
         Trade* trade = trades[ order->idTrade ];
+
         if( order->IsExecuted() ) {
 
           trade->cost += cost.stockAbs + cost.tradeAbs + cost.tradeRel * order->priceExecuted * cost.pointValue;
