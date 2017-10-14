@@ -304,7 +304,7 @@ store_iqfeed_data = function( from = NULL, to = format( Sys.Date() ), verbose = 
 
     dates_available = gsub( '.rds', '', list.files( paste( data_dir, symbol, sep = '/' ), pattern = '\\d{4}-\\d{2}-\\d{2}.rds' ) )
 
-    dates_to_load = sort( dates_available[ dates_available %bw% c( from, to ) ] )
+    dates_to_load = sort( dates_available[ dates_available %bw% substr( c( from, to ), 1, 10 ) ] )
 
     data = vector( length( dates_to_load ), mode = 'list' )
     names( data ) = dates_to_load
@@ -312,6 +312,9 @@ store_iqfeed_data = function( from = NULL, to = format( Sys.Date() ), verbose = 
     for( date in dates_to_load ) data[[ date ]] = readRDS( file = paste0( data_dir, '/' , symbol, '/', date, '.rds' ) )
 
     data = rbindlist( data )
+
+    time = NULL
+    if( !is.null( data ) ) data = data[ time %bw% c( from, to ) ]
 
     return( data )
 
@@ -334,6 +337,7 @@ store_iqfeed_data = function( from = NULL, to = format( Sys.Date() ), verbose = 
 
     time = NULL
     data = data[ time > time_range[1] & time <= time_range[2] ]
+    if( !is.null( data ) ) data = data[ time %bw% c( from, to ) ]
 
     return( data )
 

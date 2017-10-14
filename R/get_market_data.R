@@ -21,7 +21,7 @@
 #' @param from,to text dates in format \code{"YYYY-mm-dd"}
 #' @param period candle period \code{tick, 1min, 5min, 10min, 15min, 30min, hour, day, week, month}
 #' @param split.adjusted should data be split adjusted?
-#' @param local should data be loaded from local storage? See 'Details' section
+#' @param local should data be loaded from local storage? See 'Local Storage' section
 #' @param code futures or option code name, e.g. \code{"RIU6"}
 #' @param contract,frequency,day_exp same as in \code{\link{gen_futures_codes}}
 #' @name get_market_data
@@ -31,13 +31,57 @@
 #' \href{https://www.iqfeed.net/symbolguide/index.cfm?symbolguide=lookup}{IQFeed},
 #' \href{https://finance.yahoo.com/}{Yahoo} and
 #' \href{https://www.google.com/finance}{Google} sources. \cr
-#' Note: Timestamps timezones set to UTC. \cr
-#' It is recommended to store tick market data locally.
+
+#' \subsection{IQFeed}{
+#'
+#'  \code{data.table} with following data returned:
+#'  \tabular{ll}{
+#'             daily:    \tab date, open, high, low, close, volume, open_interest  \cr
+#'             intraday: \tab date, open, high, low, close, volume  \cr
+#'             tick:     \tab time, price, volume, size, bid, ask, tick_id, basis_for_last, trade_market_center, trade_conditions  \cr
+#'  }
+#'  See \link{iqfeed} specification for details. \cr
+#'  Note: \code{from} and \code{to} can be set as text in format \code{"YYYY-mm-dd HH:MM:SS"}.
+#'
+#'  }
+#'  \subsection{Finam}{
+#'
+#'  \code{data.table} with following data returned:
+#'  \tabular{ll}{
+#'             daily:    \tab date, open, high, low, close, volume  \cr
+#'             intraday: \tab date, open, high, low, close, volume  \cr
+#'             tick:     \tab time, price, volume                   \cr
+#'  }
+#'
+#'  }
+#'  \subsection{Yahoo}{
+#'
+#'  \code{data.table} with following data returned:
+#'  \tabular{ll}{
+#'             daily:    \tab date, open, high, low, close, adj_close, volume  \cr
+#'             splits and dividends:    \tab date, value, event  \cr
+#'  }
+#'
+#'  }
+#'  \subsection{Google}{
+#'
+#'   \code{data.table} with following data returned:
+#'   \tabular{ll}{
+#'             daily:    \tab date, open, high, low, close, volume  \cr
+#'   }
+#'
+#'  }
+#'  \subsection{MOEX}{
+#'    data can be retrieved from local storage only in order to minimize load on MOEX data servers. See 'Local Storage' section.
+#'  }
+#'
+#' @note
+#' Timestamps timezones set to UTC. \cr
+#' @section Local Storage: It is recommended to store tick market data locally.
 #' Load time is reduced dramatically. It is a good way to collect market data as
 #' e.g. IQFeed gives only 180 days of tick data if you would need more it will
 #' cost you a lot. See \code{\link{store_market_data}} for details. \cr
-#' See \link{iqfeed} return format specification. \cr
-#' MOEX data can be retrieved from local storage only in order to minimize load on MOEX data servers. Read \code{\link{store_market_data}} for information on how to store data locally. \cr
+#' Only IQFeed, Finam and MOEX data supported.
 #'
 #' @examples
 #' \donttest{
@@ -326,6 +370,9 @@ get_finam_data = function( symbol, from, to = from, period = 'day', local = FALS
 #' @export
 get_iqfeed_data = function( symbol, from, to = from, period = 'day', local = FALSE ) {
 
+  from = format( from )
+  to   = format( to   )
+
   curr_date = format( Sys.Date() )
   if( from > curr_date ) from = to = curr_date
   #if( to   > curr_date ) to = curr_date
@@ -375,6 +422,7 @@ get_iqfeed_data = function( symbol, from, to = from, period = 'day', local = FAL
           'hour'  = .get_iqfeed_candles( symbol, from, to, interval = 60 * 60 )
 
           )
+  if( !is.null( data ) && !is.null( data$time ) ) data = data[ time %bw% c( from, to ) ]
   return( data )
 
 }
