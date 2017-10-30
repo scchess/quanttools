@@ -42,7 +42,7 @@ private:
 
   std::vector< std::string > OrderSideString  = { "buy", "sell" };
   std::vector< std::string > TradeSideString  = { "long", "short" };
-  std::vector< std::string > OrderTypeString  = { "market", "limit" };
+  std::vector< std::string > OrderTypeString  = { "market", "limit", "stop" };
   std::vector< std::string > OrderStateString = { "new", "registered", "executed", "cancelling", "cancelled" };
   std::vector< std::string > TradeStateString = { "new", "opened", "closed", "closing" };
 

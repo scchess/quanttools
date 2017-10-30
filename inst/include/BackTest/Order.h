@@ -26,7 +26,7 @@ enum class ExecutionType: int { TRADE, BBO };
 
 enum class OrderSide: int { BUY, SELL };
 
-enum class OrderType: int { MARKET, LIMIT };
+enum class OrderType: int { MARKET, LIMIT, STOP };
 
 enum class OrderState: int {
   NEW,        // created
@@ -80,6 +80,7 @@ class Order {
     double timeProcessed;
 
     bool allowLimitToHitMarket;
+    bool isStopActivated;
 
     double priceExchangeExecuted;
 
@@ -141,7 +142,7 @@ class Order {
       }
       if( stateExchange == OrderStateExchange::REGISTERED ) {
         // market order executed on same tick as registerred
-        if( type == OrderType::MARKET ) {
+        if( type == OrderType::MARKET or isStopActivated ) {
 
           if( executionType == ExecutionType::TRADE and not tick.system ) {
 
@@ -154,6 +155,18 @@ class Order {
             stateExchange = OrderStateExchange::EXECUTED;
             priceExchangeExecuted = side == OrderSide::BUY ? ask : bid;
 
+          }
+
+        }
+        // stop order
+        if( type == OrderType::STOP ) {
+
+          // isStopActivated checked first and if true next tick order is executed as market order
+          if( executionType == ExecutionType::TRADE and not tick.system ) {
+            isStopActivated = ( side == OrderSide::BUY and tick.price > price ) or ( side == OrderSide::SELL and tick.price < price );
+          }
+          if( executionType == ExecutionType::BBO ) {
+            isStopActivated = ( side == OrderSide::BUY and ask >= price ) or ( side == OrderSide::SELL and bid <= price );
           }
 
         }
@@ -294,6 +307,8 @@ class Order {
       timeProcessed          = NAN;
       state                  = OrderState::NEW;
       stateExchange          = OrderStateExchange::WAIT;
+
+      isStopActivated        = false;
 
     };
 
