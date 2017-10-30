@@ -626,6 +626,33 @@ PlotTs$set( 'public', 'stack', function( names = NULL, labels = names, col = 'au
 
 } )
 
+PlotTs$set( 'public', 'segments', function( data, lty = 1, col = 'auto', lwd = 1 ) {
+
+  if( is.null( self$segments_info ) ) {
+
+    self$segments_length = 0
+    self$segments_info = vector( mode = 'list', length = 100 )
+
+  }
+  self$segments_length = self$segments_length + 1
+  self$segments_info[[ self$segments_length ]] = list( data = data, lty = lty, col = col, lwd = lwd )
+  invisible( self )
+
+} )
+
+PlotTs$set( 'public', 'plot_segments', function() {
+
+  if( is.null( self$segments_info ) ) return( self )
+  lapply( self$segments_info[ 1:self$segments_length ], function( s ) {
+  segments(
+    self$t_to_x( s$data[[1]] ), s$data[[2]],
+    self$t_to_x( s$data[[3]] ), s$data[[4]],
+    col = s$col, lty = s$lty, lwd = s$lwd )
+  } )
+  invisible( self )
+
+} )
+
 PlotTs$set( 'public', 'lines',
             function( names = NULL, labels = names, type = 'l', lty = 1, pch = 19, col = 'auto', bg = NA, lwd = 1, lend = 'round' ) {
 
@@ -872,6 +899,7 @@ PlotTs$set( 'public', 'plot', function() {
   self$plot_time_grid()
   self$plot_candles()
   self$plot_lines()
+  self$plot_segments()
   self$plot_legend()
   self$plot_last_values()
 
