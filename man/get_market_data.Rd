@@ -12,7 +12,8 @@
 \alias{get_moex_continuous_futures_data}
 \title{Download historical market data}
 \usage{
-get_yahoo_data(symbol, from, to, split.adjusted = TRUE)
+get_yahoo_data(symbol, from, to, split.adjusted = TRUE,
+  dividend.adjusted = TRUE)
 
 get_yahoo_splits_and_dividends(symbol, from, to = from)
 

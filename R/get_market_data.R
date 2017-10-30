@@ -148,6 +148,7 @@ yahoo_downloader_env <- new.env()
   . = stock_splits = date = NULL
   if( events == 'split' ) x[, stock_splits := sapply( parse( text = stock_splits ), eval ) ]
   x[, date := as.Date( date ) ]
+  if( events == 'history' ) x[ , volume := as.numeric( volume ) ]
   x[]
 
 }
@@ -155,13 +156,73 @@ yahoo_downloader_env <- new.env()
 # download market data from Yahoo server
 #' @rdname get_market_data
 #' @export
-get_yahoo_data = function( symbol, from, to, split.adjusted = TRUE ) {
-
-  splits = .get_yahoo_data( symbol, from, to, events = 'split' )
+get_yahoo_data = function( symbol, from, to, split.adjusted = TRUE, dividend.adjusted = TRUE ) {
 
   dat = .get_yahoo_data( symbol, from, to, events = 'history' )
 
   if( is.null( dat ) || nrow( dat ) == 0 ) return( dat )
+
+  if( split.adjusted ) {
+
+    splits = .get_yahoo_data( symbol, from, to, events = 'split' )
+
+    dat[ , split_coeff := 1 ]
+    if( !is.null( splits ) ) {
+
+      splits = splits[, .( split_date = date, split = stock_splits ) ]
+      # filter out already adjusted splits ( yahoo finance bug )
+      splits[, effective_split := dat[ which( date == split_date ) + -1:0 ][, close[1] / open[2] ], by = split_date ]
+
+      if( nrow( splits ) > 0 ) {
+
+        splits = splits[ abs( effective_split / split - 1 ) < 0.05 ]
+
+        splits[ , dat[ date < split_date, split_coeff := split_coeff * split ][ NULL ], by = seq_along( splits$split_date ) ]
+
+        dat[ , ':='(
+
+          open   = open   / split_coeff,
+          high   = high   / split_coeff,
+          low    = low    / split_coeff,
+          close  = close  / split_coeff,
+          volume = volume * split_coeff
+
+        ) ]
+
+      }
+
+    }
+
+  }
+  if( dividend.adjusted ) {
+
+    dividends = .get_yahoo_data( symbol, from, to, events = 'div' )
+
+    dat[ , div_coeff := 1 ]
+    if( !is.null( dividends ) ) {
+
+      dividends = dividends[, .( div_date = date, div = dividends ) ]
+
+      if( nrow( dividends ) > 0 ) {
+
+        # https://help.yahoo.com/kb/SLN28256.html
+        dividends[ , dat[ date < div_date, div_coeff := div_coeff * ( 1 - div / close[.N] ) ], by = seq_along( dividends$div_date ) ]
+
+        dat[ , ':='(
+
+          open   = open   * div_coeff,
+          high   = high   * div_coeff,
+          low    = low    * div_coeff,
+          close  = close  * div_coeff,
+          volume = volume / div_coeff
+
+        ) ]
+
+      }
+
+    }
+
+  }
 
   # return downloaded data
   return( dat[] )
