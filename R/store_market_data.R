@@ -313,8 +313,10 @@ store_iqfeed_data = function( from = NULL, to = format( Sys.Date() ), verbose = 
 
     data = rbindlist( data )
 
+    time_range = as.POSIXct( format( as.Date( c( from, to ) ) + c( 0, 1 ) ), 'UTC' )
+
     time = NULL
-    if( !is.null( data ) ) data = data[ time %bw% c( from, to ) ]
+    if( !is.null( data ) ) data = data[ time > time_range[1] & time < time_range[2] ]
 
     return( data )
 
@@ -336,8 +338,7 @@ store_iqfeed_data = function( from = NULL, to = format( Sys.Date() ), verbose = 
     time_range = as.POSIXct( format( as.Date( c( from, to ) ) + c( 0, 1 ) ), 'UTC' )
 
     time = NULL
-    data = data[ time > time_range[1] & time <= time_range[2] ]
-    if( !is.null( data ) ) data = data[ time %bw% c( from, to ) ]
+    if( !is.null( data ) ) data = data[ time > time_range[1] & time < time_range[2] ]
 
     return( data )
 
