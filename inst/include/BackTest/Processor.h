@@ -337,7 +337,7 @@ public:
 
       statistics.Update( order );
 
-      if( trades.count( order->idTrade ) == 0 ) {
+      if( trades.count( order->idTrade ) == 0 and tradesProcessed.count( order->idTrade ) == 0 ) {
 
         Trade* trade    = new Trade;
 
@@ -351,7 +351,7 @@ public:
 
       } else {
 
-        Trade* trade = trades[ order->idTrade ];
+        Trade* trade = tradesProcessed.count( order->idTrade ) != 0 ? tradesProcessed[ order->idTrade ] : trades[ order->idTrade ];
 
         if( order->IsExecuted() ) {
 
