@@ -170,7 +170,7 @@ bw = function( x, interval ) {
       if( nchar[2] < 11 ) {
         # d/d
         if( nchar[2] > 9 ) {
-          tlim[2] = as.Date( from_to[2] )
+          tlim[2] = as.Date( from_to[2] ) + 1
         } else
         if( nchar[2] > 6 ) {
           tlim[2] = as.POSIXlt( paste0( from_to[2], '-01' ), tz = tzone )
