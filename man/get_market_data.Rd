@@ -38,6 +38,8 @@ get_moex_continuous_futures_data(contract, from, to, frequency, day_exp)
 
 \item{split.adjusted}{should data be split adjusted?}
 
+\item{dividend.adjusted}{should data be split adjusted?}
+
 \item{period}{candle period \code{tick, 1min, 5min, 10min, 15min, 30min, hour, day, week, month}}
 
 \item{local}{should data be loaded from local storage? See 'Local Storage' section}

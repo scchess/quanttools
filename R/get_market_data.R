@@ -21,6 +21,7 @@
 #' @param from,to text dates in format \code{"YYYY-mm-dd"}
 #' @param period candle period \code{tick, 1min, 5min, 10min, 15min, 30min, hour, day, week, month}
 #' @param split.adjusted should data be split adjusted?
+#' @param dividend.adjusted should data be split adjusted?
 #' @param local should data be loaded from local storage? See 'Local Storage' section
 #' @param code futures or option code name, e.g. \code{"RIU6"}
 #' @param contract,frequency,day_exp same as in \code{\link{gen_futures_codes}}
@@ -145,7 +146,7 @@ yahoo_downloader_env <- new.env()
   x = gsub( 'null', '', x, fixed = T )
   x = fread( x )
   setnames( x, tolower( gsub( ' ', '_', names( x ) ) ) )
-  . = stock_splits = date = NULL
+  . = stock_splits = date = volume = NULL
   if( events == 'split' ) x[, stock_splits := sapply( parse( text = stock_splits ), eval ) ]
   x[, date := as.Date( date ) ]
   if( events == 'history' ) x[ , volume := as.numeric( volume ) ]
@@ -162,6 +163,8 @@ get_yahoo_data = function( symbol, from, to, split.adjusted = TRUE, dividend.adj
 
   if( is.null( dat ) || nrow( dat ) == 0 ) return( dat )
 
+  effective_split = high = low = split_coeff = split_date = stock_splits = volume = NULL
+
   if( split.adjusted ) {
 
     splits = .get_yahoo_data( symbol, from, to, events = 'split' )
@@ -169,7 +172,7 @@ get_yahoo_data = function( symbol, from, to, split.adjusted = TRUE, dividend.adj
     dat[ , split_coeff := 1 ]
     if( !is.null( splits ) ) {
 
-      splits = splits[, .( split_date = date, split = stock_splits ) ]
+      splits = splits[, list( split_date = date, split = stock_splits ) ]
       # filter out already adjusted splits ( yahoo finance bug )
       splits[, effective_split := dat[ which( date == split_date ) + -1:0 ][, close[1] / open[2] ], by = split_date ]
 
@@ -198,10 +201,12 @@ get_yahoo_data = function( symbol, from, to, split.adjusted = TRUE, dividend.adj
 
     dividends = .get_yahoo_data( symbol, from, to, events = 'div' )
 
+    div = div_coeff = div_date = NULL
+
     dat[ , div_coeff := 1 ]
     if( !is.null( dividends ) ) {
 
-      dividends = dividends[, .( div_date = date, div = dividends ) ]
+      dividends = dividends[, list( div_date = date, div = dividends ) ]
 
       if( nrow( dividends ) > 0 ) {
 
