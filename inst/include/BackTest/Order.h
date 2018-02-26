@@ -1,4 +1,4 @@
-// Copyright (C) 2016 Stanislav Kovalevsky
+// Copyright (C) 2016-2018 Stanislav Kovalevsky
 //
 // This file is part of QuantTools.
 //
@@ -26,7 +26,7 @@ enum class ExecutionType: int { TRADE, BBO };
 
 enum class OrderSide: int { BUY, SELL };
 
-enum class OrderType: int { MARKET, LIMIT, STOP };
+enum class OrderType: int { MARKET, LIMIT, STOP, TRAIL };
 
 enum class OrderState: int {
   NEW,        // created
@@ -58,6 +58,7 @@ class Order {
     OrderSide side;
     OrderType type;
     double price;
+    double trail;
     double priceExecuted;
     int idTrade;
 
@@ -159,7 +160,14 @@ class Order {
 
         }
         // stop order
-        if( type == OrderType::STOP ) {
+        if( type == OrderType::STOP or type == OrderType::TRAIL ) {
+
+          if( type == OrderType::TRAIL ) {
+
+            if( side == OrderSide::BUY  ) price = std::min( price, tick.price * ( 1. + trail ) );
+            if( side == OrderSide::SELL ) price = std::max( price, tick.price * ( 1. - trail ) );
+
+          }
 
           // isStopActivated checked first and if true next tick order is executed as market order
           if( executionType == ExecutionType::TRADE and not tick.system ) {
@@ -188,8 +196,6 @@ class Order {
               priceExchangeExecuted = price;
 
             }
-
-
           }
 
         }
@@ -273,7 +279,7 @@ class Order {
 
     Order( Order& order ) {
 
-      Order( order.side, order.type, order.price, order.comment, order.idTrade );
+      Order( order.side, order.type, order.price, order.comment, order.idTrade, order.trail );
       onExecuted     = order.onExecuted    ;
       onCancelled    = order.onCancelled   ;
       onRegistered   = order.onRegistered  ;
@@ -281,11 +287,12 @@ class Order {
 
     }
 
-    Order( OrderSide side, OrderType type, double price, std::string comment, int idTrade = NA_INTEGER ):
+    Order( OrderSide side, OrderType type, double price, std::string comment, int idTrade = NA_INTEGER, double trail = 0 ):
 
-      side   ( side ),
-      type   ( type ),
-      price  ( price ),
+      side   ( side    ),
+      type   ( type    ),
+      price  ( price   ),
+      trail  ( trail   ),
       idTrade( idTrade ),
       comment( comment )
 

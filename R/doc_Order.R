@@ -1,4 +1,4 @@
-# Copyright (C) 2016 Stanislav Kovalevsky
+# Copyright (C) 2016-2018 Stanislav Kovalevsky
 #
 # This file is part of QuantTools.
 #
@@ -19,7 +19,7 @@
 #' @description C++ class documentation
 #' @section Usage: \code{Order( OrderSide side, OrderType type, double price, std::string comment, int idTrade )}
 #' @param side \code{BUY} or \code{SELL}
-#' @param type \code{LIMIT} or \code{MARKET}
+#' @param type \code{LIMIT}, \code{MARKET}, \code{STOP}, \code{TRAIL}
 #' @param price limit order price level, ignored for market orders
 #' @param comment arbitrary comment
 #' @param idTrade trade id for grouping multiple orders into trades

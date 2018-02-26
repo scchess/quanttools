@@ -1,4 +1,4 @@
-# Copyright (C) 2016 Stanislav Kovalevsky
+# Copyright (C) 2016-2018 Stanislav Kovalevsky
 #
 # This file is part of QuantTools.
 #
@@ -121,7 +121,7 @@
 #'  price_init     \tab initial price                                                                   \cr
 #'  price_exec     \tab execution price                                                                 \cr
 #'  side           \tab \code{buy}/\code{sell}                                                          \cr
-#'  type           \tab \code{limit}/\code{market}                                                      \cr
+#'  type           \tab \code{limit}/\code{market}/\code{stop}/\code{trail}                             \cr
 #'  state          \tab \code{new}/\code{registered}/\code{executed}/\code{cancelling}/\code{cancelled} \cr
 #'  comment        \tab comment
 #' }

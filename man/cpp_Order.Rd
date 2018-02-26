@@ -6,7 +6,7 @@
 \arguments{
 \item{side}{\code{BUY} or \code{SELL}}
 
-\item{type}{\code{LIMIT} or \code{MARKET}}
+\item{type}{\code{LIMIT}, \code{MARKET}, \code{STOP}, \code{TRAIL}}
 
 \item{price}{limit order price level, ignored for market orders}
 
