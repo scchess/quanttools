@@ -81,6 +81,7 @@ class Order {
     double timeProcessed;
 
     bool allowLimitToHitMarket;
+    bool allowExactStop;
     bool isStopActivated;
 
     double priceExchangeExecuted;
@@ -213,6 +214,11 @@ class Order {
             if( executionType == ExecutionType::BBO ) {
               priceExchangeExecuted = side == OrderSide::BUY ? ask : bid;
             }
+
+          }
+          if( allowExactStop and ( type == OrderType::STOP or type == OrderType::TRAIL ) ) {
+
+            priceExchangeExecuted = price;
 
           }
 

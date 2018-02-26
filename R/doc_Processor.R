@@ -53,6 +53,7 @@
 #'  \code{SetIntervals( std::vector<double> starts, std::vector<double> ends )}
 #'                                          \tab \code{void}                \tab see 'intervals' in 'Options' section                                \cr
 #'  \code{AllowLimitToHitMarket()}          \tab \code{void}                \tab see 'allow_limit_to_hit_market' in 'Options' section                \cr
+#'  \code{AllowExactStop()}                 \tab \code{void}                \tab see 'allow_exact_stop' in 'Options' section                         \cr
 #'  \code{SetOptions( Rcpp::List options )} \tab \code{void}                \tab see 'Options' section                                               \cr
 #'  \code{StopTrading()}                    \tab \code{void}                \tab if called trading stop triggered. See 'stop' in 'Options' section   \cr
 #'  \code{CanTrade()}                       \tab \code{bool}                \tab check if trading not stopped                                        \cr
@@ -237,6 +238,9 @@
 #'  }
 #'  \item{\strong{allow_limit_to_hit_market}}{
 #'    if TRUE, limit order execution price set to market price if executed on same tick as registered.
+#'  }
+#'  \item{\strong{allow_exact_stop}}{
+#'    if TRUE, stop order execution at set price.
 #'  }
 #'  \item{\strong{price_step}}{
 #'    if positive, limit order init price rounded to \code{price_step} down for buy orders and up for sell orders before placement.

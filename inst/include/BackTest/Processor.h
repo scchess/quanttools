@@ -73,6 +73,7 @@ private:
   double        stopTradingLoss       = NAN;
   bool          isTradingStopped      = false;
   bool          allowLimitToHitMarket = false;
+  bool          allowExactStop        = false;
   double        priceStep             = 0;
   ExecutionType executionType         = ExecutionType::TRADE;
 
@@ -231,6 +232,9 @@ public:
   void AllowLimitToHitMarket() {
     allowLimitToHitMarket = true;
   }
+  void AllowExactStop() {
+    allowExactStop = true;
+  }
 
   void SetOptions( Rcpp::List options ) {
 
@@ -248,6 +252,7 @@ public:
     bool hasIntervals      = std::find( names.begin(), names.end(), "intervals"       ) != names.end();
 
     bool hasAllowLimitToHitMarket = std::find( names.begin(), names.end(), "allow_limit_to_hit_market"   ) != names.end();
+    bool hasAllowExactStop        = std::find( names.begin(), names.end(), "allow_exact_stop"            ) != names.end();
 
     if( hasTradingHours ) {
 
@@ -275,6 +280,7 @@ public:
 
     }
     if( hasAllowLimitToHitMarket ) if( options["allow_limit_to_hit_market" ] ) AllowLimitToHitMarket();
+    if( hasAllowExactStop        ) if( options["allow_exact_stop"          ] ) AllowExactStop       ();
     if( hasIntervals ) {
 
       Rcpp::List intervals = options[ "intervals" ];
@@ -581,6 +587,7 @@ public:
     }
 
     order->allowLimitToHitMarket = allowLimitToHitMarket;
+    order->allowExactStop        = allowExactStop;
     order->executionType = executionType;
 
     if( executionType == ExecutionType::BBO ) {
