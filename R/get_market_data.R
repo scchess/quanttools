@@ -288,7 +288,7 @@ get_finam_data = function( symbol, from, to = from, period = 'day', local = FALS
 
   if( local ){
 
-    if( period != 'tick' ) stop( 'only ticks supported in local storage' )
+    if( ! period %in% c( 'tick', '1min' ) ) stop( 'only ticks and 1min supported in local storage' )
 
     data = .get_local_data(  symbol, from, to, source = 'finam', period )
 

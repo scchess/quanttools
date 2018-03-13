@@ -130,7 +130,10 @@ store_finam_data = function( from = NULL, to = format( Sys.Date() ), verbose = T
 
     if( from_is_null ) from = NULL
 
-    dates_available = gsub( '.rds', '', list.files( paste( save_dir, symbol, sep = '/' ), pattern = '.rds' ) )
+    # ticks
+    if( verbose ) message( 'ticks:' )
+
+    dates_available = gsub( '.rds', '', list.files( paste( save_dir, symbol, sep = '/' ), pattern = '\\d{4}-\\d{2}-\\d{2}.rds' ) )
     if( is.null( from ) && length( dates_available ) == 0 ) {
 
       from = .settings$finam_storage_from
@@ -162,6 +165,50 @@ store_finam_data = function( from = NULL, to = format( Sys.Date() ), verbose = T
       if( verbose ) message( paste( date,  'saved' ) )
 
     }
+
+    # minutes
+    if( verbose ) message( 'minutes:' )
+
+    if( from_is_null ) from = NULL
+    dates_available = gsub( '.rds', '-01', list.files( paste( save_dir, symbol, sep = '/' ), pattern = '\\d{4}-\\d{2}.rds' ) )
+    if( is.null( from ) && length( dates_available ) == 0 ) {
+
+      from = .settings$finam_storage_from
+      if( from == '' ) stop( 'please set Finam storage start date via QuantTools_settings( \'finam_storage_from\', \'YYYYMMDD\' )' )
+      message( 'not found in storage, \ntrying to download since storage start date' )
+
+    }
+    if( is.null( from ) && to >= max( dates_available ) ) {
+
+      from = max( dates_available )
+      message( paste( 'dates to be added:', from, '-', to ) )
+
+    }
+
+    from = as.Date( from )
+    to   = as.Date( to )
+
+    data.table( from = as.Date( unique( format( seq( from, to, 1 ), '%Y-%m-01' ) ) ) )[, to := shift( from - 1, type = 'lead', fill = to ) ][, {
+
+      month = format( from, '%Y-%m' )
+
+      mins = get_finam_data( symbol, from, to, period = '1min' )
+
+      if( !is.null( mins ) ) {
+
+        dir.create( paste0( save_dir, '/' , symbol ), recursive = TRUE, showWarnings = FALSE )
+
+        saveRDS( mins, file = paste0( save_dir, '/' , symbol, '/', month, '.rds' ) )
+
+        if( verbose ) message( paste( month,  'saved' ) )
+
+      } else {
+
+        if( verbose ) message( paste( month,  'not available' ) )
+
+      }
+
+    }, by = from ]
 
   }
 
