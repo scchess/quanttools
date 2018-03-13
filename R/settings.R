@@ -73,8 +73,7 @@ QuantTools_settings = function( settings = NULL ){
 
   if( is.list( settings ) ) {
 
-    if( is.null( names( settings ) ) ) next
-    x = lapply( seq_along( settings ), function( i ) assign( names( settings )[i], settings[[i]], envir = .settings ) )
+    if( !is.null( names( settings ) ) ) x = lapply( seq_along( settings ), function( i ) assign( names( settings )[i], settings[[i]], envir = .settings ) )
 
     return( message('') )
   }
