@@ -87,9 +87,7 @@ private:
 
   void FormCandle( const Tick& tick ) {
 
-    bool startOver = candle.time != floor( tick.time / timeFrame ) * timeFrame + timeFrame;
-
-    if( startOver and candle.time != 0 ) {
+    if( candle.IsFormed( tick ) ) {
 
       if( onCandle != nullptr ) onCandle( candle );
 
