@@ -240,7 +240,7 @@
 #'    if TRUE, limit order execution price set to market price if executed on same tick as registered.
 #'  }
 #'  \item{\strong{allow_exact_stop}}{
-#'    if TRUE, stop order execution at set price.
+#'    if TRUE, stop order executed at set price.
 #'  }
 #'  \item{\strong{price_step}}{
 #'    if positive, limit order init price rounded to \code{price_step} down for buy orders and up for sell orders before placement.

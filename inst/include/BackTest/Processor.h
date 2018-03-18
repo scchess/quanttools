@@ -80,6 +80,8 @@ private:
   double bid;
   double ask;
 
+  double close;
+
   bool isInInterval = false;
   std::vector<double> intervalStarts;
   std::vector<double> intervalEnds;
@@ -92,6 +94,7 @@ private:
       if( onCandle != nullptr ) onCandle( candle );
 
       candles.push_back( candle );
+      if( not std::isnan( candle.close ) ) close = candle.close;
 
       statistics.Update( candle );
 
@@ -423,7 +426,7 @@ public:
         if( nNights > 0 ) {
 
           trade->cost += nNights * ( trade->IsLong() ? cost.longAbs : cost.shortAbs );
-          trade->cost += nNights * ( trade->IsLong() ? cost.longRel : cost.shortRel ) * candles.back().close * cost.pointValue;
+          trade->cost += nNights * ( trade->IsLong() ? cost.longRel : cost.shortRel ) * close * cost.pointValue;
 
         }
 
