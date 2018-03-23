@@ -74,9 +74,17 @@ public:
     }
     range.min = *windowSorted.begin();
     range.max = *std::prev( windowSorted.end() );
-    if( IsFormed() ) range.quantile = p >= 0.5 ?
-    *std::next( windowSorted.rbegin() , static_cast< int >( std::trunc( ( 1. - p ) * n ) ) ) :
-    *std::next( windowSorted.begin() , static_cast< int >( std::trunc( p * n ) ) );
+    if( IsFormed() ) {
+
+      double t = p * ( n - 1 );
+      int    i = static_cast< int >( std::trunc( t ) );
+      t = t - i;
+      double left  = *std::next( windowSorted.begin(), i     );
+      double right = *std::next( windowSorted.begin(), i + 1 );
+
+      range.quantile = left * ( 1 - t ) + right * t;
+
+    }
 
     //Rcpp::Rcout << range.min << " " << range.max << " " << range.quantile << std::endl;
 
