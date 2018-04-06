@@ -82,9 +82,11 @@ private:
   std::vector<double> onDayCloseHistoryDrawDown;
   std::vector<int>    onDayCloseHistoryDates;
   std::vector<int>    onDayCloseHistoryNTrades;
+  std::vector<int>    onDayCloseHistoryNTradesLong;
   std::vector<double> onDayCloseHistoryAvgTradePnl;
 
   int onDayCloseNTrades;
+  int onDayCloseNTradesLong;
   double onDayCloseTradePnl;
 
   std::vector<double> onCandleHistoryMarketValue;
@@ -165,6 +167,7 @@ public:
     onDayCloseHistoryDates            .clear();
     onDayCloseHistoryAvgTradePnl      .clear();
     onDayCloseHistoryNTrades          .clear();
+    onDayCloseHistoryNTradesLong      .clear();
     onDayCloseNTrades  = 0;
     onDayCloseTradePnl = 0;
 
@@ -269,6 +272,7 @@ public:
     if( trade->IsLong() ) {
 
       nTradesLong++;
+      onDayCloseNTradesLong++;
 
     } else {
 
@@ -292,6 +296,7 @@ public:
     onDayCloseHistoryDrawDown         .push_back( drawDown );
     onDayCloseHistoryAvgTradePnl      .push_back( onDayCloseNTrades == 0 ? 0 : onDayCloseTradePnl / onDayCloseNTrades );
     onDayCloseHistoryNTrades          .push_back( onDayCloseNTrades );
+    onDayCloseHistoryNTradesLong      .push_back( onDayCloseNTradesLong );
 
     nDaysTested++;
 
@@ -323,8 +328,9 @@ public:
 
     avgDrawDown = ( avgDrawDown * ( nDaysTested - 1 ) + drawDown ) / nDaysTested;
 
-    onDayCloseNTrades  = 0;
-    onDayCloseTradePnl = 0;
+    onDayCloseNTrades     = 0;
+    onDayCloseNTradesLong = 0;
+    onDayCloseTradePnl    = 0;
 
 
   }
