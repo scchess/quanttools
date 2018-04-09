@@ -27,7 +27,7 @@
 // [[Rcpp::export]]
 std::vector<double> ema( Rcpp::NumericVector x, std::size_t n ) {
 
-  Ema ema( n );
+  Ema ema( n, false );
 
   for( auto i = 0; i < x.size(); i++ ) ema.Add( x[i] );
 

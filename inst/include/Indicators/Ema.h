@@ -30,18 +30,20 @@ class Ema : public Indicator< double, double, std::vector< double > > {
     double k;
     size_t n;
     double ema;
+    bool wilder;
     size_t counter;
     std::vector< double > history;
 
   public:
-
-    Ema( int n ) :
-    n( ( size_t )n )
+    // param wilder for Welles Wilder type EMA calc
+    Ema( int n, bool wilder ) :
+    n( ( size_t )n ),
+    wilder( wilder )
     {
 
       if( n < 1 ) throw std::invalid_argument( "n must be greater than 0" );
 
-      k = 2. / ( n + 1 );
+      (wilder)? k = 1. / n : k = 2. / ( n + 1 );
       counter = 0;
       ema = 0;
 
