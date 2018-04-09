@@ -168,8 +168,9 @@ public:
     onDayCloseHistoryAvgTradePnl      .clear();
     onDayCloseHistoryNTrades          .clear();
     onDayCloseHistoryNTradesLong      .clear();
-    onDayCloseNTrades  = 0;
-    onDayCloseTradePnl = 0;
+    onDayCloseNTrades     = 0;
+    onDayCloseNTradesLong = 0;
+    onDayCloseTradePnl    = 0;
 
     onCandleHistoryMarketValue   .clear();
     onCandleHistoryDrawDown      .clear();
