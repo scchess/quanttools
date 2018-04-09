@@ -49,8 +49,14 @@ class Ema : public Indicator< double, double, std::vector< double > > {
 
     void Add( double value ) {
 
-      if( counter < n ) counter++;
-      if( counter == 1 ) ema = value; else ema = value * k + ema * ( 1 - k );
+      if( counter < n ) {
+        counter++;
+        ema += value/n;
+      }
+      else
+        ema = value * k + ema * ( 1 - k );
+
+
       IsFormed() ? history.push_back( GetValue() ) : history.push_back( NA_REAL );
 
     }
