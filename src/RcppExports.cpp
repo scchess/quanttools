@@ -5,6 +5,18 @@
 
 using namespace Rcpp;
 
+// atr
+Rcpp::List atr(Rcpp::DataFrame x, size_t n);
+RcppExport SEXP _QuantTools_atr(SEXP xSEXP, SEXP nSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Rcpp::DataFrame >::type x(xSEXP);
+    Rcpp::traits::input_parameter< size_t >::type n(nSEXP);
+    rcpp_result_gen = Rcpp::wrap(atr(x, n));
+    return rcpp_result_gen;
+END_RCPP
+}
 // back_test
 Rcpp::List back_test(Rcpp::LogicalVector enter, Rcpp::LogicalVector exit, Rcpp::NumericVector price, double stop_loss, int side);
 RcppExport SEXP _QuantTools_back_test(SEXP enterSEXP, SEXP exitSEXP, SEXP priceSEXP, SEXP stop_lossSEXP, SEXP sideSEXP) {

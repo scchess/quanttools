@@ -8,6 +8,7 @@
 */
 
   /* .Call calls */
+extern SEXP _QuantTools_atr(SEXP, SEXP);
 extern SEXP _QuantTools_back_test(SEXP, SEXP, SEXP, SEXP, SEXP);
 extern SEXP _QuantTools_bbands(SEXP, SEXP, SEXP);
 extern SEXP _QuantTools_crossover(SEXP, SEXP);
@@ -30,6 +31,7 @@ extern SEXP _QuantTools_stochastic(SEXP, SEXP, SEXP, SEXP);
 extern SEXP _QuantTools_to_candles(SEXP, SEXP);
 
 static const R_CallMethodDef CallEntries[] = {
+  {"_QuantTools_atr",                 (DL_FUNC) &_QuantTools_atr,                 2},
   {"_QuantTools_back_test",           (DL_FUNC) &_QuantTools_back_test,           5},
   {"_QuantTools_bbands",              (DL_FUNC) &_QuantTools_bbands,              3},
   {"_QuantTools_crossover",           (DL_FUNC) &_QuantTools_crossover,           2},
