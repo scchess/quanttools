@@ -22,9 +22,10 @@ data.table with columns \code{k_fast, d_fast, d_slow}
 Stochastic oscillator shows position of price in respect to its range over n past values.
 }
 \seealso{
-Other technical indicators: \code{\link{bbands}},
-  \code{\link{crossover}}, \code{\link{ema}},
-  \code{\link{roll_lm}}, \code{\link{roll_percent_rank}},
+Other technical indicators: \code{\link{atr}},
+  \code{\link{bbands}}, \code{\link{crossover}},
+  \code{\link{ema}}, \code{\link{roll_lm}},
+  \code{\link{roll_percent_rank}},
   \code{\link{roll_range}}, \code{\link{roll_sd}},
   \code{\link{roll_volume_profile}}, \code{\link{rsi}},
   \code{\link{sma}}

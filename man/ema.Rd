@@ -4,20 +4,22 @@
 \alias{ema}
 \title{Exponential Moving Average}
 \usage{
-ema(x, n)
+ema(x, n, wilder = FALSE)
 }
 \arguments{
 \item{x}{numeric vectors}
 
 \item{n}{window size}
+
+\item{wilder}{use Welles Wilder's exponential smoothing ratio of 1/n?}
 }
 \description{
 Exponentially weighted moving average aka EMA is exponentially weighted SMA. EMAs have faster response to recent value changes than SMAs.
 }
 \seealso{
-Other technical indicators: \code{\link{bbands}},
-  \code{\link{crossover}}, \code{\link{roll_lm}},
-  \code{\link{roll_percent_rank}},
+Other technical indicators: \code{\link{atr}},
+  \code{\link{bbands}}, \code{\link{crossover}},
+  \code{\link{roll_lm}}, \code{\link{roll_percent_rank}},
   \code{\link{roll_range}}, \code{\link{roll_sd}},
   \code{\link{roll_volume_profile}}, \code{\link{rsi}},
   \code{\link{sma}}, \code{\link{stochastic}}

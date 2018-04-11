@@ -204,13 +204,14 @@ Back test summary statistics:
 
 Back test daily performance history:
 \tabular{ll}{
- \strong{Name} \tab \strong{Description}    \cr
- date          \tab date                    \cr
- return        \tab return                  \cr
- pnl           \tab cumulative pnl          \cr
- drawdown      \tab drawdown                \cr
- n_per_day     \tab number of closed trades \cr
- avg_pnl       \tab average trade pnl
+ \strong{Name}  \tab \strong{Description}    \cr
+ date           \tab date                    \cr
+ return         \tab return                  \cr
+ pnl            \tab cumulative pnl          \cr
+ drawdown       \tab drawdown                \cr
+ n_per_day      \tab number of closed trades \cr
+ n_per_day_long \tab number of closed longs  \cr
+ avg_pnl        \tab average trade pnl
 }
 }
 

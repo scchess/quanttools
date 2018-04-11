@@ -15,9 +15,10 @@ rsi(x, n)
 Relative strength index aka RSI measures the velocity and magnitude of directional price movements.
 }
 \seealso{
-Other technical indicators: \code{\link{bbands}},
-  \code{\link{crossover}}, \code{\link{ema}},
-  \code{\link{roll_lm}}, \code{\link{roll_percent_rank}},
+Other technical indicators: \code{\link{atr}},
+  \code{\link{bbands}}, \code{\link{crossover}},
+  \code{\link{ema}}, \code{\link{roll_lm}},
+  \code{\link{roll_percent_rank}},
   \code{\link{roll_range}}, \code{\link{roll_sd}},
   \code{\link{roll_volume_profile}}, \code{\link{sma}},
   \code{\link{stochastic}}

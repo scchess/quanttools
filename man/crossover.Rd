@@ -13,9 +13,9 @@ crossover(x, y)
 Crossover is binary indicator indicating the moment when one value goes above or below another.
 }
 \seealso{
-Other technical indicators: \code{\link{bbands}},
-  \code{\link{ema}}, \code{\link{roll_lm}},
-  \code{\link{roll_percent_rank}},
+Other technical indicators: \code{\link{atr}},
+  \code{\link{bbands}}, \code{\link{ema}},
+  \code{\link{roll_lm}}, \code{\link{roll_percent_rank}},
   \code{\link{roll_range}}, \code{\link{roll_sd}},
   \code{\link{roll_volume_profile}}, \code{\link{rsi}},
   \code{\link{sma}}, \code{\link{stochastic}}
