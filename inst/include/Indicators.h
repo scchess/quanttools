@@ -18,6 +18,7 @@
 #ifndef INDICATORS_H
 #define INDICATORS_H
 
+#include "Indicators/Atr.h"
 #include "Indicators/Sma.h"
 #include "Indicators/Ema.h"
 #include "Indicators/Rsi.h"
