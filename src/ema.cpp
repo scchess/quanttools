@@ -21,13 +21,14 @@
 //'
 //' @param x numeric vectors
 //' @param n window size
+//' @param wilder use Welles Wilder's exponential smoothing ratio of 1/n?
 //' @family technical indicators
 //' @description Exponentially weighted moving average aka EMA is exponentially weighted SMA. EMAs have faster response to recent value changes than SMAs.
 //' @export
 // [[Rcpp::export]]
-std::vector<double> ema( Rcpp::NumericVector x, std::size_t n ) {
+std::vector<double> ema( Rcpp::NumericVector x, std::size_t n, bool wilder = false ) {
 
-  Ema ema( n, false );
+  Ema ema( n, wilder );
 
   for( auto i = 0; i < x.size(); i++ ) ema.Add( x[i] );
 

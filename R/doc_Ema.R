@@ -19,6 +19,7 @@
 #' @description C++ class documentation
 #' @section Usage: \code{Ema( int n )}
 #' @param n indicator period
+#' @param wilder use Welles Wilder's exponential smoothing ratio of 1/n?
 #' @details R function \link{ema}.
 #' @family C++ indicators
 #' @family C++ classes

@@ -59,11 +59,12 @@ crossover <- function(x, y) {
 #'
 #' @param x numeric vectors
 #' @param n window size
+#' @param wilder use Welles Wilder's exponential smoothing ratio of 1/n?
 #' @family technical indicators
 #' @description Exponentially weighted moving average aka EMA is exponentially weighted SMA. EMAs have faster response to recent value changes than SMAs.
 #' @export
-ema <- function(x, n) {
-    .Call(`_QuantTools_ema`, x, n)
+ema <- function(x, n, wilder = FALSE) {
+    .Call(`_QuantTools_ema`, x, n, wilder)
 }
 
 na_locf_numeric <- function(x) {

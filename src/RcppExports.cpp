@@ -58,14 +58,15 @@ BEGIN_RCPP
 END_RCPP
 }
 // ema
-std::vector<double> ema(Rcpp::NumericVector x, std::size_t n);
-RcppExport SEXP _QuantTools_ema(SEXP xSEXP, SEXP nSEXP) {
+std::vector<double> ema(Rcpp::NumericVector x, std::size_t n, bool wilder);
+RcppExport SEXP _QuantTools_ema(SEXP xSEXP, SEXP nSEXP, SEXP wilderSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< Rcpp::NumericVector >::type x(xSEXP);
     Rcpp::traits::input_parameter< std::size_t >::type n(nSEXP);
-    rcpp_result_gen = Rcpp::wrap(ema(x, n));
+    Rcpp::traits::input_parameter< bool >::type wilder(wilderSEXP);
+    rcpp_result_gen = Rcpp::wrap(ema(x, n, wilder));
     return rcpp_result_gen;
 END_RCPP
 }

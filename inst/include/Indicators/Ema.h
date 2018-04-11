@@ -36,7 +36,7 @@ class Ema : public Indicator< double, double, std::vector< double > > {
 
   public:
     // param wilder for Welles Wilder type EMA calc
-    Ema( int n, bool wilder ) :
+    Ema( int n, bool wilder = false ) :
     n( ( size_t )n ),
     wilder( wilder )
     {
