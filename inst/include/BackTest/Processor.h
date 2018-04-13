@@ -20,9 +20,10 @@
 
 #include "Order.h"
 #include "Trade.h"
-#include "Candle.h"
+#include "../Indicators/CandleAggregator.h"
 #include "Cost.h"
 #include "Tick.h"
+#include "TickProvider.h"
 #include "Statistics.h"
 #include "../CppToR.h"
 #include "../ListBuilder.h"
@@ -52,13 +53,12 @@ private:
   std::map< int, Trade*> trades;
   std::map< int, Trade*> tradesProcessed;
 
-  std::vector<Candle> candles;
 
   double prevTickTime;
   double latencySend;
   double latencyReceive;
-  int    timeFrame;
-  Candle candle;
+
+  CandleAggregator* candleAggregator;
 
   Cost   cost;
 
@@ -66,7 +66,6 @@ private:
 
   Alarm alarmMarketOpen;
   Alarm alarmMarketClose;
-
 
   double        startTradingTime      = 0;
   double        stopTradingDrawdown   = NAN;
@@ -87,23 +86,6 @@ private:
   std::vector<double> intervalEnds;
   int intervalId = 0;
 
-  void FormCandle( const Tick& tick ) {
-
-    if( candle.IsFormed( tick ) ) {
-
-      if( onCandle != nullptr ) onCandle( candle );
-
-      candles.push_back( candle );
-      if( not std::isnan( candle.close ) ) close = candle.close;
-
-      statistics.Update( candle );
-
-    }
-
-    candle.Add( tick );
-
-  };
-
 public:
 
   Statistics statistics;
@@ -118,19 +100,23 @@ public:
   Processor( int timeFrame, double latencySend = 0.001, double latencyReceive = 0.001 ) :
 
     latencySend   ( latencySend    ),
-    latencyReceive( latencyReceive ),
-    timeFrame     ( timeFrame      ),
-    candle        ( timeFrame      )
+    latencyReceive( latencyReceive )
 
   {
 
     Reset();
     timeZone = "UTC";
     statistics.executionType = executionType;
+    candleAggregator = new CandleAggregator( timeFrame );
 
   };
 
-  ~Processor() { Reset(); }
+  ~Processor() {
+
+    Reset();
+    delete candleAggregator;
+
+  }
 
   void SetCost( Cost cost ) { this->cost = cost; }
   void SetCost( Rcpp::List cost ) {
@@ -337,7 +323,17 @@ public:
 
     }
 
-    FormCandle( tick );
+    candleAggregator->Add( tick );
+
+    if( candleAggregator->IsFormed() ) {
+
+      if( onCandle != nullptr ) onCandle( candleAggregator->GetValue() );
+
+      if( not std::isnan( candleAggregator->GetValue().close ) ) close = candleAggregator->GetValue().close;
+
+      statistics.Update( candleAggregator->GetValue() );
+
+    }
 
     if( onTick != nullptr and not tick.system ) onTick( tick );
 
@@ -492,7 +488,7 @@ public:
   }
 
   Statistics GetStatistics() { return statistics; }
-  Candle GetCandle() const { return candle; }
+  const Candle& GetCandle() const { return candleAggregator->GetValue(); }
 
   void StopTrading() {
 
@@ -502,60 +498,17 @@ public:
 
   void Feed( Rcpp::DataFrame ticks ) {
 
+    TickProvider tickProvider( ticks );
 
-    Rcpp::StringVector names = ticks.attr( "names" );
+    if( executionType == ExecutionType::BBO and not tickProvider.HasBbo() ) {
 
-    bool hasTime   = std::find( names.begin(), names.end(), "time"   ) != names.end();
-    bool hasPrice  = std::find( names.begin(), names.end(), "price"  ) != names.end();
-    bool hasVolume = std::find( names.begin(), names.end(), "volume" ) != names.end();
-
-    bool hasBid    = std::find( names.begin(), names.end(), "bid"    ) != names.end();
-    bool hasAsk    = std::find( names.begin(), names.end(), "ask"    ) != names.end();
-    bool hasSystem = std::find( names.begin(), names.end(), "system" ) != names.end();
-
-    if( !hasTime   ) throw std::invalid_argument( "ticks must contain 'time' column"   );
-    if( !hasPrice  ) throw std::invalid_argument( "ticks must contain 'price' column"  );
-    if( !hasVolume ) throw std::invalid_argument( "ticks must contain 'volume' column" );
-
-    if( executionType == ExecutionType::BBO ) {
-
-      if( !hasBid ) throw std::invalid_argument( "ticks must contain 'bid' column"  );
-      if( !hasAsk ) throw std::invalid_argument( "ticks must contain 'ask' column" );
+      throw std::invalid_argument( "ticks must contain 'bid' and 'ask' columns"  );
 
     }
 
-    Rcpp::NumericVector  bids;
-    Rcpp::NumericVector  asks;
-    Rcpp::LogicalVector  systems;
+    for( int id = 0; id < tickProvider.Size(); id++ ) {
 
-    Rcpp::NumericVector  times   = ticks[ "time"   ];
-    Rcpp::NumericVector  prices  = ticks[ "price"  ];
-    Rcpp::IntegerVector  volumes = ticks[ "volume" ];
-    if( hasBid    )      bids    = ticks[ "bid"    ];
-    if( hasAsk    )      asks    = ticks[ "ask"    ];
-    if( hasSystem )      systems = ticks[ "system" ];
-
-    std::vector<std::string> tzone = times.attr( "tzone" );
-
-    if( tzone.empty() ) throw std::invalid_argument( "ticks timezone must be set" );
-
-    timeZone = tzone[0];
-
-    auto n = times.size();
-
-    Tick tick;
-
-    for( auto id = 0; id < n; id++ ) {
-
-      tick.id     = id;
-      tick.time   = times  [id];
-      tick.price  = prices [id];
-      tick.volume = volumes[id];
-      if( hasBid    ) tick.bid    = bids   [id];
-      if( hasAsk    ) tick.ask    = asks   [id];
-      if( hasSystem ) tick.system = systems[id];
-
-      Feed( tick );
+      Feed( tickProvider.Get( id ) );
 
     }
 
@@ -630,6 +583,7 @@ public:
     statistics.Reset();
     prevTickTime = 0;
     isTradingStopped = false;
+
   }
 
   std::vector<double> GetOnCandleMarketValueHistory() {  return statistics.onCandleHistoryMarketValue;  }
@@ -651,48 +605,7 @@ public:
 
   }
 
-  Rcpp::List GetCandles() {
-
-    int n = candles.size();
-
-    Rcpp::IntegerVector id    ( n );
-    Rcpp::NumericVector open  ( n );
-    Rcpp::NumericVector high  ( n );
-    Rcpp::NumericVector low   ( n );
-    Rcpp::NumericVector close ( n );
-    Rcpp::NumericVector time  = DoubleToDateTime( std::vector<double>( n ), timeZone );
-    Rcpp::IntegerVector volume( n );
-
-    int i = 0;
-    auto convertCandle = [&]( std::vector<Candle>::iterator it ) {
-
-      id    [i] = it->id + 1;
-      open  [i] = it->open;
-      high  [i] = it->high;
-      low   [i] = it->low;
-      close [i] = it->close;
-      time  [i] = it->time;
-      volume[i] = it->volume;
-
-      i++;
-
-    };
-
-    for( auto it = candles.begin(); it != candles.end(); it++ ) convertCandle( it );
-
-    Rcpp::List candles = ListBuilder().AsDataTable()
-
-      .Add( "time"  , time   )
-      .Add( "open"  , open   )
-      .Add( "high"  , high   )
-      .Add( "low"   , low    )
-      .Add( "close" , close  )
-      .Add( "volume", volume )
-      .Add( "id"    , id     );
-
-    return candles;
-
-  }
+  Rcpp::List GetCandles() { return candleAggregator->GetHistory(); }
 
   Rcpp::List GetOrders() {
 

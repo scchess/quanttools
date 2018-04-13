@@ -35,19 +35,20 @@ R functions \link{roll_range}, \link{roll_quantile}, \link{roll_min}, \link{roll
 
 \seealso{
 Other C++ indicators: \code{\link{BBands}},
-  \code{\link{Crossover}}, \code{\link{Ema}},
-  \code{\link{Indicator}}, \code{\link{RollLinReg}},
-  \code{\link{RollPercentRank}}, \code{\link{RollSd}},
-  \code{\link{RollVolumeProfile}}, \code{\link{Rsi}},
-  \code{\link{Sma}}, \code{\link{Stochastic}}
+  \code{\link{CandleAggregator}}, \code{\link{Crossover}},
+  \code{\link{Ema}}, \code{\link{Indicator}},
+  \code{\link{RollLinReg}}, \code{\link{RollPercentRank}},
+  \code{\link{RollSd}}, \code{\link{RollVolumeProfile}},
+  \code{\link{Rsi}}, \code{\link{Sma}},
+  \code{\link{Stochastic}}
 
 Other C++ classes: \code{\link{BBands}},
-  \code{\link{Candle}}, \code{\link{Cost}},
-  \code{\link{Crossover}}, \code{\link{Ema}},
-  \code{\link{Indicator}}, \code{\link{Order}},
-  \code{\link{Processor}}, \code{\link{RollLinReg}},
-  \code{\link{RollPercentRank}}, \code{\link{RollSd}},
-  \code{\link{RollVolumeProfile}}, \code{\link{Rsi}},
-  \code{\link{Sma}}, \code{\link{Stochastic}},
-  \code{\link{Tick}}
+  \code{\link{CandleAggregator}}, \code{\link{Candle}},
+  \code{\link{Cost}}, \code{\link{Crossover}},
+  \code{\link{Ema}}, \code{\link{Indicator}},
+  \code{\link{Order}}, \code{\link{Processor}},
+  \code{\link{RollLinReg}}, \code{\link{RollPercentRank}},
+  \code{\link{RollSd}}, \code{\link{RollVolumeProfile}},
+  \code{\link{Rsi}}, \code{\link{Sma}},
+  \code{\link{Stochastic}}, \code{\link{Tick}}
 }

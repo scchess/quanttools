@@ -54,12 +54,12 @@ Other backtesting classes: \code{\link{Candle}},
   \code{\link{Processor}}, \code{\link{Tick}}
 
 Other C++ classes: \code{\link{BBands}},
-  \code{\link{Candle}}, \code{\link{Cost}},
-  \code{\link{Crossover}}, \code{\link{Ema}},
-  \code{\link{Indicator}}, \code{\link{Processor}},
-  \code{\link{RollLinReg}}, \code{\link{RollPercentRank}},
-  \code{\link{RollRange}}, \code{\link{RollSd}},
-  \code{\link{RollVolumeProfile}}, \code{\link{Rsi}},
-  \code{\link{Sma}}, \code{\link{Stochastic}},
-  \code{\link{Tick}}
+  \code{\link{CandleAggregator}}, \code{\link{Candle}},
+  \code{\link{Cost}}, \code{\link{Crossover}},
+  \code{\link{Ema}}, \code{\link{Indicator}},
+  \code{\link{Processor}}, \code{\link{RollLinReg}},
+  \code{\link{RollPercentRank}}, \code{\link{RollRange}},
+  \code{\link{RollSd}}, \code{\link{RollVolumeProfile}},
+  \code{\link{Rsi}}, \code{\link{Sma}},
+  \code{\link{Stochastic}}, \code{\link{Tick}}
 }

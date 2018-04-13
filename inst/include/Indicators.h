@@ -30,5 +30,6 @@
 #include "Indicators/RollVolumeProfile.h"
 #include "Indicators/Crossover.h"
 #include "Indicators/BBands.h"
+#include "Indicators/CandleAggregator.h"
 
 #endif //INDICATORS_H

@@ -21,23 +21,24 @@
 #include "Tick.h"
 
 class Candle {
-
 public:
 
-  int id;
+  int    id;
   double open;
   double high;
   double low;
   double close;
   double time;
-  int volume;
-  int timeFrame;
-  bool isEmpty = true;
+  int    volume;
+
+  int    timeFrame;
+  bool   isEmpty;
 
   Candle( int timeFrame ) :
   timeFrame( timeFrame )
   {
     if( timeFrame <= 0 ) throw std::invalid_argument( "timeFrame must be greater than 0" );
+    isEmpty = true;
     time = 0;
   }
 
@@ -47,7 +48,6 @@ public:
     return this->time != time and this->time != 0;
 
   }
-
   Candle Add( const Tick& tick ) {
 
     if( IsFormed( tick ) or this->time == 0 ) {

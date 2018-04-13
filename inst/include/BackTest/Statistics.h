@@ -415,7 +415,7 @@ public:
 
   }
 
-  void Update( Candle& candle ) {
+  void Update( const Candle& candle ) {
 
     if( std::isnan( marketValue ) ) {
 
