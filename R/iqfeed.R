@@ -613,19 +613,19 @@ iqfeed$set( 'public', 'search_by_filter', function( search_field = 's', search_s
   search_result
 
 } )
-iqfeed$set( 'public', 'get_ticks', function( symbol, n_ticks, n_days, from, to ) {
+iqfeed$set( 'public', 'get_ticks', function( symbol, n_ticks, n_days, from, to, direction = 1 ) {
 
   cmd = if( !missing( n_ticks ) ) {
 
-    paste0( paste( 'HTX', symbol, max = n_ticks, direction = '1', sep = ',' ), '\r\n' )
+    paste0( paste( 'HTX', symbol, max = n_ticks, direction, sep = ',' ), '\r\n' )
 
   } else if( !missing( n_days ) ) {
 
-    paste0( paste( 'HTD', symbol, n_days, max = '', time_begin = '', time_end = '', direction = '1', sep = ',' ), '\r\n' )
+    paste0( paste( 'HTD', symbol, n_days, max = '', time_begin = '', time_end = '', direction, sep = ',' ), '\r\n' )
 
   } else if( missing( from ) & missing( to ) ) stop( 'no arguments set' ) else {
 
-    paste0( paste( 'HTT', symbol, datetime_begin = format( as.POSIXct( from ), '%Y%m%d %H%M%S' ), datetime_end = format( as.POSIXct( to ) + ( nchar( to ) == 10 ) * as.difftime( '24:00:00' ), '%Y%m%d %H%M%S' ), max = '', time_begin = '', time_end = '', direction = '1', sep = ',' ), '\r\n' )
+    paste0( paste( 'HTT', symbol, datetime_begin = format( as.POSIXct( from ), '%Y%m%d %H%M%S' ), datetime_end = format( as.POSIXct( to ) + ( nchar( to ) == 10 ) * as.difftime( '24:00:00' ), '%Y%m%d %H%M%S' ), max = '', time_begin = '', time_end = '', direction, sep = ',' ), '\r\n' )
 
   }
 
@@ -636,19 +636,19 @@ iqfeed$set( 'public', 'get_ticks', function( symbol, n_ticks, n_days, from, to )
   ticks[, time := fasttime::fastPOSIXct( time, 'UTC' ) ][]
 
 } )
-iqfeed$set( 'public', 'get_intraday_candles', function( symbol, interval, n_candles, n_days, from, to, type = 's' ) {
+iqfeed$set( 'public', 'get_intraday_candles', function( symbol, interval, n_candles, n_days, from, to, type = 's', direction = 1 ) {
 
   cmd = if( !missing( n_candles ) ) {
 
-    paste0( paste( 'HIX', symbol, interval, max = n_candles, direction = '1', request_id = '', points_sent = '', type, sep = ',' ), '\r\n' )
+    paste0( paste( 'HIX', symbol, interval, max = n_candles, direction, request_id = '', points_sent = '', type, sep = ',' ), '\r\n' )
 
   } else if( !missing( n_days ) ) {
 
-    paste0( paste( 'HID', symbol, interval, n_days, max = '', time_begin = '', time_end = '', direction = '1', request_id = '', points_sent = '', type, sep = ',' ), '\r\n' )
+    paste0( paste( 'HID', symbol, interval, n_days, max = '', time_begin = '', time_end = '', direction, request_id = '', points_sent = '', type, sep = ',' ), '\r\n' )
 
   } else if( missing( from ) & missing( to ) ) stop( 'no arguments set' ) else {
 
-    paste0( paste( 'HIT', symbol, interval, datetime_begin = format( as.POSIXct( from ), '%Y%m%d %H%M%S' ), datetime_end = format( as.POSIXct( to ) + ( nchar( to ) == 10 ) * as.difftime( '24:00:00' ), '%Y%m%d %H%M%S' ), max = '', time_begin = '', time_end = '', direction = '1', request_id = '', points_sent = '', type, sep = ',' ), '\r\n' )
+    paste0( paste( 'HIT', symbol, interval, datetime_begin = format( as.POSIXct( from ), '%Y%m%d %H%M%S' ), datetime_end = format( as.POSIXct( to ) + ( nchar( to ) == 10 ) * as.difftime( '24:00:00' ), '%Y%m%d %H%M%S' ), max = '', time_begin = '', time_end = '', direction, request_id = '', points_sent = '', type, sep = ',' ), '\r\n' )
 
   }
 
@@ -660,23 +660,23 @@ iqfeed$set( 'public', 'get_intraday_candles', function( symbol, interval, n_cand
   candles[, time := fasttime::fastPOSIXct( time, 'UTC' ) ][]
 
 } )
-iqfeed$set( 'public', 'get_daily_candles', function( symbol, n_days, n_weeks, n_months, from, to ) {
+iqfeed$set( 'public', 'get_daily_candles', function( symbol, n_days, n_weeks, n_months, from, to, direction = 1 ) {
 
   cmd = if( !missing( n_days ) ) {
 
-    paste0( paste( 'HDX', symbol, max = n_days, direction = '1', request_id = '', points_sent = '', sep = ',' ), '\r\n' )
+    paste0( paste( 'HDX', symbol, max = n_days, direction, request_id = '', points_sent = '', sep = ',' ), '\r\n' )
 
   } else if( !missing( n_weeks ) ) {
 
-    paste0( paste( 'HWX', symbol, max = n_weeks, direction = '1', request_id = '', points_sent = '', sep = ',' ), '\r\n' )
+    paste0( paste( 'HWX', symbol, max = n_weeks, direction, request_id = '', points_sent = '', sep = ',' ), '\r\n' )
 
   } else if( !missing( n_months ) ) {
 
-    paste0( paste( 'HMX', symbol, max = n_months, direction = '1', request_id = '', points_sent = '', sep = ',' ), '\r\n' )
+    paste0( paste( 'HMX', symbol, max = n_months, direction, request_id = '', points_sent = '', sep = ',' ), '\r\n' )
 
   } else if( missing( from ) & missing( to ) ) stop( 'no arguments set' ) else {
 
-    paste0( paste( 'HDT', symbol, date_begin = format( as.Date( from ), '%Y%m%d' ), date_end = format( as.Date( to ), '%Y%m%d' ), max = '', direction = '1', request_id = '', points_sent = '', sep = ',' ), '\r\n' )
+    paste0( paste( 'HDT', symbol, date_begin = format( as.Date( from ), '%Y%m%d' ), date_end = format( as.Date( to ), '%Y%m%d' ), max = '', direction, request_id = '', points_sent = '', sep = ',' ), '\r\n' )
 
   }
 
