@@ -1,4 +1,4 @@
-// Copyright (C) 2016 Stanislav Kovalevsky
+// Copyright (C) 2016-2018 Stanislav Kovalevsky
 //
 // This file is part of QuantTools.
 //
@@ -17,6 +17,10 @@
 
 #ifndef TRADE_H
 #define TRADE_H
+
+#include "Order.h"
+#include "ProcessorOptions.h"
+#include "../NPeriods.h"
 
 enum class TradeSide: int { LONG, SHORT };
 
@@ -49,12 +53,119 @@ class Trade {
     double mtmMaxRel  = 0;
     double costRel    = 0;
 
+    const ProcessorOptions& options;
+
     bool IsOpened() { return state == TradeState::OPENED; }
     bool IsClosed() { return state == TradeState::CLOSED; }
     bool IsClosing(){ return state == TradeState::CLOSING;}
     bool IsNew()    { return state == TradeState::NEW;    }
     bool IsLong()   { return side  == TradeSide::LONG;    }
     bool IsShort()  { return side  == TradeSide::SHORT;   }
+
+    Trade( const Order* order, const ProcessorOptions& options ) :
+      options( options ){
+
+      idTrade  = order->idTrade;
+      state    = TradeState::NEW;
+      idSent   = order->idSent;
+      timeSent = order->timeSent;
+      cost     = options.cost.order;
+
+    }
+
+    void Update( const Order* order ) {
+
+      if( order->IsExecuted() ) {
+
+        cost += options.cost.stockAbs + options.cost.tradeAbs + options.cost.tradeRel * order->priceExecuted * options.cost.pointValue;
+
+        if( IsOpened() or IsClosing() ) {
+
+          idExit    = order->idProcessed;
+          timeExit  = order->timeProcessed;
+          priceExit = order->priceExecuted;
+          pnl       = ( IsLong() ? +1. : -1. ) * ( priceExit - priceEnter ) * options.cost.pointValue + cost;
+          pnlRel    = pnl / ( priceEnter * options.cost.pointValue );
+          state     = TradeState::CLOSED;
+
+        }
+
+        if( IsNew() ) {
+
+          idEnter    = order->idProcessed;
+          timeEnter  = order->timeProcessed;
+          priceEnter = order->priceExecuted;
+          side       = order->IsBuy() ? TradeSide::LONG : TradeSide::SHORT;
+
+          state = TradeState::OPENED;
+
+        }
+
+      }
+
+      if( order->IsNew()       ) { cost += options.cost.order;  }
+      if( order->IsCancelled() ) { cost += options.cost.cancel; }
+
+      costRel = cost / ( priceEnter * options.cost.pointValue );
+
+    }
+
+    void Update( const Tick& prevTick, const Tick& tick ) {
+
+      if( not IsOpened() ) return;
+
+      int nNights = NNights( prevTick.time, tick.time );
+
+      if( nNights > 0 ) {
+
+        cost += nNights * ( IsLong() ? options.cost.longAbs : options.cost.shortAbs );
+        cost += nNights * ( IsLong() ? options.cost.longRel : options.cost.shortRel ) * prevTick.price * options.cost.pointValue;
+
+      }
+
+      if( not tick.system ) {
+
+        if( options.executionType == ExecutionType::TRADE ) {
+          mtm = ( IsLong() ? +1. : -1. ) * ( tick.price - priceEnter );
+        }
+        if( options.executionType == ExecutionType::BBO ) {
+          mtm = ( IsLong() ? prevTick.bid - priceEnter : priceEnter - prevTick.ask );
+        }
+
+      }
+
+      mtmRel = mtm / priceEnter;
+
+      if( mtmMax < mtm ) {
+
+        mtmMax    = mtm;
+        mtmMaxRel = mtmRel;
+
+      }
+      if( mtmMin > mtm ) {
+
+        mtmMin    = mtm;
+        mtmMinRel = mtmRel;
+
+      }
+
+    }
+
+    Order* Close() {
+
+      if( not IsClosing() ) {
+
+        state = TradeState::CLOSING;
+
+        Order* order = new Order( IsLong() ? OrderSide::SELL : OrderSide::BUY, OrderType::MARKET, NA_REAL, "stop", idTrade );
+
+        return order;
+
+      }
+
+      return nullptr;
+
+    }
 
 };
 

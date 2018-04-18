@@ -18,26 +18,25 @@
 #ifndef PROCESSOR_H
 #define PROCESSOR_H
 
-#include "Order.h"
 #include "Trade.h"
-#include "../Indicators/CandleAggregator.h"
-#include "Cost.h"
+#include "Order.h"
+#include "ProcessorOptions.h"
 #include "Tick.h"
 #include "TickProvider.h"
 #include "Statistics.h"
 #include "../CppToR.h"
 #include "../ListBuilder.h"
-#include "../NPeriods.h"
 #include "../Alarm.h"
 #include "../Utils.h"
+#include "../Indicators/CandleAggregator.h"
 #include <map>
 #include <cmath>
+#include <vector>
 #include <Rcpp.h>
 
 class Processor {
 
   friend class Test;
-  friend class Statistics;
 
 private:
 
@@ -53,37 +52,16 @@ private:
   std::map< int, Trade*> trades;
   std::map< int, Trade*> tradesProcessed;
 
-
-  double prevTickTime;
-  double latencySend;
-  double latencyReceive;
-
   CandleAggregator* candleAggregator;
 
-  Cost   cost;
-
-  std::string timeZone;
+  ProcessorOptions options;
 
   Alarm alarmMarketOpen;
   Alarm alarmMarketClose;
 
-  double        startTradingTime      = 0;
-  double        stopTradingDrawdown   = NAN;
-  double        stopTradingLoss       = NAN;
-  bool          isTradingStopped      = false;
-  bool          allowLimitToHitMarket = false;
-  bool          allowExactStop        = false;
-  double        priceStep             = 0;
-  ExecutionType executionType         = ExecutionType::TRADE;
-
-  double bid;
-  double ask;
-
-  double close;
+  Tick prevTick;
 
   bool isInInterval = false;
-  std::vector<double> intervalStarts;
-  std::vector<double> intervalEnds;
   int intervalId = 0;
 
 public:
@@ -98,15 +76,15 @@ public:
   std::function< void( ) > onIntervalClose;
 
   Processor( int timeFrame, double latencySend = 0.001, double latencyReceive = 0.001 ) :
-
-    latencySend   ( latencySend    ),
-    latencyReceive( latencyReceive )
-
+    statistics( prevTick, options )
   {
 
+    options.latencySend    = latencySend;
+    options.latencyReceive = latencyReceive;
+    options.timeZone       = "UTC";
+
     Reset();
-    timeZone = "UTC";
-    statistics.executionType = executionType;
+
     candleAggregator = new CandleAggregator( timeFrame );
 
   };
@@ -118,7 +96,7 @@ public:
 
   }
 
-  void SetCost( Cost cost ) { this->cost = cost; }
+  void SetCost( Cost cost ) { options.cost = cost; }
   void SetCost( Rcpp::List cost ) {
 
     Rcpp::StringVector names = cost.attr( "names" );
@@ -134,16 +112,16 @@ public:
     bool hasShortAbs   = std::find( names.begin(), names.end(), "shortAbs"   ) != names.end();
     bool hasShortRel   = std::find( names.begin(), names.end(), "shortRel"   ) != names.end();
 
-    if( hasPointValue ) this->cost.pointValue = cost["pointValue"];
-    if( hasCancel     ) this->cost.cancel     = cost["cancel"    ];
-    if( hasOrder      ) this->cost.order      = cost["order"     ];
-    if( hasStockAbs   ) this->cost.stockAbs   = cost["stockAbs"  ];
-    if( hasTradeAbs   ) this->cost.tradeAbs   = cost["tradeAbs"  ];
-    if( hasTradeRel   ) this->cost.tradeRel   = cost["tradeRel"  ];
-    if( hasLongAbs    ) this->cost.longAbs    = cost["longAbs"   ];
-    if( hasLongRel    ) this->cost.longRel    = cost["longRel"   ];
-    if( hasShortAbs   ) this->cost.shortAbs   = cost["shortAbs"  ];
-    if( hasShortRel   ) this->cost.shortRel   = cost["shortRel"  ];
+    if( hasPointValue ) options.cost.pointValue = cost["pointValue"];
+    if( hasCancel     ) options.cost.cancel     = cost["cancel"    ];
+    if( hasOrder      ) options.cost.order      = cost["order"     ];
+    if( hasStockAbs   ) options.cost.stockAbs   = cost["stockAbs"  ];
+    if( hasTradeAbs   ) options.cost.tradeAbs   = cost["tradeAbs"  ];
+    if( hasTradeRel   ) options.cost.tradeRel   = cost["tradeRel"  ];
+    if( hasLongAbs    ) options.cost.longAbs    = cost["longAbs"   ];
+    if( hasLongRel    ) options.cost.longRel    = cost["longRel"   ];
+    if( hasShortAbs   ) options.cost.shortAbs   = cost["shortAbs"  ];
+    if( hasShortRel   ) options.cost.shortRel   = cost["shortRel"  ];
 
   }
 
@@ -154,8 +132,8 @@ public:
     bool hasDrawDown = std::find( names.begin(), names.end(), "drawdown" ) != names.end();
     bool hasLoss	   = std::find( names.begin(), names.end(), "loss"     ) != names.end();
 
-    if( hasDrawDown ) stopTradingDrawdown = stop["drawdown" ];
-    if( hasLoss     ) stopTradingLoss     = stop["loss"     ];
+    if( hasDrawDown ) options.stopTradingDrawdown = stop["drawdown" ];
+    if( hasLoss     ) options.stopTradingLoss     = stop["loss"     ];
 
 
   }
@@ -168,41 +146,40 @@ public:
   void SetIntervals( std::vector<double> starts, std::vector<double> ends ) {
 
     if( starts.size() != ends.size() ) { throw std::invalid_argument( "intervals starts and ends must be the same size" ); }
-    intervalStarts = starts;
-    intervalEnds   = ends;
+    options.intervalStarts = starts;
+    options.intervalEnds   = ends;
 
   }
   bool IsTradingHoursSet() { return alarmMarketClose.IsSet() and alarmMarketOpen.IsSet(); }
   void SetLatencyReceive( double latencyReceive ) {
 
-    this->latencyReceive = latencyReceive;
+    options.latencyReceive = latencyReceive;
 
   }
   void SetLatencySend( double latencySend ) {
 
-    this->latencySend = latencySend;
+    options.latencySend = latencySend;
 
   }
   void SetLatency( double latency ) {
 
-    latencySend    = latency / 2;
-    latencyReceive = latency / 2;
+    options.latencySend    = latency / 2;
+    options.latencyReceive = latency / 2;
 
   }
   void SetPriceStep( double priceStep ) {
 
-    this->priceStep = priceStep;
+    options.priceStep = priceStep;
 
   }
   void SetStartTradingTime( double startTradingTime ) {
 
-    this->startTradingTime = startTradingTime;
+    options.startTradingTime = startTradingTime;
 
   }
   void SetExecutionType( ExecutionType executionType ) {
 
-    this->executionType      = executionType;
-    statistics.executionType = executionType;
+    options.executionType = executionType;
 
   }
   void SetExecutionType( std::string executionType ) {
@@ -217,10 +194,10 @@ public:
 
   }
   void AllowLimitToHitMarket() {
-    allowLimitToHitMarket = true;
+    options.allowLimitToHitMarket = true;
   }
   void AllowExactStop() {
-    allowExactStop = true;
+    options.allowExactStop = true;
   }
 
   void SetOptions( Rcpp::List options ) {
@@ -280,10 +257,10 @@ public:
 
   void Feed( const Tick& tick ) {
 
-    if( tick.time < prevTickTime ) { throw std::invalid_argument( "ticks must be time ordered tick.id = " + std::to_string( tick.id + 1 ) ); }
+    if( tick.time < prevTick.time ) { throw std::invalid_argument( "ticks must be time ordered tick.id = " + std::to_string( tick.id + 1 ) ); }
 
-    if( statistics.drawDown < stopTradingDrawdown ) StopTrading();
-    if( statistics.marketValue < stopTradingLoss )  StopTrading();
+    if( statistics.drawDown < options.stopTradingDrawdown ) StopTrading();
+    if( statistics.marketValue < options.stopTradingLoss )  StopTrading();
 
     if( alarmMarketOpen.GetTime() < alarmMarketClose.GetTime() ) {
 
@@ -297,11 +274,11 @@ public:
 
     }
 
-    if( intervalId < intervalEnds.size() ) {
+    if( intervalId < options.intervalEnds.size() ) {
 
       if( isInInterval ) {
 
-        if( tick.time > intervalEnds[ intervalId ] ) {
+        if( tick.time > options.intervalEnds[ intervalId ] ) {
 
           if( onIntervalClose != nullptr ) onIntervalClose();
           isInInterval = false;
@@ -310,9 +287,9 @@ public:
 
       } else {
 
-        while( intervalId < intervalStarts.size() and intervalEnds[ intervalId ] < tick.time ) intervalId++;
+        while( intervalId < options.intervalStarts.size() and options.intervalEnds[ intervalId ] < tick.time ) intervalId++;
 
-        if( intervalId < intervalStarts.size() and tick.time > intervalStarts[ intervalId ] ) {
+        if( intervalId < options.intervalStarts.size() and tick.time > options.intervalStarts[ intervalId ] ) {
 
           if( onIntervalOpen != nullptr ) onIntervalOpen();
           isInInterval = true;
@@ -329,9 +306,7 @@ public:
 
       if( onCandle != nullptr ) onCandle( candleAggregator->GetValue() );
 
-      if( not std::isnan( candleAggregator->GetValue().close ) ) close = candleAggregator->GetValue().close;
-
-      statistics.Update( candleAggregator->GetValue() );
+      statistics.SaveOnCandleHistory();
 
     }
 
@@ -345,60 +320,22 @@ public:
 
       Order* order = (*it);
 
-      order->Update( tick, latencySend, latencyReceive );
+      order->Update( prevTick, tick );
 
       statistics.Update( order );
 
-      if( trades.count( order->idTrade ) == 0 and tradesProcessed.count( order->idTrade ) == 0 ) {
+      bool isOrderInTradesProcessed = tradesProcessed.count( order->idTrade ) != 0;
+      bool isOrderInTrades = trades.count( order->idTrade ) != 0;
 
-        Trade* trade    = new Trade;
+      if( not ( isOrderInTrades or isOrderInTradesProcessed ) ) {
 
-        trade->idTrade  = order->idTrade;
-        trade->state    = TradeState::NEW;
-        trade->idSent   = order->idSent;
-        trade->timeSent = order->timeSent;
-        trade->cost     = cost.order;
-
-        trades[ order->idTrade ] = trade;
+        trades[ order->idTrade ] = new Trade( order, options );
 
       } else {
 
-        Trade* trade = tradesProcessed.count( order->idTrade ) != 0 ? tradesProcessed[ order->idTrade ] : trades[ order->idTrade ];
-
-        if( order->IsExecuted() ) {
-
-          trade->cost += cost.stockAbs + cost.tradeAbs + cost.tradeRel * order->priceExecuted * cost.pointValue;
-
-          if( trade->IsOpened() or trade->IsClosing() ) {
-
-            trade->idExit    = order->idProcessed;
-            trade->timeExit  = order->timeProcessed;
-            trade->priceExit = order->priceExecuted;
-            trade->pnl       = ( trade->IsLong() ? +1. : -1. ) * ( trade->priceExit - trade->priceEnter ) * cost.pointValue + trade->cost;
-            trade->pnlRel    = trade->pnl / ( trade->priceEnter * cost.pointValue );
-            trade->state     = TradeState::CLOSED;
-
-            statistics.Update( trade );
-
-          }
-
-          if( trade->IsNew() ) {
-
-            trade->idEnter    = order->idProcessed;
-            trade->timeEnter  = order->timeProcessed;
-            trade->priceEnter = order->priceExecuted;
-            trade->side       = order->IsBuy() ? TradeSide::LONG : TradeSide::SHORT;
-
-            trade->state = TradeState::OPENED;
-
-          }
-
-        }
-
-        if( order->IsNew()       ) { trade->cost += cost.order;  }
-        if( order->IsCancelled() ) { trade->cost += cost.cancel; }
-
-        trade->costRel = trade->cost / ( trade->priceEnter * cost.pointValue );
+        Trade* trade = isOrderInTradesProcessed ? tradesProcessed[ order->idTrade ] : trades[ order->idTrade ];
+        trade->Update( order );
+        statistics.Update( trade );
 
       }
 
@@ -415,53 +352,14 @@ public:
 
       Trade* trade = it->second;
 
-      if( trade->IsOpened() ) {
+      trade->Update( prevTick, tick );
 
-        int nNights = NNights( prevTickTime, tick.time );
+      if( options.isTradingStopped and not trade->IsClosing() ) {
 
-        if( nNights > 0 ) {
+        Order* order = trade->Close();
 
-          trade->cost += nNights * ( trade->IsLong() ? cost.longAbs : cost.shortAbs );
-          trade->cost += nNights * ( trade->IsLong() ? cost.longRel : cost.shortRel ) * close * cost.pointValue;
-
-        }
-
-        if( not tick.system ) {
-
-          if( executionType == ExecutionType::TRADE ) {
-            trade->mtm = ( trade->IsLong() ? +1. : -1. ) * ( tick.price - trade->priceEnter );
-          }
-          if( executionType == ExecutionType::BBO ) {
-            trade->mtm = ( trade->IsLong() ? bid - trade->priceEnter : trade->priceEnter - ask );
-          }
-
-        }
-
-        trade->mtmRel = trade->mtm / trade->priceEnter;
-
-        if( trade->mtmMax < trade->mtm ) {
-
-          trade->mtmMax    = trade->mtm;
-          trade->mtmMaxRel = trade->mtmRel;
-
-        }
-        if( trade->mtmMin > trade->mtm ) {
-
-          trade->mtmMin    = trade->mtm;
-          trade->mtmMinRel = trade->mtmRel;
-
-        }
-
-        if( isTradingStopped and not trade->IsClosing() ) {
-
-          Order* order = new Order( trade->IsLong() ? OrderSide::SELL : OrderSide::BUY, OrderType::MARKET, NA_REAL, "stop", trade->idTrade );
-
-          orders.push_back( order );
-          statistics.Update( order );
-
-          trade->state = TradeState::CLOSING;
-
-        }
+        orders.push_back( order );
+        statistics.Update( order );
 
       }
 
@@ -474,14 +372,15 @@ public:
 
     }
 
-    statistics.Update( tick );
+    statistics.Update( prevTick, tick );
 
-    prevTickTime = tick.time;
+    if( not tick.system ) {
 
-    if( executionType == ExecutionType::BBO and not tick.system ) {
+      prevTick = tick;
 
-      bid = tick.bid;
-      ask = tick.ask;
+    } else {
+
+      prevTick.time = tick.time;
 
     }
 
@@ -492,7 +391,7 @@ public:
 
   void StopTrading() {
 
-    isTradingStopped = true;
+    options.isTradingStopped = true;
 
   }
 
@@ -500,9 +399,9 @@ public:
 
     TickProvider tickProvider( ticks );
 
-    if( executionType == ExecutionType::BBO and not tickProvider.HasBbo() ) {
+    if( options.executionType == ExecutionType::BBO and not tickProvider.HasBbo() ) {
 
-      throw std::invalid_argument( "ticks must contain 'bid' and 'ask' columns"  );
+      throw std::invalid_argument( "ticks must contain 'bid' and 'ask' columns" );
 
     }
 
@@ -527,29 +426,20 @@ public:
 
     if( order->type == OrderType::LIMIT ) {
 
-      if( priceStep > 0 ) {
+      if( options.priceStep > 0 ) {
 
-        order->price = ( order->side == OrderSide::BUY ? fastFloor( order->price / priceStep ) : fastCeiling( order->price / priceStep ) ) * priceStep;
+        order->price = ( order->side == OrderSide::BUY ? fastFloor( order->price / options.priceStep ) : fastCeiling( order->price / options.priceStep ) ) * options.priceStep;
 
       }
-      if( priceStep < 0 ) {
+      if( options.priceStep < 0 ) {
 
-        order->price = ( order->side == OrderSide::BUY ? fastCeiling( order->price / -priceStep ) : fastFloor( order->price / -priceStep ) ) * -priceStep;
+        order->price = ( order->side == OrderSide::BUY ? fastCeiling( order->price / -options.priceStep ) : fastFloor( order->price / -options.priceStep ) ) * -options.priceStep;
 
       }
 
     }
 
-    order->allowLimitToHitMarket = allowLimitToHitMarket;
-    order->allowExactStop        = allowExactStop;
-    order->executionType = executionType;
-
-    if( executionType == ExecutionType::BBO ) {
-
-      order->bid = bid;
-      order->ask = ask;
-
-    }
+    order->options = &options;
 
     orders.push_back( order );
     statistics.Update( order );
@@ -558,7 +448,7 @@ public:
 
   void CancelOrders() { for( auto order: orders ) order->Cancel( ); }
 
-  bool CanTrade() { return not( prevTickTime < startTradingTime or isTradingStopped ); }
+  bool CanTrade() { return not( prevTick.time < options.startTradingTime or options.isTradingStopped ); }
 
   int GetPosition() { return statistics.position; }
 
@@ -581,8 +471,8 @@ public:
     tradesProcessed.clear();
 
     statistics.Reset();
-    prevTickTime = 0;
-    isTradingStopped = false;
+    prevTick.time = 0;
+    options.isTradingStopped = false;
 
   }
 
@@ -614,8 +504,8 @@ public:
     Rcpp::IntegerVector   id_trade      ( n );
     Rcpp::IntegerVector   id_sent       ( n );
     Rcpp::IntegerVector   id_processed  ( n );
-    Rcpp::NumericVector   time_sent      = DoubleToDateTime( std::vector<double>( n ), timeZone );
-    Rcpp::NumericVector   time_processed = DoubleToDateTime( std::vector<double>( n ), timeZone );
+    Rcpp::NumericVector   time_sent      = DoubleToDateTime( std::vector<double>( n ), options.timeZone );
+    Rcpp::NumericVector   time_processed = DoubleToDateTime( std::vector<double>( n ), options.timeZone );
     Rcpp::NumericVector   price_init    ( n );
     Rcpp::NumericVector   price_exec    ( n );
     Rcpp::IntegerVector   side           = IntToFactor( std::vector<int>( n ), OrderSideString );
@@ -674,9 +564,9 @@ public:
     Rcpp::IntegerVector side       = IntToFactor( std::vector<int>( n ), TradeSideString );
     Rcpp::NumericVector price_enter( n );
     Rcpp::NumericVector price_exit ( n );
-    Rcpp::NumericVector time_sent  = DoubleToDateTime( std::vector<double>( n ), timeZone );
-    Rcpp::NumericVector time_enter = DoubleToDateTime( std::vector<double>( n ), timeZone );
-    Rcpp::NumericVector time_exit  = DoubleToDateTime( std::vector<double>( n ), timeZone );
+    Rcpp::NumericVector time_sent  = DoubleToDateTime( std::vector<double>( n ), options.timeZone );
+    Rcpp::NumericVector time_enter = DoubleToDateTime( std::vector<double>( n ), options.timeZone );
+    Rcpp::NumericVector time_exit  = DoubleToDateTime( std::vector<double>( n ), options.timeZone );
     Rcpp::NumericVector pnl        ( n );
     Rcpp::NumericVector mtm        ( n );
     Rcpp::NumericVector mtm_min    ( n );

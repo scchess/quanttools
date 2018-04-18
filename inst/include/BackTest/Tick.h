@@ -1,4 +1,4 @@
-// Copyright (C) 2016 Stanislav Kovalevsky
+// Copyright (C) 2016-2018 Stanislav Kovalevsky
 //
 // This file is part of QuantTools.
 //
@@ -23,7 +23,7 @@ class Tick {
 public:
 
   int    id;
-  double time;
+  double time   = 0.   ;
   double price;
   int    volume;
   double bid    = 0.   ;

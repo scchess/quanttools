@@ -1,4 +1,4 @@
-// Copyright (C) 2016 Stanislav Kovalevsky
+// Copyright (C) 2016-2018 Stanislav Kovalevsky
 //
 // This file is part of QuantTools.
 //
@@ -21,13 +21,16 @@
 #include "Order.h"
 #include "Trade.h"
 #include "Candle.h"
-#include "Cost.h"
 #include "Tick.h"
+#include "ProcessorOptions.h"
 #include "../CppToR.h"
 #include "../ListBuilder.h"
 #include "../NPeriods.h"
-#include "../setDT.h"
+#include "../Indicators/RollSharpe.h"
+#include "../Indicators/RollSortino.h"
+#include "../Indicators/RollLinReg.h"
 #include <cmath>
+#include <vector>
 #include <Rcpp.h>
 
 class Statistics {
@@ -92,33 +95,22 @@ private:
   std::vector<double> onCandleHistoryMarketValue;
   std::vector<double> onCandleHistoryDrawDown;
 
-  double prevTickTime;
   int date;
 
-  // V = market value on day close
-  // R = change of V
-  // Rn = same as R but 0 if R > 0
-  // tdv = target downside variance = sum( Rn^2 ) / N
+  RollSortino rollSortino;
+  RollSharpe  rollSharpe;
+  RollLinReg  rollRegression;
 
-  double sumV;
-  double sumVV;
-  double sumNV;
-  double sumR;
-  double sumRR;
-  double tdv;
-
-  ExecutionType executionType;
-  double bid;
-  double ask;
+  const ProcessorOptions& options;
+  const Tick& prevTick;
 
 public:
 
   int nTradingDaysInYear = 252;
-  std::string timeZone = "UTC";
 
 public:
 
-  Statistics() { Reset(); }
+  Statistics( const Tick& prevTick, const ProcessorOptions& options ) : prevTick( prevTick ), options( options ), rollSortino( 100000, 0. ), rollSharpe( 100000 ), rollRegression( 100000 ) { Reset(); }
 
   void Reset() {
 
@@ -175,28 +167,11 @@ public:
     onCandleHistoryMarketValue   .clear();
     onCandleHistoryDrawDown      .clear();
 
-    prevTickTime = 0;
     date = 0;
 
-    sumV  = 0;
-    sumVV = 0;
-    sumNV = 0;
-    sumR  = 0;
-    sumRR = 0;
-    tdv   = 0;
-
-  }
-
-  void Update( double timeTrade ) {
-
-    int date = timeTrade / nSecondsInDay;
-
-    if( date != this->date ) {
-
-      this->date = date;
-      nDaysTraded++;
-
-    }
+    rollRegression.Reset();
+    rollSharpe    .Reset();
+    rollSortino   .Reset();
 
   }
 
@@ -252,6 +227,7 @@ public:
     nTradesTotal++;
     avgTradePnl = ( avgTradePnl * ( nTradesTotal - 1 ) + trade->pnlRel ) / nTradesTotal;
     totalPnl += trade->pnlRel;
+    nTradesPerDay = nTradesTotal * 1.0 / nDaysTraded;
 
     if( trade->pnlRel > 0 ) {
 
@@ -268,7 +244,6 @@ public:
     }
     pTradesWin  = nTradesWin  * 1.0 / nTradesTotal;
     pTradesLoss = nTradesLoss * 1.0 / nTradesTotal;
-
 
     if( trade->IsLong() ) {
 
@@ -288,7 +263,7 @@ public:
 
   void onDayStart() { // previous day close
 
-    onDayCloseHistoryDates.push_back( prevTickTime / nSecondsInDay );
+    onDayCloseHistoryDates.push_back( prevTick.time / nSecondsInDay );
 
     double marketValueChange = nDaysTested == 0 ? marketValue : marketValue - onDayCloseHistoryMarketValue.back();
 
@@ -301,31 +276,13 @@ public:
 
     nDaysTested++;
 
-    sumV    += marketValue;
-    sumVV   += marketValue * marketValue;
-    sumNV   += marketValue * nDaysTested;
-    sumR    += marketValueChange;
-    sumRR   += marketValueChange * marketValueChange;
+    rollSharpe    .Add( marketValueChange );
+    rollSortino   .Add( marketValueChange );
+    rollRegression.Add( std::make_pair( nDaysTested, marketValue ) );
 
-    double covNV = nDaysTested * sumNV - sumV * nDaysTested * ( nDaysTested + 1 ) / 2;    // * 1.0 / ( n * ( n - 1 ) )
-    double sdN  = nDaysTested * std::sqrt( ( nDaysTested * nDaysTested - 1 ) * 1. / 12 ); // * sqrt( 1.0 / ( n * ( n - 1 ) ) )
-    double sdV  = std::sqrt( nDaysTested * sumVV - sumV * sumV );                         // * sqrt( 1.0 / ( n * ( n - 1 ) ) )
-
-    double r = /*varV == 0 or varN == 0 ? NAN : */covNV / sdN / sdV;
-
-    rSquared = r * r;
-
-    //Rcpp::Rcout << "nDaysTested = "<< nDaysTested << " covNV = " << covNV << " sdN = " << sdN << " sdV = " << sdV << " rSquared = " << rSquared << std::endl;
-
-    double avgR = sumR / nDaysTested;
-    double varR = /*nDaysTested < 2 ? NAN : */( nDaysTested * sumRR - sumR * sumR ) / nDaysTested / ( nDaysTested - 1 );
-
-    sharpe = /*varR == 0 ? NAN : */avgR / std::sqrt( varR ) * std::sqrt( nTradingDaysInYear );
-
-    double downside = marketValueChange > 0 ? 0 : marketValueChange;
-    tdv = ( tdv * ( nDaysTested - 1 ) + downside * downside ) / nDaysTested;
-
-    sortino = /*tdv == 0 ? NAN : */avgR / std::sqrt( tdv ) * std::sqrt( nTradingDaysInYear );
+    sharpe   = rollSharpe    .GetValue() * std::sqrt( nTradingDaysInYear );
+    sortino  = rollSortino   .GetValue() * std::sqrt( nTradingDaysInYear );
+    rSquared = rollRegression.GetValue().rSquared;
 
     avgDrawDown = ( avgDrawDown * ( nDaysTested - 1 ) + drawDown ) / nDaysTested;
 
@@ -333,29 +290,28 @@ public:
     onDayCloseNTradesLong = 0;
     onDayCloseTradePnl    = 0;
 
-
   }
 
   void Finalize() { onDayStart(); }
 
-  void Update( const Tick& tick ) {
+  void Update( const Tick& prevTick, const Tick& tick ) {
 
-    if( prevTickTime == 0 ) { testStart = tick.time; } else {
+    if( prevTick.time == 0 ) { testStart = tick.time; } else {
 
-      if( NNights( prevTickTime, tick.time ) > 0 ) onDayStart();
+      if( NNights( prevTick.time, tick.time ) > 0 ) onDayStart();
 
     }
 
     if( not tick.system ) {
 
-      if( executionType == ExecutionType::TRADE ) {
+      if( options.executionType == ExecutionType::TRADE ) {
 
         marketValue = totalPnl + position * ( tick.price / positionValue - 1 );
 
       }
-      if( executionType == ExecutionType::BBO ) {
+      if( options.executionType == ExecutionType::BBO ) {
 
-        marketValue = totalPnl + position * ( ( position > 0 ? bid : ask ) / positionValue - 1 );
+        marketValue = totalPnl + position * ( ( position > 0 ? prevTick.bid : prevTick.ask ) / positionValue - 1 );
 
       }
 
@@ -401,21 +357,11 @@ public:
 
     }
 
-    prevTickTime = tick.time;
     testEnd = tick.time;
-
-    nTradesPerDay = nTradesTotal * 1.0 / nDaysTraded;
-
-    if( executionType == ExecutionType::BBO and not tick.system ) {
-
-      bid = tick.bid;
-      ask = tick.ask;
-
-    }
 
   }
 
-  void Update( const Candle& candle ) {
+  void SaveOnCandleHistory() {
 
     if( std::isnan( marketValue ) ) {
 
@@ -439,8 +385,8 @@ public:
 
     Rcpp::List summary = ListBuilder().AsDataTable()
 
-      .Add( "from"          , DoubleToDateTime( testStart, timeZone )                      )
-      .Add( "to"            , DoubleToDateTime( testEnd  , timeZone )                      )
+      .Add( "from"          , DoubleToDateTime( testStart, options.timeZone )              )
+      .Add( "to"            , DoubleToDateTime( testEnd  , options.timeZone )              )
       .Add( "days_tested"   , nDaysTested                                                  )
       .Add( "days_traded"   , nDaysTraded                                                  )
       .Add( "n_per_day"     , std::round( nTradesPerDay / epsilon ) * epsilon              )
@@ -458,8 +404,8 @@ public:
       .Add( "loss"          , std::round( totalLoss    * percents    / epsilon ) * epsilon )
       .Add( "pnl"           , std::round( totalPnl     * percents    / epsilon ) * epsilon )
       .Add( "max_dd"        , std::round( maxDrawDown  * percents    / epsilon ) * epsilon )
-      .Add( "max_dd_start"  , DoubleToDateTime( maxDrawDownStart, timeZone )               )
-      .Add( "max_dd_end"    , DoubleToDateTime( maxDrawDownEnd  , timeZone )               )
+      .Add( "max_dd_start"  , DoubleToDateTime( maxDrawDownStart, options.timeZone )       )
+      .Add( "max_dd_end"    , DoubleToDateTime( maxDrawDownEnd  , options.timeZone )       )
       .Add( "max_dd_length" , maxDrawDownLength                                            )
       .Add( "sharpe"        , std::round( sharpe   / epsilon ) * epsilon                   )
       .Add( "sortino"       , std::round( sortino  / epsilon ) * epsilon                   )
