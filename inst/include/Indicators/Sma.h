@@ -29,6 +29,7 @@ class Sma : public Indicator< double, double, std::vector<double> > {
 
     double sum;
     std::size_t n;
+    std::size_t i;
     std::queue< double > window;
     std::vector< double > history;
 
@@ -39,6 +40,7 @@ class Sma : public Indicator< double, double, std::vector<double> > {
     {
       if( n < 1 ) throw std::invalid_argument( "n must be greater than 0" );
       sum = 0;
+      i   = 0;
     }
 
     void Add( double value )
@@ -46,11 +48,13 @@ class Sma : public Indicator< double, double, std::vector<double> > {
 
       sum += value;
       window.push( value );
+      i++;
 
       if( window.size() > n ) {
 
         sum -= window.front();
         window.pop();
+        i--;
 
       }
 
@@ -61,7 +65,7 @@ class Sma : public Indicator< double, double, std::vector<double> > {
 
     bool IsFormed() { return window.size() == n; }
 
-    double GetValue() { return sum / n; }
+    double GetValue() { return sum / i; }
 
     std::vector<double> GetHistory() { return history; }
 

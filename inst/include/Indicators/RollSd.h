@@ -35,6 +35,7 @@ private:
   double sd;
 
   std::size_t n;
+  std::size_t i;
 
   std::queue< double > window;
 
@@ -46,14 +47,16 @@ public:
   n( ( std::size_t )n )
   {
     if( n < 2 ) throw std::invalid_argument( "n must be greater than 1" );
-    sumX = 0;
+    sumX  = 0;
     sumXX = 0;
+    i     = 0;
   }
 
   void Add( double value ) {
 
-    sumX += value;
+    sumX  += value;
     sumXX += value * value;
+    i++;
     window.push( value );
 
     if( window.size() > n ) {
@@ -64,9 +67,10 @@ public:
 
       sumX -= old;
       sumXX -= old * old;
+      i--;
 
     }
-    sd = std::sqrt( sumXX / n - ( sumX / n ) * ( sumX / n ) ) * std::sqrt( n * 1. / ( n - 1 ) );
+    sd = std::sqrt( sumXX / i - ( sumX / i ) * ( sumX / i ) ) * std::sqrt( i * 1. / ( i - 1 ) );
 
     IsFormed() ? history.push_back( GetValue() ) : history.push_back( NA_REAL );
 
@@ -82,8 +86,9 @@ public:
 
     std::queue<double> empty;
     std::swap( window, empty );
-    sumX = 0;
+    sumX  = 0;
     sumXX = 0;
+    i     = 0;
 
   }
 

@@ -45,7 +45,8 @@ private:
 
   LinRegCoeffs coeffs;
 
-  size_t n;
+  std::size_t n;
+  std::size_t i;
 
   typedef std::pair< double, double > pair;
 
@@ -69,6 +70,7 @@ public:
     sumYY = 0;
     sumXY = 0;
     coeffs = {};
+    i = 0;
 
   }
 
@@ -81,6 +83,7 @@ public:
     sumY  += pair.second;
     sumYY += pair.second * pair.second;
     sumXY += pair.first * pair.second;
+    i++;
 
     if( window.size() > n ) {
 
@@ -94,21 +97,18 @@ public:
       sumY  -= oldY;
       sumYY -= oldY * oldY;
       sumXY -= oldX * oldY;
+      i--;
 
     }
 
-    if( window.size() == n ) {
+    double covXY = i * sumXY - sumX * sumY; // * 1.0 / ( n * ( n - 1 ) )
+    double varX  = i * sumXX - sumX * sumX; // * 1.0 / ( n * ( n - 1 ) )
+    double varY  = i * sumYY - sumY * sumY; // * 1.0 / ( n * ( n - 1 ) )
 
-      double covXY = n * sumXY - sumX * sumY; // * 1.0 / ( n * ( n - 1 ) )
-      double varX  = n * sumXX - sumX * sumX; // * 1.0 / ( n * ( n - 1 ) )
-      double varY  = n * sumYY - sumY * sumY; // * 1.0 / ( n * ( n - 1 ) )
-
-      coeffs.beta     = covXY / varX;
-      coeffs.alpha    = ( sumY - coeffs.beta  * sumX ) / n;
-      coeffs.r        = covXY / std::sqrt( varX * varY );
-      coeffs.rSquared = coeffs.r * coeffs.r;
-
-    }
+    coeffs.beta     = covXY / varX;
+    coeffs.alpha    = ( sumY - coeffs.beta  * sumX ) / i;
+    coeffs.r        = covXY / std::sqrt( varX * varY );
+    coeffs.rSquared = coeffs.r * coeffs.r;
 
     if( IsFormed() ) {
 
@@ -140,6 +140,7 @@ public:
     sumYY = 0;
     sumXY = 0;
     coeffs = {};
+    i = 0;
 
     std::queue< pair > empty;
     std::swap( window, empty );
