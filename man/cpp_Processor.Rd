@@ -83,6 +83,18 @@ Buy limit orders executed when \code{ask} goes under order price and sell orders
 In case limit order is placed in the market it is executed as market order if \code{allow_limit_to_hit_market} set to \code{TRUE} (default is \code{FALSE}).\cr
 }
 
+\section{Processing order}{
+
+\itemize{
+\item new tick arrived
+\item candle updated with tick
+\item if tick started new candle \code{onCandle} executed and statistics updated with new candle - market value and drawdown saved
+\item \code{onTick} executed
+\item loop through active orders updated with tick, statistics and trade with order and statistics with trade
+\item statistics updated with tick - if new date then on day close history saved, market value and drawdown updated
+}
+}
+
 \section{Ticks}{
 
 Ticks must be a data.frame/data.table with at least the following columns:
