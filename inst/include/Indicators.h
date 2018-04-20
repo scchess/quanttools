@@ -31,5 +31,7 @@
 #include "Indicators/Crossover.h"
 #include "Indicators/BBands.h"
 #include "Indicators/CandleAggregator.h"
-
+#include "Indicators/RollSharpe.h"
+#include "Indicators/RollSortino.h"
+#include "Indicators/RollTdd.h"
 #endif //INDICATORS_H
