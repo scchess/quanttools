@@ -58,7 +58,10 @@
 #' finam_storage_from \tab Finam storage first date        \cr
 #' iqfeed_storage_from\tab IQFeed storage first date       \cr
 #' moex_storage_from  \tab MOEX storage first date         \cr
-#' finam_symbols      \tab Finam  symbols to store         \cr
+#' finam_symbols      \tab Finam symbols to store          \cr
+#' finam_verbose      \tab Finam verbose internals?        \cr
+#' finam_retry_limit  \tab Finam attempts number to retry after server error \cr
+#' finam_retrt_sleep  \tab Finam seconds to sleep after server error \cr
 #' iqfeed_symbols     \tab IQFeed symbols to store         \cr
 #' iqfeed_port        \tab IQFeed historical port number   \cr
 #' iqfeed_host        \tab IQFeed host                     \cr
@@ -100,6 +103,10 @@ QuantTools_settings_defaults = function() {
   .settings$temp_directory = paste( path.expand('~') , 'Market Data', 'temp', sep = '/' )
 
   .settings$moex_data_url = ''
+
+  .settings$finam_verbose = FALSE
+  .settings$finam_retry_limit = 10
+  .settings$finam_retry_sleep = 0.5
 
   .settings$finam_storage_from = '2016-01-01'
   .settings$iqfeed_storage_from = '2016-01-01'

@@ -286,6 +286,10 @@ finam_downloader_env <- new.env()
 #' @export
 get_finam_data = function( symbol, from, to = from, period = 'day', local = FALSE ) {
 
+  verbose     = .settings$finam_verbose
+  retry_limit = .settings$finam_retry_limit
+  retry_sleep = .settings$finam_retry_sleep
+
   if( local ){
 
     if( ! period %in% c( 'tick', '1min' ) ) stop( 'only ticks and 1min supported in local storage' )
@@ -395,8 +399,28 @@ get_finam_data = function( symbol, from, to = from, period = 'day', local = FALS
   )
   # create get query url
   get_url = paste( paste0( 'http://', host, '/', file_name, '.txt' ), paste( names( url_parameters ), url_parameters, sep = '=', collapse = '&' ), sep = '?' )
+  if( verbose ) message( get_url )
   # download data
-  downloaded_data = RCurl::getURL( get_url, Referer = referer )
+  retry = 1
+  while( T ) {
+
+    if( retry > retry_limit ) stop( 'Server error. Attempts limit exceeded.' )
+    downloaded_data = RCurl::getURL( get_url, referer = referer )
+    if( !grepl( '403 - Forbidden: Access is denied.', substr( downloaded_data, 1, 500 ) ) ) {
+
+      break
+
+    } else {
+
+      message( 'Server error. Retrying ', retry, '/', retry_limit ,' after ', retry_sleep, ' secs...' )
+      retry = retry + 1
+      Sys.sleep( retry_sleep )
+
+    }
+
+  }
+
+  if( verbose ) message( substr( downloaded_data, 1, 500 ) )
   # empty data exception
   is_downloaded_data_present = grepl( ',', substr( downloaded_data, 1, 1000 ), fixed = TRUE )
   text_message = paste( symbol, 'no data available' )
