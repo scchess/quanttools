@@ -334,8 +334,9 @@ public:
       } else {
 
         Trade* trade = isOrderInTradesProcessed ? tradesProcessed[ order->idTrade ] : trades[ order->idTrade ];
-        trade->Update( order );
         bool tradeIsOpenedOrIsClosing = trade->IsOpened() or trade->IsClosing();
+
+        trade->Update( order );
         if( tradeIsOpenedOrIsClosing and order->IsExecuted() ) statistics.Update( trade );
 
       }
