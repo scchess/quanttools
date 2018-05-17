@@ -90,6 +90,7 @@ public:
     if( type == "data.table" ) {
 
       setDT( result );
+      result.attr( "row.names" ) = Rcpp::IntegerVector::create( NA_INTEGER, XLENGTH( elements[0] ) );
 
     }
 
