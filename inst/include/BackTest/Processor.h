@@ -18,6 +18,10 @@
 #ifndef PROCESSOR_H
 #define PROCESSOR_H
 
+#include <map>
+#include <cmath>
+#include <vector>
+#include <Rcpp.h>
 #include "Trade.h"
 #include "Order.h"
 #include "ProcessorOptions.h"
@@ -29,10 +33,6 @@
 #include "../Alarm.h"
 #include "../Utils.h"
 #include "../Indicators/CandleAggregator.h"
-#include <map>
-#include <cmath>
-#include <vector>
-#include <Rcpp.h>
 
 class Processor {
 
