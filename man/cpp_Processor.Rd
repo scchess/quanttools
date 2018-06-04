@@ -245,6 +245,9 @@ List of following elements. All options are optional.
      \item{loss}{
        Trading stops when market value (P&L) is lower set value. E.g. if set to -0.05 then when market value (P&L) is lower than -5\% trading stops.
      }
+     \item{time}{
+       Trading stops when time is reached. Set as POSIXct timestamp. All orders ignored after specified time.
+     }
      If stop rule triggered no orders sent to exchange and opened trades closed by market orders.
    }
  }

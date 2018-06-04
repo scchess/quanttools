@@ -32,6 +32,7 @@ class ProcessorOptions {
   Cost   cost;
 
   double        startTradingTime      = 0;
+  double        stopTradingTime       = 3155760000; // 2070-01-01 00:00:00
   double        stopTradingDrawdown   = NAN;
   double        stopTradingLoss       = NAN;
   bool          isTradingStopped      = false;

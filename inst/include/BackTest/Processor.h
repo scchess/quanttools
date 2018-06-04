@@ -131,9 +131,11 @@ public:
 
     bool hasDrawDown = std::find( names.begin(), names.end(), "drawdown" ) != names.end();
     bool hasLoss	   = std::find( names.begin(), names.end(), "loss"     ) != names.end();
+    bool hasTime	   = std::find( names.begin(), names.end(), "time"     ) != names.end();
 
     if( hasDrawDown ) options.stopTradingDrawdown = stop["drawdown" ];
     if( hasLoss     ) options.stopTradingLoss     = stop["loss"     ];
+    if( hasTime     ) options.stopTradingTime     = stop["time"     ];
 
 
   }
@@ -175,6 +177,11 @@ public:
   void SetStartTradingTime( double startTradingTime ) {
 
     options.startTradingTime = startTradingTime;
+
+  }
+  void SetStopTradingTime( double stopTradingTime ) {
+
+    options.stopTradingTime = stopTradingTime;
 
   }
   void SetExecutionType( ExecutionType executionType ) {
@@ -261,6 +268,7 @@ public:
 
     if( statistics.drawDown < options.stopTradingDrawdown ) StopTrading();
     if( statistics.marketValue < options.stopTradingLoss )  StopTrading();
+    if( tick.time > options.stopTradingTime ) StopTrading();
 
     if( alarmMarketOpen.GetTime() < alarmMarketClose.GetTime() ) {
 
@@ -356,12 +364,11 @@ public:
 
       trade->Update( prevTick, tick );
 
-      if( options.isTradingStopped and not trade->IsClosing() ) {
+      if( options.isTradingStopped and trade->IsOpened() and not trade->IsClosing() ) {
 
         Order* order = trade->Close();
 
-        orders.push_back( order );
-        statistics.Update( order );
+        RegisterOrder( order );
 
       }
 
@@ -425,6 +432,12 @@ public:
       return;
 
     }
+
+    RegisterOrder( order );
+
+  }
+
+  void RegisterOrder( Order* order ) {
 
     if( order->type == OrderType::LIMIT ) {
 
