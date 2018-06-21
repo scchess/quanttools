@@ -28,6 +28,8 @@
 #' @param longRel relative commission/refund per long volume
 #' @param shortAbs absolute commission/refund per short position
 #' @param shortRel relative commission/refund per short volume
+#' @param slippageAbs absolute slippage per trade
+#' @param slippageRel relative slippage per trade
 #' @name Cost
 #' @rdname cpp_Cost
 #' @family backtesting classes

@@ -23,6 +23,10 @@
 \item{shortAbs}{absolute commission/refund per short position}
 
 \item{shortRel}{relative commission/refund per short volume}
+
+\item{slippageAbs}{absolute slippage per trade}
+
+\item{slippageRel}{relative slippage per trade}
 }
 \description{
 C++ class documentation

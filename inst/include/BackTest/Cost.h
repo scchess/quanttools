@@ -22,15 +22,18 @@ class Cost {
 
 public:
 
-  double cancel     = 0; // absolute commission per order cancel
-  double order      = 0; // absolute commission per order
-  double tradeAbs   = 0; // absolute commission per trade
-  double stockAbs   = 0; // absolute commission per stock / contract
-  double tradeRel   = 0; // relative commission per trade volume
-  double longAbs    = 0; // absolute commission/refund per long position
-  double longRel    = 0; // relative commission/refund per long volume
-  double shortAbs   = 0; // absolute commission/refund per short position
-  double shortRel   = 0; // relative commission/refund per short volume
+  double cancel       = 0; // absolute commission per order cancel
+  double order        = 0; // absolute commission per order
+  double tradeAbs     = 0; // absolute commission per trade
+  double stockAbs     = 0; // absolute commission per stock / contract
+  double tradeRel     = 0; // relative commission per trade volume
+  double longAbs      = 0; // absolute commission/refund per long position
+  double longRel      = 0; // relative commission/refund per long volume
+  double shortAbs     = 0; // absolute commission/refund per short position
+  double shortRel     = 0; // relative commission/refund per short volume
+  double slippageAbs  = 0; // absolute commission/refund per short position
+  double slippageRel = 0; // relative commission/refund per short volume
+
   double pointValue = 1; // absolute point value ( 1 for stocks )
 
 };

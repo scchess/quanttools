@@ -101,27 +101,31 @@ public:
 
     Rcpp::StringVector names = cost.attr( "names" );
 
-    bool hasPointValue = std::find( names.begin(), names.end(), "pointValue" ) != names.end();
-    bool hasCancel     = std::find( names.begin(), names.end(), "cancel"     ) != names.end();
-    bool hasOrder      = std::find( names.begin(), names.end(), "order"      ) != names.end();
-    bool hasStockAbs   = std::find( names.begin(), names.end(), "stockAbs"   ) != names.end();
-    bool hasTradeAbs   = std::find( names.begin(), names.end(), "tradeAbs"   ) != names.end();
-    bool hasTradeRel   = std::find( names.begin(), names.end(), "tradeRel"   ) != names.end();
-    bool hasLongAbs    = std::find( names.begin(), names.end(), "longAbs"    ) != names.end();
-    bool hasLongRel    = std::find( names.begin(), names.end(), "longRel"    ) != names.end();
-    bool hasShortAbs   = std::find( names.begin(), names.end(), "shortAbs"   ) != names.end();
-    bool hasShortRel   = std::find( names.begin(), names.end(), "shortRel"   ) != names.end();
+    bool hasPointValue  = std::find( names.begin(), names.end(), "pointValue"  ) != names.end();
+    bool hasCancel      = std::find( names.begin(), names.end(), "cancel"      ) != names.end();
+    bool hasOrder       = std::find( names.begin(), names.end(), "order"       ) != names.end();
+    bool hasStockAbs    = std::find( names.begin(), names.end(), "stockAbs"    ) != names.end();
+    bool hasTradeAbs    = std::find( names.begin(), names.end(), "tradeAbs"    ) != names.end();
+    bool hasTradeRel    = std::find( names.begin(), names.end(), "tradeRel"    ) != names.end();
+    bool hasLongAbs     = std::find( names.begin(), names.end(), "longAbs"     ) != names.end();
+    bool hasLongRel     = std::find( names.begin(), names.end(), "longRel"     ) != names.end();
+    bool hasShortAbs    = std::find( names.begin(), names.end(), "shortAbs"    ) != names.end();
+    bool hasShortRel    = std::find( names.begin(), names.end(), "shortRel"    ) != names.end();
+    bool hasSlippageAbs = std::find( names.begin(), names.end(), "slippageAbs" ) != names.end();
+    bool hasSlippageRel = std::find( names.begin(), names.end(), "slippageRel" ) != names.end();
 
-    if( hasPointValue ) options.cost.pointValue = cost["pointValue"];
-    if( hasCancel     ) options.cost.cancel     = cost["cancel"    ];
-    if( hasOrder      ) options.cost.order      = cost["order"     ];
-    if( hasStockAbs   ) options.cost.stockAbs   = cost["stockAbs"  ];
-    if( hasTradeAbs   ) options.cost.tradeAbs   = cost["tradeAbs"  ];
-    if( hasTradeRel   ) options.cost.tradeRel   = cost["tradeRel"  ];
-    if( hasLongAbs    ) options.cost.longAbs    = cost["longAbs"   ];
-    if( hasLongRel    ) options.cost.longRel    = cost["longRel"   ];
-    if( hasShortAbs   ) options.cost.shortAbs   = cost["shortAbs"  ];
-    if( hasShortRel   ) options.cost.shortRel   = cost["shortRel"  ];
+    if( hasPointValue  ) options.cost.pointValue  = cost["pointValue" ];
+    if( hasCancel      ) options.cost.cancel      = cost["cancel"     ];
+    if( hasOrder       ) options.cost.order       = cost["order"      ];
+    if( hasStockAbs    ) options.cost.stockAbs    = cost["stockAbs"   ];
+    if( hasTradeAbs    ) options.cost.tradeAbs    = cost["tradeAbs"   ];
+    if( hasTradeRel    ) options.cost.tradeRel    = cost["tradeRel"   ];
+    if( hasLongAbs     ) options.cost.longAbs     = cost["longAbs"    ];
+    if( hasLongRel     ) options.cost.longRel     = cost["longRel"    ];
+    if( hasShortAbs    ) options.cost.shortAbs    = cost["shortAbs"   ];
+    if( hasShortRel    ) options.cost.shortRel    = cost["shortRel"   ];
+    if( hasSlippageAbs ) options.cost.slippageAbs = cost["slippageAbs"];
+    if( hasSlippageRel ) options.cost.slippageRel = cost["slippageRel"];
 
   }
 

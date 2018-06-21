@@ -78,7 +78,7 @@ class Trade {
 
       if( order->IsExecuted() ) {
 
-        cost += options.cost.stockAbs + options.cost.tradeAbs + options.cost.tradeRel * order->priceExecuted * options.cost.pointValue;
+        cost += options.cost.stockAbs + options.cost.tradeAbs + options.cost.slippageAbs + ( options.cost.tradeRel + options.cost.slippageRel ) * order->priceExecuted * options.cost.pointValue;
 
         if( IsOpened() or IsClosing() ) {
 
