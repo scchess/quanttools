@@ -343,6 +343,9 @@ PlotTs$set( 'public', 'calc_basis', function() {
       # calculate daily intervals
 
       basis = data.table( time = t )[, .( t_from = time[1 ], t_to = time[.N] ), by = .( date = as.Date( time ) ) ]
+      if( any( basis[, t_from == t_to ] ) & self$style_info$time$round == 0 ) {
+        basis[, t_to := t_from + as.difftime( 24, units = 'hours' ) ]
+      }
       if( !is.null( self$time_range ) ) {
 
         basis[, t_from := fasttime::fastPOSIXct( date, self$tzone ) + self$time_range[1] ]
@@ -736,7 +739,7 @@ PlotTs$set( 'public', 'plot_stack', function() {
   if( is.null( self$stack_info ) ) return( invisible( self ) )
 
   info = as.data.table( self$stack_info[ c( 'name', 'label', 'col' ) ] )
-  info[ col == 'auto', col := distinct_colors[ 1:.N ] ]
+  info[ col == 'auto', col := if( .N > 25 ) rainbow( .N ) else distinct_colors[ 1:.N ] ]
 
   x = self$data_x[[ self$stack_info$data_id ]]
 
@@ -848,7 +851,7 @@ PlotTs$set( 'public', 'plot_lines', function() {
   self$lines_info[ type == 'h', lend := 'square' ]
   self$lines_info[ !type %in% c( 'p', 'b', 'o' ), pch := NA ]
 
-  self$lines_info[ col == 'auto', col := distinct_colors[ 1:.N ] ]
+  self$lines_info[ col == 'auto', col := if( .N > 25 ) rainbow( .N ) else distinct_colors[ 1:.N ] ]
 
   self$lines_info[, last := {
 
