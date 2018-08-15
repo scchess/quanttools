@@ -60,7 +60,7 @@ private:
 public:
 
   Atr( size_t n ) :
-  ema( ( size_t )n, true )
+  n( n ), ema( ( size_t )n, true )
   {
 
     if( n < 1 )
