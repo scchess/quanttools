@@ -405,6 +405,7 @@ public:
   void StopTrading() {
 
     options.isTradingStopped = true;
+    CancelOrders();
 
   }
 
