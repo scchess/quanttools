@@ -16,6 +16,7 @@
 // along with QuantTools. If not, see <http://www.gnu.org/licenses/>.
 
 #include "../inst/include/Indicators/RollRange.h"
+#include "../inst/include/Indicators/RollMinMax.h"
 
 //' Rolling Range
 //'
@@ -32,11 +33,19 @@
 // [[Rcpp::export]]
 Rcpp::List roll_range( Rcpp::NumericVector x, std::size_t n ) {
 
-  RollRange range( n );
+  RollMinMax min( n, false );
+  RollMinMax max( n, true  );
 
-  for( auto i = 0; i < x.size(); i++ ) range.Add( x[i] );
+  for( auto i = 0; i < x.size(); i++ ) {
 
-  return range.GetHistory();
+    min.Add( x[i] );
+    max.Add( x[i] );
+
+  }
+
+  return ListBuilder().AsDataTable()
+    .Add( "min", min.GetHistory() )
+    .Add( "max", max.GetHistory() );
 
 }
 //' @rdname roll_range
@@ -56,11 +65,11 @@ std::vector<double> roll_quantile( Rcpp::NumericVector x, std::size_t n, double 
 // [[Rcpp::export]]
 std::vector<double> roll_min( Rcpp::NumericVector x, std::size_t n ) {
 
-  RollRange range( n );
+  RollMinMax min( n, false );
 
-  for( auto i = 0; i < x.size(); i++ ) range.Add( x[i] );
+  for( auto i = 0; i < x.size(); i++ ) min.Add( x[i] );
 
-  return range.GetMinHistory();
+  return min.GetHistory();
 
 }
 //' @rdname roll_range
@@ -68,10 +77,10 @@ std::vector<double> roll_min( Rcpp::NumericVector x, std::size_t n ) {
 // [[Rcpp::export]]
 std::vector<double> roll_max( Rcpp::NumericVector x, std::size_t n ) {
 
-  RollRange range( n );
+  RollMinMax max( n, true );
 
-  for( auto i = 0; i < x.size(); i++ ) range.Add( x[i] );
+  for( auto i = 0; i < x.size(); i++ ) max.Add( x[i] );
 
-  return range.GetMaxHistory();
+  return max.GetHistory();
 
 }
