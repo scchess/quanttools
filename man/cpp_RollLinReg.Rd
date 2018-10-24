@@ -51,3 +51,5 @@ Other C++ classes: \code{\link{BBands}},
   \code{\link{Rsi}}, \code{\link{Sma}},
   \code{\link{Stochastic}}, \code{\link{Tick}}
 }
+\concept{C++ classes}
+\concept{C++ indicators}

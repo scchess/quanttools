@@ -2,7 +2,6 @@
 % Please edit documentation in R/bw.R
 \name{bw}
 \alias{bw}
-\alias{bw}
 \alias{\%bw\%}
 \title{Check if values are between specified interval}
 \usage{

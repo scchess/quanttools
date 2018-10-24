@@ -4,7 +4,8 @@
 \alias{plot_table}
 \title{Plot data.table as table}
 \usage{
-plot_table(dt, transpose = F, justify = c("middle", "left", "right"), ...)
+plot_table(dt, transpose = F, justify = c("middle", "left", "right"),
+  ...)
 }
 \arguments{
 \item{dt}{data.table}
@@ -26,3 +27,4 @@ Other graphical functions: \code{\link{add_last_values}},
   \code{\link{lines_stacked_hist}},
   \code{\link{multi_heatmap}}, \code{\link{plot_ts}}
 }
+\concept{graphical functions}

@@ -22,4 +22,5 @@ Other graphical functions: \code{\link{add_last_values}},
   \code{\link{multi_heatmap}}, \code{\link{plot_table}},
   \code{\link{plot_ts}}
 }
+\concept{graphical functions}
 \keyword{datasets}

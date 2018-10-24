@@ -5,8 +5,8 @@
 \title{Multi Dimensional Heat Map}
 \usage{
 multi_heatmap(x, pars, value, col_neg = c("darkblue", "lightblue"),
-  col_pos = c("yellow", "darkgreen"), peak_value = x[, max(abs(get(value)),
-  na.rm = T)])
+  col_pos = c("yellow", "darkgreen"), peak_value = x[,
+  max(abs(get(value)), na.rm = T)])
 }
 \arguments{
 \item{x}{\code{data.table} object}
@@ -34,3 +34,4 @@ Other graphical functions: \code{\link{add_last_values}},
   \code{\link{lines_stacked_hist}},
   \code{\link{plot_table}}, \code{\link{plot_ts}}
 }
+\concept{graphical functions}

@@ -32,3 +32,4 @@ Other technical indicators: \code{\link{atr}},
   \code{\link{rsi}}, \code{\link{sma}},
   \code{\link{stochastic}}
 }
+\concept{technical indicators}

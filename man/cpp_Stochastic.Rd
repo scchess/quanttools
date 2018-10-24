@@ -56,3 +56,5 @@ Other C++ classes: \code{\link{BBands}},
   \code{\link{RollVolumeProfile}}, \code{\link{Rsi}},
   \code{\link{Sma}}, \code{\link{Tick}}
 }
+\concept{C++ classes}
+\concept{C++ indicators}

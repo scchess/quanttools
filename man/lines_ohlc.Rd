@@ -4,8 +4,8 @@
 \alias{lines_ohlc}
 \title{Add candles to active time series plot}
 \usage{
-lines_ohlc(x = 1:nrow(ohlc), ohlc, width = 0.3, candle.col.up = "blue",
-  candle.col.dn = "red", ch = TRUE)
+lines_ohlc(x = 1:nrow(ohlc), ohlc, width = 0.3,
+  candle.col.up = "blue", candle.col.dn = "red", ch = TRUE)
 }
 \arguments{
 \item{x}{location coordinates}
@@ -32,3 +32,4 @@ Other graphical functions: \code{\link{add_last_values}},
   \code{\link{multi_heatmap}}, \code{\link{plot_table}},
   \code{\link{plot_ts}}
 }
+\concept{graphical functions}

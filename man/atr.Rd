@@ -25,3 +25,4 @@ Other technical indicators: \code{\link{bbands}},
   \code{\link{roll_volume_profile}}, \code{\link{rsi}},
   \code{\link{sma}}, \code{\link{stochastic}}
 }
+\concept{technical indicators}

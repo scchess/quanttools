@@ -40,3 +40,5 @@ Other C++ classes: \code{\link{BBands}},
   \code{\link{RollVolumeProfile}}, \code{\link{Rsi}},
   \code{\link{Sma}}, \code{\link{Stochastic}}
 }
+\concept{C++ classes}
+\concept{backtesting classes}

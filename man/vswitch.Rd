@@ -13,3 +13,6 @@ vswitch(x, mapping, default = NA)
 
 \item{default}{default value if no mapping found, if set to NULL original value kept}
 }
+\description{
+Vectorized switch
+}

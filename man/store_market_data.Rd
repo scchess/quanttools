@@ -7,9 +7,11 @@
 \alias{store_moex_data}
 \title{Store historical market data}
 \usage{
-store_finam_data(from = NULL, to = format(Sys.Date()), verbose = TRUE)
+store_finam_data(from = NULL, to = format(Sys.Date()),
+  verbose = TRUE)
 
-store_iqfeed_data(from = NULL, to = format(Sys.Date()), verbose = TRUE)
+store_iqfeed_data(from = NULL, to = format(Sys.Date()),
+  verbose = TRUE)
 
 store_moex_data(from = NULL, to = format(Sys.Date()), verbose = TRUE)
 }

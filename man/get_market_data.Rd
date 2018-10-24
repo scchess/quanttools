@@ -19,9 +19,11 @@ get_yahoo_splits_and_dividends(symbol, from, to = from)
 
 get_google_data(symbol, from, to = from)
 
-get_finam_data(symbol, from, to = from, period = "day", local = FALSE)
+get_finam_data(symbol, from, to = from, period = "day",
+  local = FALSE)
 
-get_iqfeed_data(symbol, from, to = from, period = "day", local = FALSE)
+get_iqfeed_data(symbol, from, to = from, period = "day",
+  local = FALSE)
 
 get_moex_options_data(code, from, to = from, period = "tick",
   local = TRUE)

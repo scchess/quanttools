@@ -4,8 +4,8 @@
 \alias{add_legend}
 \title{Add legend to active time series plot}
 \usage{
-add_legend(position = "topright", names, col = "auto", lty = 1, lwd = 1,
-  pch = NA)
+add_legend(position = "topright", names, col = "auto", lty = 1,
+  lwd = 1, pch = NA)
 }
 \arguments{
 \item{position}{same as in \code{\link{plot_ts}} except \code{'n'}}
@@ -32,3 +32,4 @@ Other graphical functions: \code{\link{add_last_values}},
   \code{\link{multi_heatmap}}, \code{\link{plot_table}},
   \code{\link{plot_ts}}
 }
+\concept{graphical functions}
