@@ -503,13 +503,14 @@ public:
   Rcpp::List GetOnDayClosePerformanceHistory() {
 
     Rcpp::List performance = ListBuilder().AsDataTable()
-      .Add( "date"          , IntToDate( statistics.onDayCloseHistoryDates ) )
-      .Add( "return"        , statistics.onDayCloseHistoryMarketValueChange  )
-      .Add( "pnl"           , statistics.onDayCloseHistoryMarketValue        )
-      .Add( "drawdown"      , statistics.onDayCloseHistoryDrawDown           )
-      .Add( "avg_pnl"       , statistics.onDayCloseHistoryAvgTradePnl        )
-      .Add( "n_per_day"     , statistics.onDayCloseHistoryNTrades            )
-      .Add( "n_per_day_long", statistics.onDayCloseHistoryNTradesLong        );
+                                          .Add( "date"          , IntToDate( statistics.onDayCloseHistoryDates ) )
+                                          .Add( "return"        , statistics.onDayCloseHistoryMarketValueChange  )
+                                          .Add( "pnl"           , statistics.onDayCloseHistoryMarketValue        )
+                                          .Add( "drawdown"      , statistics.onDayCloseHistoryDrawDown           )
+                                          .Add( "avg_pnl"       , statistics.onDayCloseHistoryAvgTradePnl        )
+                                          .Add( "n_per_day"     , statistics.onDayCloseHistoryNTrades            )
+                                          .Add( "n_per_day_long", statistics.onDayCloseHistoryNTradesLong        )
+                                          .Add( "close"         , statistics.onDayCloseHistoryClosePrice         );
 
     return performance;
 
@@ -569,7 +570,7 @@ public:
       .Add( "state"         , state          )
       .Add( "comment"       , comment        );
 
-    return orders;
+      return orders;
 
   }
 
@@ -657,7 +658,7 @@ public:
       .Add( "cost_rel"   , cost_rel    )
       .Add( "state"      , state       );
 
-    return trades;
+      return trades;
 
   }
 
