@@ -290,19 +290,38 @@ get_finam_data = function( symbol, from, to = from, period = 'day', local = FALS
   retry_limit = .settings$finam_retry_limit
   retry_sleep = .settings$finam_retry_sleep
 
-  if( local ){
+  if( local ) {
 
-    if( ! period %in% c( 'tick', '1min' ) ) stop( 'only ticks and 1min supported in local storage' )
-
-    data = .get_local_data(  symbol, from, to, source = 'finam', period )
-
-    return( data )
+    storage = DataStorage$new( .settings$finam_storage, label = 'finam' )
+    return( storage$get( symbol, from, to, period ) )
 
   }
 
   curr_date = format( Sys.Date() )
   if( from > curr_date ) from = to = curr_date
   if( to   > curr_date ) to = curr_date
+
+  if( from != to & period == 'tick' ) {
+
+    if( verbose ) message( 'more than one day of tick data requested, request split into daily requests:' )
+
+    from = as.Date( from )
+    to   = as.Date( to )
+
+    dates = format( seq( from, to, 1 ) )
+
+    data = vector( mode = 'list', length( dates ) )
+    names( data ) = dates
+
+    for( date in dates ) {
+
+      if( verbose ) message( date )
+      data[[ date ]] = get_finam_data( symbol, date, period = period )
+
+    }
+    return( rbindlist( data ) )
+
+  }
 
   # Finam host address
   host = 'export.finam.ru'
@@ -365,7 +384,7 @@ get_finam_data = function( symbol, from, to = from, period = 'day', local = FALS
   file_name <- paste( symbol, format( as.Date( from ), '%Y%m%d' ), format( as.Date( to ), '%Y%m%d' ), period, sep = '_' )
   # split dates into parts
   from = .extract_date_parts( from )
-  to = .extract_date_parts( to )
+  to   = .extract_date_parts( to )
   # find information about desired symbol
   instrument_info = get( 'instruments_info', envir = finam_downloader_env )[ aEmitentCodes == symbol ][ 1 ]
   # throw absent instrument exception
@@ -374,28 +393,28 @@ get_finam_data = function( symbol, from, to = from, period = 'day', local = FALS
   if( is_instrument_info_empty ) stop( error_message )
 
   url_parameters = data.table::data.table(
-    fsp = 0, # fill periods without deals 0 - no, 1 - yes
-    market = instrument_info[[ 'aEmitentMarkets' ]], # market code
-    em = instrument_info[[ 'aEmitentIds' ]], # emitent code
-    code = symbol, # ticker
-    df = from[[ 'd' ]], # date from
-    mf = from[[ 'm' ]] - 1,
-    yf = from[[ 'Y' ]],
-    dt = to[[ 'd' ]], # date to
-    mt = to[[ 'm' ]] - 1,
-    yt = to[[ 'Y' ]],
-    p  = switch( period, "tick" = 1, "1min" = 2, "5min" = 3, "10min" = 4, "15min" = 5, "30min" = 6, "hour" = 7, "day" = 8 ), # period
-    f = file_name, # file name
-    e = '.txt', # file extention	.txt or .csv
-    cn = symbol, # ticker
-    dtf = 1, # date format
-    tmf = 3, # time format
-    MSOR = 1, # candle time 0 - candle start,1 - candle end
+    fsp       = 0, # fill periods without deals 0 - no, 1 - yes
+    market    = instrument_info[[ 'aEmitentMarkets' ]], # market code
+    em        = instrument_info[[ 'aEmitentIds' ]], # emitent code
+    code      = symbol, # ticker
+    df        = from[[ 'd' ]], # date from
+    mf        = from[[ 'm' ]] - 1,
+    yf        = from[[ 'Y' ]],
+    dt        = to  [[ 'd' ]], # date to
+    mt        = to  [[ 'm' ]] - 1,
+    yt        = to  [[ 'Y' ]],
+    p         = switch( period, "tick" = 1, "1min" = 2, "5min" = 3, "10min" = 4, "15min" = 5, "30min" = 6, "hour" = 7, "day" = 8 ), # period
+    f         = file_name, # file name
+    e         = '.txt', # file extention	.txt or .csv
+    cn        = symbol, # ticker
+    dtf       = 1, # date format
+    tmf       = 3, # time format
+    MSOR      = 1, # candle time 0 - candle start,1 - candle end
     mstimever = 0,
-    sep = 1, # column separator    1 - ",", 2 - ".", 3 - ";", 4 - "<tab>", 5 - " "
-    sep2 = 1, # thousands separator 1 - "" , 2 - ".", 3 - ",", 4 - " "    , 5 - "'"
-    datf = switch( period, tick = 9, 5 ), # candle format
-    at = 1 # header	0 - no, 1 - yes
+    sep       = 1, # column separator    1 - ",", 2 - ".", 3 - ";", 4 - "<tab>", 5 - " "
+    sep2      = 1, # thousands separator 1 - "" , 2 - ".", 3 - ",", 4 - " "    , 5 - "'"
+    datf      = switch( period, tick = 9, 5 ), # candle format
+    at        = 1 # header	0 - no, 1 - yes
   )
   # create get query url
   get_url = paste( paste0( 'http://', host, '/', file_name, '.txt' ), paste( names( url_parameters ), url_parameters, sep = '=', collapse = '&' ), sep = '?' )
@@ -469,35 +488,8 @@ get_iqfeed_data = function( symbol, from, to = from, period = 'day', local = FAL
 
   if( local ){
 
-    if( period == 'tick' ) data = .get_local_data(  symbol, from, to, source = 'iqfeed', period = 'tick' )
-    if( period != 'tick' ) {
-
-      data = .get_local_data(  symbol, from, to, source = 'iqfeed', period = '1min' )
-      if( is.null( data ) ) return( NULL )
-
-      switch( period,
-              '1min'  = { n =  1; units = 'mins' },
-              '5min'  = { n =  5; units = 'mins' },
-              '10min' = { n = 10; units = 'mins' },
-              '15min' = { n = 15; units = 'mins' },
-              '30min' = { n = 30; units = 'mins' },
-              'hour'  = { n =  1; units = 'hour' },
-              'day'   = { n =  1; units = 'days' }
-      )
-
-      open = high = low = close = volume = NULL
-      data = data[ , list( open = open[1], high = max( high ), low = min( low ), close = close[.N], volume = sum( volume ) ), by = list( time = ceiling_POSIXct( time, n, units ) ) ]
-      if( period == 'day' ) {
-
-        data[, time := as.Date( time ) - 1 ]
-        setnames( data, 'time', 'date' )
-
-
-      }
-
-    }
-
-    return( data[] )
+    storage = DataStorage$new( .settings$iqfeed_storage, label = 'iqfeed' )
+    return( storage$get( symbol, from, to, period ) )
 
   }
 

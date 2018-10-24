@@ -625,7 +625,7 @@ iqfeed$set( 'public', 'get_ticks', function( symbol, n_ticks, n_days, from, to, 
 
   } else if( missing( from ) & missing( to ) ) stop( 'no arguments set' ) else {
 
-    paste0( paste( 'HTT', symbol, datetime_begin = format( as.POSIXct( from ), '%Y%m%d %H%M%S' ), datetime_end = format( as.POSIXct( to ) + ( nchar( to ) == 10 ) * as.difftime( '24:00:00' ), '%Y%m%d %H%M%S' ), max = '', time_begin = '', time_end = '', direction, sep = ',' ), '\r\n' )
+    paste0( paste( 'HTT', symbol, datetime_begin = format( as.POSIXct( from, tz = 'EST' ), '%Y%m%d %H%M%S' ), datetime_end = format( as.POSIXct( to, tz = 'EST' ) + ( nchar( to ) == 10 ) * as.difftime( '24:00:00' ), '%Y%m%d %H%M%S' ), max = '', time_begin = '', time_end = '', direction, sep = ',' ), '\r\n' )
 
   }
 
@@ -648,7 +648,7 @@ iqfeed$set( 'public', 'get_intraday_candles', function( symbol, interval, n_cand
 
   } else if( missing( from ) & missing( to ) ) stop( 'no arguments set' ) else {
 
-    paste0( paste( 'HIT', symbol, interval, datetime_begin = format( as.POSIXct( from ), '%Y%m%d %H%M%S' ), datetime_end = format( as.POSIXct( to ) + ( nchar( to ) == 10 ) * as.difftime( '24:00:00' ), '%Y%m%d %H%M%S' ), max = '', time_begin = '', time_end = '', direction, request_id = '', points_sent = '', type, sep = ',' ), '\r\n' )
+    paste0( paste( 'HIT', symbol, interval, datetime_begin = format( as.POSIXct( from, tz = 'EST' ), '%Y%m%d %H%M%S' ), datetime_end = format( as.POSIXct( to, tz = 'EST' ) + ( nchar( to ) == 10 ) * as.difftime( '24:00:00' ), '%Y%m%d %H%M%S' ), max = '', time_begin = '', time_end = '', direction, request_id = '', points_sent = '', type, sep = ',' ), '\r\n' )
 
   }
 

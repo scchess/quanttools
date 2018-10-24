@@ -115,283 +115,97 @@
 #' @export
 store_finam_data = function( from = NULL, to = format( Sys.Date() ), verbose = TRUE ) {
 
-  save_dir = .settings$finam_storage
   symbols = .settings$finam_symbols
 
-  if( save_dir == '' ) stop( 'please set storage path via QuantTools_settings( \'finam_storage\', \'/storage/path/\' ) ' )
   if( is.null( symbols ) ) stop( 'please set symbols vector via QuantTools_settings( \'finam_symbols\', c( \'symbol_1\', ...,\'symbol_n\' ) ) ' )
 
+  for( symbol in symbols ) .store_finam_data( symbol, '1min' )
 
-  from_is_null = is.null( from )
+  for( symbol in symbols ) .store_finam_data( symbol, 'tick' )
 
-  for( symbol in symbols ) {
+}
 
-    if( verbose ) message( symbol )
+.store_finam_data = function( symbol, period = 'tick' ) {
 
-    if( from_is_null ) from = NULL
+  valid_period = c( 'tick', '1min' )
+  if( !period %in% valid_period ) stop( period, ' is invalid period, valid periods are ', paste0( valid_period, collapse = ', ' ) )
 
-    # ticks
-    if( verbose ) message( 'ticks:' )
+  storage      = .settings$finam_storage
+  storage_from = .settings$finam_storage_from
 
-    dates_available = gsub( '.rds', '', list.files( paste( save_dir, symbol, sep = '/' ), pattern = '\\d{4}-\\d{2}-\\d{2}.rds' ) )
-    if( is.null( from ) && length( dates_available ) == 0 ) {
+  getter = function( symbol, from, period ) {
 
-      from = .settings$finam_storage_from
-      if( from == '' ) stop( 'please set Finam storage start date via QuantTools_settings( \'finam_storage_from\', \'YYYYMMDD\' )' )
-      message( 'not found in storage, \ntrying to download since storage start date' )
-
-    }
-    if( is.null( from ) && to >= max( dates_available ) ) {
-
-      from = max( dates_available )
-      message( paste( 'dates to be added:', from, '-', to ) )
-
-    }
-
-    from = as.Date( from )
-    to = as.Date( to )
-
-    dates = format( seq( from, to, 1 ) )
-
-    for( date in dates ) {
-
-      ticks = get_finam_data( symbol, date, period = 'tick' )
-      if( is.null( ticks ) ) next
-
-      dir.create( paste0( save_dir, '/' , symbol ), recursive = TRUE, showWarnings = FALSE )
-
-      saveRDS( ticks, file = paste0( save_dir, '/' , symbol, '/', date, '.rds' ) )
-
-      if( verbose ) message( paste( date,  'saved' ) )
-
-    }
-
-    # minutes
-    if( verbose ) message( 'minutes:' )
-
-    if( from_is_null ) from = NULL
-    dates_available = gsub( '.rds', '-01', list.files( paste( save_dir, symbol, sep = '/' ), pattern = '\\d{4}-\\d{2}.rds' ) )
-    if( is.null( from ) && length( dates_available ) == 0 ) {
-
-      from = .settings$finam_storage_from
-      if( from == '' ) stop( 'please set Finam storage start date via QuantTools_settings( \'finam_storage_from\', \'YYYYMMDD\' )' )
-      message( 'not found in storage, \ntrying to download since storage start date' )
-
-    }
-    if( is.null( from ) && to >= max( dates_available ) ) {
-
-      from = max( dates_available )
-      message( paste( 'dates to be added:', from, '-', to ) )
-
-    }
-
-    from = as.Date( from )
-    to   = as.Date( to )
-
-    data.table( from = as.Date( unique( format( seq( from, to, 1 ), '%Y-%m-01' ) ) ) )[, to := shift( from - 1, type = 'lead', fill = to ) ][, {
-
-      month = format( from, '%Y-%m' )
-
-      mins = get_finam_data( symbol, from, to, period = '1min' )
-
-      if( !is.null( mins ) ) {
-
-        dir.create( paste0( save_dir, '/' , symbol ), recursive = TRUE, showWarnings = FALSE )
-
-        saveRDS( mins, file = paste0( save_dir, '/' , symbol, '/', month, '.rds' ) )
-
-        if( verbose ) message( paste( month,  'saved' ) )
-
-      } else {
-
-        if( verbose ) message( paste( month,  'not available' ) )
-
-      }
-
-    }, by = from ]
+    now = Sys.time()
+    attr( now, 'tzone' ) = 'Europe/Moscow'
+    get_finam_data( symbol, from, now, period = period )
 
   }
 
+  self = DataStorage$new( storage, storage_from, getter, label = 'finam' )
+
+  self$store( symbol, period )
+
 }
+
 #' @rdname store_market_data
 #' @export
 # iqfeed
 store_iqfeed_data = function( from = NULL, to = format( Sys.Date() ), verbose = TRUE ) {
 
-  .store_iqfeed_data_mins ( from, to, verbose )
-  .store_iqfeed_data_ticks( from, to, verbose )
-
-}
-
-.store_iqfeed_data_ticks = function( from = NULL, to = format( Sys.Date() ), verbose = TRUE ) {
-
-  save_dir = .settings$iqfeed_storage
   symbols = .settings$iqfeed_symbols
 
-  if( save_dir == '' ) stop( 'please set storage path via QuantTools_settings( \'iqfeed_storage\', \'/storage/path/\' ) ' )
   if( is.null( symbols ) ) stop( 'please set symbols vector via QuantTools_settings( \'iqfeed_symbols\', c( \'symbol_1\', ...,\'symbol_n\' ) ) ' )
 
-
-  from_is_null = is.null( from )
+  for( symbol in symbols ) .store_iqfeed_data( symbol, '1min' )
 
   for( symbol in symbols ) {
 
-    if( verbose ) message( symbol )
-    if( from_is_null ) from = NULL
+    storage      = .settings$iqfeed_storage
+    storage_from = .settings$iqfeed_storage_from
 
-    dates_available = gsub( '.rds', '', list.files( paste( save_dir, symbol, sep = '/' ), pattern = '\\d{4}-\\d{2}-\\d{2}.rds' ) )
-    if( is.null( from ) && length( dates_available ) == 0 ) {
+    files = list.files( paste( storage, symbol, sep = '/' ), pattern = '\\d{4}-\\d{2}-\\d{2}.rds' )
+    recent_date_available = as.Date( max( files, storage_from ), '%Y-%m-%d' )
 
-      from = .settings$iqfeed_storage_from
-      if( from == '' ) stop( 'please set iqfeed storage start date via QuantTools_settings( \'iqfeed_storage_from\', \'YYYYMMDD\' )' )
-      message( 'not found in storage, \ntrying to download since storage start date' )
+    now = Sys.time()
+    attr( now, 'tzone' ) = 'America/New_York'
+    if(
 
-    }
-    if( is.null( from ) && to >= max( dates_available ) ) {
+      format( now, '%H:%M' ) %bw% c( '09:30', '16:00' ) &&
+      ( Sys.Date() - recent_date_available ) > as.difftime( 3, units = 'days' )
 
-      from = max( dates_available )
-      message( paste( 'dates to be added:', from, '-', to ) )
+    ) {
 
-    }
-    curr_time = Sys.time()
-    attr( curr_time, 'tzone' ) = 'America/New_York'
-    if( format( curr_time, '%H:%M' ) %bw% c( '09:30', '16:00' ) && diff( as.Date( c( from, to ) ) ) > as.difftime( 3, units = 'days' ) ) {
-
-      message = 'please download data outside trading hours [ 9:30 - 16:30 America/New York ]'
-      if( length( dates_available ) == 0 ) {
-        message( message )
-        next
-      } else {
-        stop( message )
-      }
+      stop( 'please download data outside trading hours [ 9:30 - 16:30 America/New York ]', call. = FALSE )
 
     }
-
-    ticks = get_iqfeed_data( symbol, from, to, period = 'tick' )
-    if( !is.null( ticks ) ) {
-
-      dir.create( paste0( save_dir, '/' , symbol ), recursive = TRUE, showWarnings = FALSE )
-
-      time = NULL
-      ticks[, date := format( time, '%Y-%m-%d' ) ]
-      ticks[ , {
-
-        saveRDS( .SD, file = paste0( save_dir, '/' , symbol, '/', date, '.rds' ) )
-
-        if( verbose ) message( paste( date,  'saved' ) )
-
-      }, by = date ]
-
-    }
+    .store_iqfeed_data( symbol, 'tick' )
 
   }
 
 }
 
-.store_iqfeed_data_mins =  function( from = NULL, to = format( Sys.Date() ), verbose = TRUE ) {
+.store_iqfeed_data = function( symbol, period = 'tick' ) {
 
-  save_dir = .settings$iqfeed_storage
-  symbols = .settings$iqfeed_symbols
+  valid_period = c( 'tick', '1min' )
+  if( !period %in% valid_period ) stop( period, ' is invalid period, valid periods are ', paste0( valid_period, collapse = ', ' ) )
 
-  if( save_dir == '' ) stop( 'please set storage path via QuantTools_settings( \'iqfeed_storage\', \'/storage/path/\' ) ' )
-  if( is.null( symbols ) ) stop( 'please set symbols vector via QuantTools_settings( \'iqfeed_symbols\', c( \'symbol_1\', ...,\'symbol_n\' ) ) ' )
+  storage      = .settings$iqfeed_storage
+  storage_from = .settings$iqfeed_storage_from
 
+  getter = function( symbol, from, period ) {
 
-  from_is_null = is.null( from )
-
-  for( symbol in symbols ) {
-
-    if( verbose ) message( symbol )
-    if( from_is_null ) from = NULL
-
-    months_available = gsub( '.rds', '', list.files( paste( save_dir, symbol, sep = '/' ), pattern = '\\d{4}-\\d{2}.rds' ) )
-    if( is.null( from ) && length( months_available ) == 0 ) {
-
-      from = .settings$iqfeed_storage_from
-      if( from == '' ) stop( 'please set iqfeed storage start date via QuantTools_settings( \'iqfeed_storage_from\', \'YYYYMMDD\' )' )
-      message( 'not found in storage, \ntrying to download since storage start date' )
-
-    }
-    if( is.null( from ) && substr( to, 1, 7 ) >= max( months_available ) ) {
-
-      from = max( months_available )
-      message( paste( 'months to be added:', from, '-', substr( to, 1, 7 ) ) )
-
-    }
-
-    mins = get_iqfeed_data( symbol, paste0( substr( from, 1, 7 ), '-01' ), format( as.Date( to ) + 31 ), period = '1min' )
-    if( !is.null( mins ) && nrow( mins ) != 0 ) {
-
-      dir.create( paste0( save_dir, '/' , symbol ), recursive = TRUE, showWarnings = FALSE )
-
-      time = NULL
-      mins[, month := format( time, '%Y-%m' ) ]
-      mins[ , {
-
-        saveRDS( .SD, file = paste0( save_dir, '/' , symbol, '/', month, '.rds' ) )
-
-        if( verbose ) message( paste( month,  'saved' ) )
-
-      }, by = month ]
-
-    }
+    now = Sys.time()
+    attr( now, 'tzone' ) = 'America/New_York'
+    get_iqfeed_data( symbol, from, now, period = period )
 
   }
+
+  self = DataStorage$new( storage, storage_from, getter, label = 'iqfeed' )
+
+  self$store( symbol, period )
 
 }
 
-.get_local_data = function( symbol, from, to, source, period ) {
-
-  data_dir = switch( source, finam = .settings$finam_storage, iqfeed = .settings$iqfeed_storage )
-
-  if( data_dir == '' ) stop( paste0('please set storage path via QuantTools_settings( \'', source, '_storage\', \'/storage/path/\' )
-  use store_', source, '_data to add some data into the storage' ) )
-
-  if( period == 'tick' ) {
-
-    dates_available = gsub( '.rds', '', list.files( paste( data_dir, symbol, sep = '/' ), pattern = '\\d{4}-\\d{2}-\\d{2}.rds' ) )
-
-    dates_to_load = sort( dates_available[ dates_available %bw% substr( c( from, to ), 1, 10 ) ] )
-
-    data = vector( length( dates_to_load ), mode = 'list' )
-    names( data ) = dates_to_load
-
-    for( date in dates_to_load ) data[[ date ]] = readRDS( file = paste0( data_dir, '/' , symbol, '/', date, '.rds' ) )
-
-    data = rbindlist( data )
-
-    time_range = as.POSIXct( format( as.Date( c( from, to ) ) + c( 0, 1 ) ), 'UTC' )
-
-    time = NULL
-    if( !is.null( data ) ) data = data[ time > time_range[1] & time < time_range[2] ]
-
-    return( data )
-
-  }
-  if( period == '1min' ) {
-
-    months_available = gsub( '.rds', '', list.files( paste( data_dir, symbol, sep = '/' ), pattern = '\\d{4}-\\d{2}.rds' ) )
-
-    months_to_load = sort( months_available[ months_available %bw% substr( c( from, to ), 1, 7 ) ] )
-
-    if( length( months_to_load ) == 0 ) return( NULL )
-    data = vector( length( months_to_load ), mode = 'list' )
-    names( data ) = months_to_load
-
-    for( month in months_to_load ) data[[ month ]] = readRDS( file = paste0( data_dir, '/' , symbol, '/', month, '.rds' ) )
-
-    data = rbindlist( data )#[ as.Date( time ) %bw% as.Date( c( from, to ) )  ]
-
-    time_range = as.POSIXct( format( as.Date( c( from, to ) ) + c( 0, 1 ) ), 'UTC' )
-
-    time = NULL
-    if( !is.null( data ) ) data = data[ time > time_range[1] & time < time_range[2] ]
-
-    return( data )
-
-  }
-
-}
 #' @rdname store_market_data
 #' @export
 # moex
