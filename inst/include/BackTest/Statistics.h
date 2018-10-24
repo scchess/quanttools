@@ -77,7 +77,7 @@ private:
   double drawDownEnd;
   double marketValue;
   double marketValueMax;
-
+  double lastPrice;
   bool   isDrawDownMax;
 
   std::vector<double> onDayCloseHistoryMarketValue;
@@ -87,6 +87,7 @@ private:
   std::vector<int>    onDayCloseHistoryNTrades;
   std::vector<int>    onDayCloseHistoryNTradesLong;
   std::vector<double> onDayCloseHistoryAvgTradePnl;
+  std::vector<double> onDayCloseHistoryClosePrice;
 
   int onDayCloseNTrades;
   int onDayCloseNTradesLong;
@@ -160,6 +161,7 @@ public:
     onDayCloseHistoryAvgTradePnl      .clear();
     onDayCloseHistoryNTrades          .clear();
     onDayCloseHistoryNTradesLong      .clear();
+    onDayCloseHistoryClosePrice       .clear();
     onDayCloseNTrades     = 0;
     onDayCloseNTradesLong = 0;
     onDayCloseTradePnl    = 0;
@@ -273,7 +275,7 @@ public:
     onDayCloseHistoryAvgTradePnl      .push_back( onDayCloseNTrades == 0 ? 0 : onDayCloseTradePnl / onDayCloseNTrades );
     onDayCloseHistoryNTrades          .push_back( onDayCloseNTrades );
     onDayCloseHistoryNTradesLong      .push_back( onDayCloseNTradesLong );
-
+    onDayCloseHistoryClosePrice       .push_back( lastPrice );
     nDaysTested++;
 
     rollSharpe    .Add( marketValueChange );
@@ -321,6 +323,7 @@ public:
 
     double prevDrowdown = drawDown;
     drawDown = marketValue - marketValueMax;
+    lastPrice = tick.price;
 
     bool isDrawDownStarted = prevDrowdown == 0 and drawDown < 0;
     if( isDrawDownStarted ) {
