@@ -336,7 +336,7 @@ get_finam_data = function( symbol, from, to = from, period = 'day', local = FALS
         if( verbose ) message( from, ' - ', to )
         get_finam_data( symbol, from, to, period = period )
 
-      }, by = interval ]
+      }, by = interval ][, -'interval' ]
       return( data )
 
     }
