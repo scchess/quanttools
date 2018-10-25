@@ -301,25 +301,48 @@ get_finam_data = function( symbol, from, to = from, period = 'day', local = FALS
   if( from > curr_date ) from = to = curr_date
   if( to   > curr_date ) to = curr_date
 
-  if( from != to & period == 'tick' ) {
-
-    if( verbose ) message( 'more than one day of tick data requested, request split into daily requests:' )
+  if( from != to ) {
 
     from = as.Date( from )
     to   = as.Date( to )
 
-    dates = format( seq( from, to, 1 ) )
+    if( period == 'tick' ) {
 
-    data = vector( mode = 'list', length( dates ) )
-    names( data ) = dates
+      if( verbose ) message( 'more than one day of tick data requested, request split into daily requests:' )
 
-    for( date in dates ) {
+      dates = format( seq( from, to, 1 ) )
 
-      if( verbose ) message( date )
-      data[[ date ]] = get_finam_data( symbol, date, period = period )
+      data = vector( mode = 'list', length( dates ) )
+      names( data ) = dates
+
+      for( date in dates ) {
+
+        if( verbose ) message( date )
+        data[[ date ]] = get_finam_data( symbol, date, period = period )
+
+      }
+      return( rbindlist( data ) )
 
     }
-    return( rbindlist( data ) )
+
+    if( period == '1min' & to - from > as.difftime( 31, units = 'days' ) ) {
+
+      if( verbose ) message( 'more than 31 days of 1min data requested, request split into monthly requests:' )
+
+      months = data.table( from = c( from, as.Date( unique( format( seq( from, to, 1 ), '%Y-%m-01' ) ) )[-1] ) )[, ':='( to = shift( from - 1, type = 'lead', fill = to ), interval = 1:.N ) ][]
+
+      data = months[, {
+
+        if( verbose ) message( from, ' - ', to )
+        get_finam_data( symbol, from, to, period = period )
+
+      }, by = interval ]
+      return( data )
+
+    }
+
+    from = format( from )
+    to   = format( to )
 
   }
 
