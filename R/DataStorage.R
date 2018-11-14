@@ -27,78 +27,134 @@ DataStorage$set( 'public', 'initialize', function( path, start = NULL, getter = 
   if( path  == '' ) stop( 'please set storage path via QuantTools_settings( \'', label, '_storage\', \'/storage/path/\' ) ', call. = FALSE )
   if( !is.null( start ) && start == '' ) stop( 'please set ', label, ' storage start date via QuantTools_settings( \'', label, '_storage_from\', \'YYYYMMDD\' )', call. = FALSE )
 
-  if( !is.null( getter ) && !identical( formalArgs( getter ), c( 'symbol', 'from', 'period' ) ) ) stop( 'getter must have \'symbol\', \'from\' and \'period\' arguments' )
+  if( !is.null( getter ) && !identical( formalArgs( getter ), c( 'symbol', 'from', 'to', 'period' ) ) ) stop( 'getter must have \'symbol\', \'from\' and \'period\' arguments' )
 
   self$path   = path
   self$start  = start
   self$getter = getter
   self$label  = label
 
+  self$get_file_pattern = function( period ) switch( period, tick = '\\d{4}-\\d{2}-\\d{2}.rds', '\\d{4}-\\d{2}.rds' )
+  self$get_file_format  = function( period ) switch( period, tick = '%Y-%m-%d'                , '%Y-%m'             )
+
+  self$validate_period = function( period ) {
+
+    valid_periods = c( 'tick',  '1min', '5min', '10min', '15min', '30min', 'hour', 'day' )
+    if( ! period %in% valid_periods ) stop( 'invalid period, valid periods are ', paste( valid_periods, collapse = ', ' ), call. = FALSE )
+
+  }
+
+  self$validate_period = function( period ) {
+
+    valid_periods = c( 'tick',  '1min', '5min', '10min', '15min', '30min', 'hour', 'day' )
+    if( ! period %in% valid_periods ) stop( 'invalid period, valid periods are ', paste( valid_periods, collapse = ', ' ), call. = FALSE )
+
+  }
+
 } )
-DataStorage$set( 'public', 'store', function( symbol, period ) {
+
+DataStorage$set( 'public', 'store', function( symbol, period, from = NULL, to = NULL, split = 'none' ) {
+
+  self$validate_period( period )
 
   message( 'store ', symbol, ' ', period, ' ', self$label, ' data...' )
-
-  pattern          = switch( period, tick = '\\d{4}-\\d{2}-\\d{2}.rds', '\\d{4}-\\d{2}.rds' )
-  file_name_format = switch( period, tick = '%Y-%m-%d'                , '%Y-%m'             )
 
   save_dir = paste0( self$path, '/', symbol, '/' )
   if( !dir.exists( save_dir ) ) dir.create( save_dir, recursive = T )
 
-  files = list.files( save_dir, pattern, full.names = T )
-
+  files = list.files( save_dir, self$get_file_pattern( period ), full.names = T )
   no_historical_data_avaliable = length( files ) == 0
 
-  if( no_historical_data_avaliable ) {
+  if( is.null( to ) ) to = Sys.time()
 
-    from = self$start
+  if( !is.null( from ) ) {
 
-    message( 'not found in storage, \ntrying to download since storage start date: ', from )
-
-    data = self$getter( symbol, from, period )
-
-    if( is.null( data ) ) { message( 'no data available!' ); return( Sys.time() ) }
+    message( paste( 'data to be added:', paste( c( from, if( from != to ) to ), collapse = ' - ' ) ) )
 
   } else {
 
-    file_recent = max( files )
+    if( no_historical_data_avaliable ) {
 
-    data_recent = readRDS( file_recent )
+      from = self$start
 
-    from = data_recent[ max( 1, .N ), time ]
+      message( 'not found in storage, \ntrying to download since storage start date: ', from )
 
-    to = Sys.time()
-    attr( to, 'tzone' ) = attr( from, 'tzone' )
+    } else {
 
-    message( paste( 'data to be added:', from, '-', to, 'UTC' ) )
+      file_recent = max( files )
 
-    data = self$getter( symbol, from, period )
-    if( is.null( data ) ) { message( 'no data available!' ); return( Sys.time() ) }
+      data_recent = readRDS( file_recent )
 
-    data = rbind( data_recent[ time < data[ 1, time ] ], data )
+      from = data_recent[ max( 1, .N ), time ]
+      attr( to, 'tzone' ) = attr( from, 'tzone' )
+
+      message( paste( 'data to be added:', from, '-', to, 'UTC' ) )
+
+    }
 
   }
 
-  data[, file := format( time, file_name_format ) ]
+  switch(
 
-  data[ , {
+    split,
+    'day'   = {
 
-    saveRDS( .SD, paste0( save_dir, file, '.rds' ) )
-    message( paste( file, 'added' ) )
+      from = as.Date( from )
+      to   = as.Date( to )
 
-  }, by = file ]
+      message( 'request split into daily requests' )
 
-  rm( data ); gc()
+      dates = data.table( date = format( seq( from, to, 1 ) ) )[, interval := 1:.N ]
 
-  message( 'done!' )
+      dates[, self$store( symbol, period, date, date ), by = interval ]
+
+    },
+    'month' = {
+
+      from = as.Date( from )
+      to   = as.Date( to )
+
+      message( 'request split into monthly requests' )
+
+      months = data.table( from = seq(
+        from = as.Date( format( from, '%Y-%m-01' ) ),
+        to   = seq( as.Date( format( to, '%Y-%m-01' ) ), length = 2, by = 'months' )[2],
+      by = 'months' ) )[, ':='( to = shift( from - 1, type = 'lead' ), interval = 1:.N ) ][ -.N ]
+
+      months[, self$store( symbol, period, from, to ), by = interval ]
+
+    },
+    {
+
+      data = self$getter( symbol, from, to, period )
+
+      if( is.null( data ) ) { message( 'no data available!' ); return( Sys.time() ) }
+
+      data = rbind( if( exists( 'data_recent' ) ) data_recent[ time < data[ 1, time ] ], data )
+
+      data[, file := format( time, self$get_file_format( period ) ) ]
+
+      data[ , {
+
+        saveRDS( .SD, paste0( save_dir, file, '.rds' ) )
+        message( paste( file, 'added' ) )
+
+      }, by = file ]
+
+      rm( data ); gc()
+
+      message( 'done!' )
+
+    }
+
+  )
 
   return( Sys.time() )
 
 } )
 DataStorage$set( 'public', 'get', function( symbol, from, to, period ) {
 
-  pattern          = switch( period, tick = '\\d{4}-\\d{2}-\\d{2}.rds', '\\d{4}-\\d{2}.rds' )
-  file_name_format = switch( period, tick = '%Y-%m-%d'                , '%Y-%m'             )
+  self$validate_period( period )
 
   save_dir = paste0( self$path, '/', symbol, '/' )
   if( !dir.exists( save_dir ) ) {
@@ -109,7 +165,7 @@ DataStorage$set( 'public', 'get', function( symbol, from, to, period ) {
 
   }
 
-  files = list.files( save_dir, pattern, full.names = T )
+  files = list.files( save_dir, self$get_file_pattern( period ), full.names = T )
 
   if( any( nchar( c( from, to ) ) > 10 ) ) {
 
@@ -123,9 +179,9 @@ DataStorage$set( 'public', 'get', function( symbol, from, to, period ) {
 
   time_range = as.Date( c( from, to ) )
 
-  file_range = format( time_range, file_name_format )
+  file_range = format( time_range, self$get_file_format( period ) )
 
-  file_periods = gsub( '.rds', '', regmatches( files, regexpr( pattern, files ) ) )
+  file_periods = gsub( '.rds', '', regmatches( files, regexpr( self$get_file_pattern( period ), files ) ) )
 
   files = files[ file_periods %bw% file_range ]
 
