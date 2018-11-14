@@ -557,18 +557,16 @@ get_iqfeed_data = function( symbol, from, to = from, period = 'day', local = FAL
   )
   if( as.Date( from ) > as.Date( to ) ) return( NULL )
 
-  data = switch( period,
-          'tick'  = .get_iqfeed_ticks( symbol, from, to ),
-          'day'   = .get_iqfeed_daily_candles( symbol, from, to ),
-          '1min'  = .get_iqfeed_candles( symbol, from, to, interval = 60 *  1 ),
-          '5min'  = .get_iqfeed_candles( symbol, from, to, interval = 60 *  5 ),
-          '10min' = .get_iqfeed_candles( symbol, from, to, interval = 60 * 10 ),
-          '15min' = .get_iqfeed_candles( symbol, from, to, interval = 60 * 15 ),
-          '30min' = .get_iqfeed_candles( symbol, from, to, interval = 60 * 30 ),
-          'hour'  = .get_iqfeed_candles( symbol, from, to, interval = 60 * 60 )
+  interval = switch( period, '1min' = 1, '5min' = 5, '10min' = 10, '15min' = 15, '30min' = 30, 'hour' = 60, 0 ) * 60
 
-          )
-  if( !is.null( data ) && !is.null( data$time ) ) data = data[ time %bw% c( from, to ) ]
+  data = switch(
+    period,
+    'tick'  = .get_iqfeed_ticks( symbol, from, to ),
+    'day'   = .get_iqfeed_daily_candles( symbol, from, to ),
+    .get_iqfeed_candles( symbol, from, to, interval = interval )
+  )
+
+  if( !is.null( data ) && !is.null( data$time ) ) data = data[ time %bw% c( from, format( as.POSIXct( to, tz = 'UTC' ) + as.difftime( interval + 1, units = 'secs' ) ) ) ]
   if( !is.null( data ) && nrow( data ) == 0 ) data = NULL
   return( data )
 

@@ -387,8 +387,17 @@ iqfeed$set( 'public', 'verbose_message', function( text ) {
 } )
 iqfeed$set( 'public', 'read_chain', function( prefix, split, con, n ) {
 
-  text = paste0( prefix, readChar( con, n ) )
-  if( self$settings$timeout < 1 ) Sys.sleep( self$settings$timeout )
+  start = Sys.time()
+  while( Sys.time() - start < as.difftime( self$settings$timeout, units = 'secs' ) ) {
+
+    res = readChar( con, n )
+    if( length( res ) > 0 ) break
+
+  }
+  if( length( res ) == 0 ) stop( message( 'Timeout reached' ), call. = FALSE )
+
+  text = paste0( prefix, res )
+
   last_split = regexpr( paste0( split, '[^', split, ']*$' ), text )
 
   if( last_split > 0 ) list(
@@ -403,20 +412,34 @@ iqfeed$set( 'public', 'read_chain', function( prefix, split, con, n ) {
 iqfeed$set( 'public', 'connect', function() {
 
   ## connect
-  self$connection = lapply( self$settings$port[ c( 'lookup', if( self$stream ) 'stream' ) ], socketConnection,
-                            host    = self$settings$host,
-                            timeout = self$settings$timeout,
-                            open = 'a+b',
-                            blocking = TRUE )
+  self$connection = try(
+    lapply( self$settings$port[ c( 'lookup', if( self$stream ) 'stream' ) ], socketConnection,
+            host    = self$settings$host,
+            timeout = 0,
+            open = 'a+b',
+            blocking = TRUE )
+    , silent = TRUE
+  )
+
+  if( inherits( self$connection, 'try-error' ) ) stop( 'Can\'t connect.', call. = FALSE )
 
   ## set protocol
   protocol = 'S,SET PROTOCOL,5.2\r\n'
   if( self$stream ) writeChar( protocol, self$connection$stream )
   writeChar( protocol, self$connection$lookup )
-  if( self$settings$timeout < 1 ) Sys.sleep( self$settings$timeout )
   ## confirm lookup
   confirmation = gsub( 'SET', 'CURRENT', protocol )
-  self$verbose_message( readChar( self$connection$lookup, n = nchar( confirmation ) ) )
+
+  start = Sys.time()
+  while( Sys.time() - start < as.difftime( self$settings$timeout, units = 'secs' ) ) {
+
+    res = readChar( self$connection$lookup, 100 )
+    if( length( res ) > 0 ) break
+
+  }
+  if( length( res ) == 0 ) stop( 'Can\'t connect.', call. = FALSE )
+
+  self$verbose_message( res )
 
 } )
 iqfeed$set( 'public', 'disconnect', function() {
@@ -494,11 +517,10 @@ iqfeed$set( 'public', 'lookup', function( cmd, colClasses = NULL ) {
   message_chunks = vector( 5e06, mode = 'list' )
   message_chunk_index = 1
 
-  retry_index = 0
-  max_n_retry = 10
   terminator  = '!ENDMSG!,\r\n'
   no_data_tag = '!NO_DATA!'
   invalid_tag = 'Unauthorized user ID.'
+  unknown_tag = 'Unknown Server Error'
   message_chunk = list( complete = '', tail = '' )
 
   repeat {
@@ -516,6 +538,10 @@ iqfeed$set( 'public', 'lookup', function( cmd, colClasses = NULL ) {
         message( invalid_tag )
         return( NULL )
       }
+      if( grepl( unknown_tag, message_chunk$complete, fixed = T ) ) {
+        message( unknown_tag )
+        return( NULL )
+      }
 
       message_chunk$complete = strtrim( message_chunk$complete, nchar( message_chunk$complete ) - nchar( terminator ) )
 
@@ -526,19 +552,34 @@ iqfeed$set( 'public', 'lookup', function( cmd, colClasses = NULL ) {
 
       message_chunks[[ message_chunk_index ]] = fread( message_chunk$complete, sep = ',', colClasses = colClasses, fill = T )
 
-    } else {
-
-      retry_index = retry_index + 1
-      if( retry_index > max_n_retry ) return( message( 'Tried 10 times with no result. Check IQFeed client and try again. NULL returned.' ) )
-
     }
 
     if( terminated ) break
+
     message_chunk_index = message_chunk_index + 1
 
   }
   x = rbindlist( message_chunks[ 1:message_chunk_index ] )
   x[, -ncol( x ), with = FALSE ]
+
+} )
+iqfeed$set( 'public', 'lookup_retry', function( cmd, colClasses = NULL ) {
+
+  retry_index = 0
+  max_n_retry = 10
+
+  while( retry_index < 10 ) {
+
+    data = try( self$lookup( cmd, colClasses ), silent = TRUE )
+
+    if( !inherits( data, 'try-error' ) ) break
+
+    retry_index = retry_index + 1
+    message( 'Retry ', retry_index, ' / ', max_n_retry )
+
+  }
+  if( retry_index == max_n_retry ) stop( 'Tried ', max_n_retry, ' times. Check IQFeed client or increase iqfeed_timeout and try again.' , call. = FALSE )
+  return( data )
 
 } )
 iqfeed$set( 'public', 'lookup_mult', function( cmd ) {
@@ -585,21 +626,21 @@ iqfeed$set( 'public', 'lookup_mult', function( cmd ) {
 } )
 iqfeed$set( 'public', 'get_markets', function() {
 
-  markets = self$lookup( cmd = 'SLM\r\n' )
+  markets = self$lookup_retry( cmd = 'SLM\r\n' )
   setnames( markets, c( 'market_id', 'short_name', 'long_name', 'group_id', 'group_name' ) )
   markets[]
 
 } )
 iqfeed$set( 'public', 'get_trade_conditions', function() {
 
-  codes = self$lookup( cmd = 'STC\r\n' )
+  codes = self$lookup_retry( cmd = 'STC\r\n' )
   setnames( codes, c( 'condition_code', 'short_name', 'description' ) )
   codes[, condition_code := toupper( as.hexmode( condition_code ) ) ][]
 
 } )
 iqfeed$set( 'public', 'get_security_types', function() {
 
-  types = self$lookup( cmd = 'SST\r\n' )
+  types = self$lookup_retry( cmd = 'SST\r\n' )
   setnames( types, c( 'type_id', 'short_name', 'long_name' ) )
   types[]
 
@@ -607,7 +648,7 @@ iqfeed$set( 'public', 'get_security_types', function() {
 iqfeed$set( 'public', 'search_by_filter', function( search_field = 's', search_string = 'AAPL', filter_type = 't', filter_value = '' ) {
 
   cmd = paste0( paste( 'SBF', search_field, search_string, filter_type, filter_value, sep = ',' ), '\r\n' )
-  search_result = self$lookup( cmd )
+  search_result = self$lookup_retry( cmd )
   if( is.null( search_result ) ) return()
   setnames( search_result, c( 'symbol', 'market', 'type', 'description' ) )
   search_result
@@ -630,7 +671,7 @@ iqfeed$set( 'public', 'get_ticks', function( symbol, n_ticks, n_days, from, to, 
   }
 
   colClasses = c( 'character', rep( 'numeric', 6 ), rep( 'character', 3 ), 'numeric' )
-  ticks = self$lookup( cmd, colClasses )
+  ticks = self$lookup_retry( cmd, colClasses )
   if( is.null( ticks ) ) return( NULL )
   setnames( ticks, c( 'time','price','volume','size','bid','ask','tick_id','basis_for_last', 'trade_market_center', 'trade_conditions' ) )
   ticks[, time := fasttime::fastPOSIXct( time, 'UTC' ) ][]
@@ -652,7 +693,8 @@ iqfeed$set( 'public', 'get_intraday_candles', function( symbol, interval, n_cand
 
   }
 
-  candles = self$lookup( cmd )
+  colClasses = c( 'character', rep( 'numeric', 7 ), 'numeric' )
+  candles = self$lookup_retry( cmd, colClasses )
   if( is.null( candles ) ) return( NULL )
   setnames( candles, c( 'time', 'high', 'low', 'open', 'close', 'total_volume', 'volume', 'n_trades' ) )
   candles[, ':='( total_volume = NULL, n_trades = NULL ) ]

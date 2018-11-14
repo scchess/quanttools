@@ -115,7 +115,7 @@ QuantTools_settings_defaults = function() {
 
   .settings$iqfeed_port = 9100
   .settings$iqfeed_host = 'localhost'
-  .settings$iqfeed_timeout = 1
+  .settings$iqfeed_timeout = 60
   .settings$iqfeed_buffer = 600000
   .settings$iqfeed_verbose = FALSE
   .settings$finam_symbols = c( 'GAZP', 'SBER', 'LKOH', 'MGNT' )
