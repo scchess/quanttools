@@ -505,9 +505,7 @@ get_iqfeed_data = function( symbol, from, to = from, period = 'day', local = FAL
   from = format( from )
   to   = format( to   )
 
-  curr_date = format( Sys.Date() )
-  if( from > curr_date ) from = to = curr_date
-  #if( to   > curr_date ) to = curr_date
+  if( nchar( from ) == 10 && nchar( to ) > 10 ) from = paste( from, '00:00:00' )
 
   if( local ){
 
@@ -515,6 +513,49 @@ get_iqfeed_data = function( symbol, from, to = from, period = 'day', local = FAL
     return( storage$get( symbol, from, to, period ) )
 
   }
+
+  # limits and restrictions
+  # http://www.iqfeed.net/index.cfm?displayaction=data&section=services
+  switch(
+    period,
+    'tick' = {
+
+      now = Sys.time()
+      attr( now, 'tzone' ) = 'America/New_York'
+
+      is_trading_hours         = format( now, '%H:%M' ) %bw% c( '09:30', '16:00' )
+      is_over_7_days_requested = ( Sys.Date() - as.Date( from ) ) > as.difftime( 7, units = 'days' )
+      is_weekend               = format( now, '%u' ) %in% 6:7
+
+      if( is_trading_hours && is_over_7_days_requested && !is_weekend ) {
+
+        stop( 'please download tick data older than 8 calendar days outside trading hours [ 9:30 - 16:00 America/New York ] or during weekend', call. = FALSE )
+
+      }
+
+      is_over_180_days_requested = as.Date( now ) - as.Date( from ) > as.difftime( 180, units = 'days' )
+
+      if( is_over_180_days_requested ) {
+
+        from = format( as.Date( now ) - as.difftime( 180, units = 'days' ) )
+        warning( 'tick data older than 180 calendar days not available', call. = FALSE )
+
+      }
+
+    },
+    '1min' = {
+
+      if( as.Date( from ) < as.Date( '2005-02-01' ) ) {
+
+        from = '2005-02-01'
+        warning( '1min data before \'2005-02-01\' not available', call. = FALSE )
+
+      }
+
+    }
+
+  )
+  if( as.Date( from ) > as.Date( to ) ) return( NULL )
 
   data = switch( period,
           'tick'  = .get_iqfeed_ticks( symbol, from, to ),
@@ -528,6 +569,7 @@ get_iqfeed_data = function( symbol, from, to = from, period = 'day', local = FAL
 
           )
   if( !is.null( data ) && !is.null( data$time ) ) data = data[ time %bw% c( from, to ) ]
+  if( !is.null( data ) && nrow( data ) == 0 ) data = NULL
   return( data )
 
 }

@@ -10,8 +10,7 @@
 store_finam_data(from = NULL, to = format(Sys.Date()),
   verbose = TRUE)
 
-store_iqfeed_data(from = NULL, to = format(Sys.Date()),
-  verbose = TRUE)
+store_iqfeed_data(from = NULL, to = NULL, verbose = TRUE)
 
 store_moex_data(from = NULL, to = format(Sys.Date()), verbose = TRUE)
 }

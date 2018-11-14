@@ -119,90 +119,59 @@ store_finam_data = function( from = NULL, to = format( Sys.Date() ), verbose = T
 
   if( is.null( symbols ) ) stop( 'please set symbols vector via QuantTools_settings( \'finam_symbols\', c( \'symbol_1\', ...,\'symbol_n\' ) ) ' )
 
-  for( symbol in symbols ) .store_finam_data( symbol, '1min' )
+  for( symbol in symbols ) .store_finam_data( symbol, '1min', from, to, split = 'month' )
 
-  for( symbol in symbols ) .store_finam_data( symbol, 'tick' )
+  for( symbol in symbols ) .store_finam_data( symbol, 'tick', from, to, split = 'day' )
 
 }
 
-.store_finam_data = function( symbol, period = 'tick' ) {
+.store_finam_data = function( symbol, period = 'tick', from = NULL, to = NULL, split = 'none' ) {
 
   valid_period = c( 'tick', '1min' )
   if( !period %in% valid_period ) stop( period, ' is invalid period, valid periods are ', paste0( valid_period, collapse = ', ' ) )
 
-  storage      = .settings$finam_storage
-  storage_from = .settings$finam_storage_from
+  getter = function( symbol, from, to, period ) {
 
-  getter = function( symbol, from, period ) {
-
-    now = Sys.time()
-    attr( now, 'tzone' ) = 'Europe/Moscow'
-    get_finam_data( symbol, from, now, period = period )
+    get_finam_data( symbol, from, to, period = period )
 
   }
 
-  self = DataStorage$new( storage, storage_from, getter, label = 'finam' )
-
-  self$store( symbol, period )
+  self = DataStorage$new( .settings$finam_storage, .settings$finam_storage_from, getter, label = 'finam' )
+  self$store( symbol, period, from, to, split )
 
 }
 
 #' @rdname store_market_data
 #' @export
 # iqfeed
-store_iqfeed_data = function( from = NULL, to = format( Sys.Date() ), verbose = TRUE ) {
+store_iqfeed_data = function( from = NULL, to = NULL, verbose = TRUE ) {
 
   symbols = .settings$iqfeed_symbols
 
   if( is.null( symbols ) ) stop( 'please set symbols vector via QuantTools_settings( \'iqfeed_symbols\', c( \'symbol_1\', ...,\'symbol_n\' ) ) ' )
 
-  for( symbol in symbols ) .store_iqfeed_data( symbol, '1min' )
-
   for( symbol in symbols ) {
 
-    storage      = .settings$iqfeed_storage
-    storage_from = .settings$iqfeed_storage_from
-
-    files = list.files( paste( storage, symbol, sep = '/' ), pattern = '\\d{4}-\\d{2}-\\d{2}.rds' )
-    recent_date_available = as.Date( max( files, storage_from ), '%Y-%m-%d' )
-
-    now = Sys.time()
-    attr( now, 'tzone' ) = 'America/New_York'
-    if(
-
-      format( now, '%H:%M' ) %bw% c( '09:30', '16:00' ) &&
-      ( Sys.Date() - recent_date_available ) > as.difftime( 3, units = 'days' )
-
-    ) {
-
-      stop( 'please download data outside trading hours [ 9:30 - 16:30 America/New York ]', call. = FALSE )
-
-    }
-    .store_iqfeed_data( symbol, 'tick' )
+    .store_iqfeed_data( symbol, '1min', from, to, split = 'month' )
+    .store_iqfeed_data( symbol, 'tick', from, to, split = 'day'   )
 
   }
 
 }
 
-.store_iqfeed_data = function( symbol, period = 'tick' ) {
+.store_iqfeed_data = function( symbol, period = 'tick', from = NULL, to = NULL, split = 'none' ) {
 
   valid_period = c( 'tick', '1min' )
   if( !period %in% valid_period ) stop( period, ' is invalid period, valid periods are ', paste0( valid_period, collapse = ', ' ) )
 
-  storage      = .settings$iqfeed_storage
-  storage_from = .settings$iqfeed_storage_from
+  getter = function( symbol, from, to, period ) {
 
-  getter = function( symbol, from, period ) {
-
-    now = Sys.time()
-    attr( now, 'tzone' ) = 'America/New_York'
-    get_iqfeed_data( symbol, from, now, period = period )
+    get_iqfeed_data( symbol, from, to, period = period )
 
   }
 
-  self = DataStorage$new( storage, storage_from, getter, label = 'iqfeed' )
-
-  self$store( symbol, period )
+  self = DataStorage$new( .settings$iqfeed_storage, .settings$iqfeed_storage_from, getter, label = 'iqfeed' )
+  self$store( symbol, period, from, to, split = split )
 
 }
 
