@@ -23,7 +23,7 @@
 #' @param ... further graphical parameters as in \code{\link[graphics]{par}}
 #' @family graphical functions
 #' @export
-plot_table = function( dt, transpose = F, justify = c( 'middle', 'left', 'right' ), ... ) {
+plot_table = function( dt, transpose = F, justify = c( 'middle', 'left', 'right' ), height_mult = 1, ... ) {
 
   justify = match.arg( justify )
   names = names( dt )
@@ -38,7 +38,7 @@ plot_table = function( dt, transpose = F, justify = c( 'middle', 'left', 'right'
 
     # normalize width
     norm_width  = width / sum( width )
-    norm_height = pmin( height / sum( height ), height + bord * 2 )
+    norm_height = pmin( height / sum( height ), height + bord * 2 ) * height_mult
 
     col_borders = c( 0, cumsum( norm_width ) )
     row_borders = c( 0, cumsum( -norm_height ) )
@@ -82,7 +82,7 @@ plot_table = function( dt, transpose = F, justify = c( 'middle', 'left', 'right'
 
     # normalize width
     norm_width  = width / sum( width )
-    norm_height = pmin( height / sum( height ), height + bord * 2 )
+    norm_height = pmin( height / sum( height ), height + bord * 2 ) * height_mult
 
     col_borders = c( 0, cumsum( norm_width ) )
     row_borders = c( 0, cumsum( -norm_height ) )

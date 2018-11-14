@@ -5,7 +5,7 @@
 \title{Plot data.table as table}
 \usage{
 plot_table(dt, transpose = F, justify = c("middle", "left", "right"),
-  ...)
+  height_mult = 1, ...)
 }
 \arguments{
 \item{dt}{data.table}
