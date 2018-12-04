@@ -676,6 +676,8 @@ iqfeed$set( 'public', 'get_ticks', function( symbol, n_ticks, n_days, from, to, 
   setnames( ticks, c( 'time','price','volume','size','bid','ask','tick_id','basis_for_last', 'trade_market_center', 'trade_conditions' ) )
   ticks[, time := fasttime::fastPOSIXct( time, 'UTC' ) ][]
 
+  if( nchar( to ) == 10 ) ticks[ time < as.POSIXct( to, tz = 'UTC' ) + as.difftime( '24:00:00' ) ][] else ticks[]
+
 } )
 iqfeed$set( 'public', 'get_intraday_candles', function( symbol, interval, n_candles, n_days, from, to, type = 's', direction = 1 ) {
 
@@ -700,6 +702,8 @@ iqfeed$set( 'public', 'get_intraday_candles', function( symbol, interval, n_cand
   candles[, ':='( total_volume = NULL, n_trades = NULL ) ]
   setcolorder( candles, c( 'time', 'open', 'high', 'low', 'close', 'volume' ) )
   candles[, time := fasttime::fastPOSIXct( time, 'UTC' ) ][]
+
+  if( nchar( to ) == 10 ) candles[ time <= as.POSIXct( to, tz = 'UTC' ) + as.difftime( '24:00:00' ) ][] else candles[]
 
 } )
 iqfeed$set( 'public', 'get_daily_candles', function( symbol, n_days, n_weeks, n_months, from, to, direction = 1 ) {

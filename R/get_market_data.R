@@ -566,7 +566,6 @@ get_iqfeed_data = function( symbol, from, to = from, period = 'day', local = FAL
     .get_iqfeed_candles( symbol, from, to, interval = interval )
   )
 
-  if( !is.null( data ) && !is.null( data$time ) ) data = data[ time %bw% c( from, format( as.POSIXct( to, tz = 'UTC' ) + as.difftime( interval + 1, units = 'secs' ) ) ) ]
   if( !is.null( data ) && nrow( data ) == 0 ) data = NULL
   return( data )
 
