@@ -27,7 +27,7 @@ DataStorage$set( 'public', 'initialize', function( path, start = NULL, getter = 
   if( path  == '' ) stop( 'please set storage path via QuantTools_settings( \'', label, '_storage\', \'/storage/path/\' ) ', call. = FALSE )
   if( !is.null( start ) && start == '' ) stop( 'please set ', label, ' storage start date via QuantTools_settings( \'', label, '_storage_from\', \'YYYYMMDD\' )', call. = FALSE )
 
-  if( !is.null( getter ) && !identical( formalArgs( getter ), c( 'symbol', 'from', 'to', 'period' ) ) ) stop( 'getter must have \'symbol\', \'from\' and \'period\' arguments' )
+  if( !is.null( getter ) && !identical( methods::formalArgs( getter ), c( 'symbol', 'from', 'to', 'period' ) ) ) stop( 'getter must have \'symbol\', \'from\', \'to\' and \'period\' arguments' )
 
   self$path   = path
   self$start  = start
