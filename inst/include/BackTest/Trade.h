@@ -70,7 +70,7 @@ class Trade {
       idSent   = order->idSent;
       timeSent = order->timeSent;
       cost     = options.cost.order;
-      side     = order->IsBuy() ? TradeSide::LONG : TradeSide::SHORT;
+      side     = order->IsBuy() ? TradeSide::LONG : TradeSide::SHORT; // planned
 
     }
 
@@ -98,6 +98,8 @@ class Trade {
           priceEnter = order->priceExecuted;
 
           state = TradeState::OPENED;
+
+          side  = order->IsBuy() ? TradeSide::LONG : TradeSide::SHORT; // actual
 
         }
 
