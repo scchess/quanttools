@@ -71,6 +71,13 @@ DataStorage$set( 'public', 'store', function( symbol, period, from = NULL, to = 
 
     message( paste( 'data to be added:', paste( c( from, if( from != to ) to ), collapse = ' - ' ) ) )
 
+    if( !no_historical_data_avaliable ) {
+
+      file_recent = max( files )
+      data_recent = readRDS( file_recent )
+
+    }
+
   } else {
 
     if( no_historical_data_avaliable ) {
@@ -111,15 +118,24 @@ DataStorage$set( 'public', 'store', function( symbol, period, from = NULL, to = 
     },
     'month' = {
 
-      from = as.Date( from )
-      to   = as.Date( to )
+      m_from = as.Date( from )
+      m_to   = as.Date( to )
 
       message( 'request split into monthly requests' )
 
       months = data.table( from = seq(
-        from = as.Date( format( from, '%Y-%m-01' ) ),
-        to   = seq( as.Date( format( to, '%Y-%m-01' ) ), length = 2, by = 'months' )[2],
-      by = 'months' ) )[, ':='( to = shift( from - 1, type = 'lead' ), interval = 1:.N ) ][ -.N ]
+        from = as.Date( format( m_from, '%Y-%m-01' ) ),
+        to   = seq( as.Date( format( m_to, '%Y-%m-01' ) ), length = 2, by = 'months' )[2],
+      by = 'months' ) )[, ':='( to = shift( from, type = 'lead' ), interval = 1:.N ) ][ -.N ]
+
+      months[, from := as.POSIXct( format( from ), tz = 'UTC' ) ]
+      months[, to   := as.POSIXct( format( to   ), tz = 'UTC' ) ]
+
+      t_from = from
+      t_to   = to
+
+      months[ 1, from := as.POSIXct( t_from, tz = 'UTC' ) ]
+      months[.N, to   := as.POSIXct( t_to, tz = 'UTC' ) + as.difftime( 24, units = 'hours' ) ]
 
       months[, self$store( symbol, period, from, to ), by = interval ]
 
@@ -129,6 +145,7 @@ DataStorage$set( 'public', 'store', function( symbol, period, from = NULL, to = 
       data = self$getter( symbol, from, to, period )
 
       if( is.null( data ) ) { message( 'no data available!' ); return( Sys.time() ) }
+      if( exists( 'data_recent' ) ) message( 'data exists' )
 
       data = rbind( if( exists( 'data_recent' ) ) data_recent[ time < data[ 1, time ] ], data )
 

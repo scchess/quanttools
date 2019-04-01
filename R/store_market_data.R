@@ -113,7 +113,7 @@
 #' }
 #' @rdname store_market_data
 #' @export
-store_finam_data = function( from = NULL, to = format( Sys.Date() ), verbose = TRUE ) {
+store_finam_data = function( from = NULL, to = NULL, verbose = TRUE ) {
 
   symbols = .settings$finam_symbols
 
