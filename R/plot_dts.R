@@ -32,6 +32,15 @@
 #'     \code{bg}                           \tab vector or single value, see \link[graphics]{points}   \cr
 #'  }
 #'  }
+#'  \item{\bold{\code{$events}}}{
+#'  Add vertical events lines with following arguments:
+#'  \tabular{ll}{
+#'     \code{data}                         \tab two column data.table date/time index + event id      \cr
+#'     \code{names}                        \tab only 'auto' supported                                 \cr
+#'     \code{labels}                       \tab vector of labels                                      \cr
+#'     \code{lty,col,lwd}                  \tab vector or single value, see \link[graphics]{par}      \cr
+#'  }
+#'  }
 #'  \item{\bold{\code{$candles}}}{
 #'  Add candles with following arguments:
 #'     \tabular{ll}{
@@ -86,12 +95,82 @@
 #'     \code{horizontal}    \tab \code{logical}                \tab should legend be horizontal? \cr
 #'     \code{inset}         \tab \code{numeric}                \tab see \link[graphics]{legend}  \cr
 #'     \code{position}      \tab \code{character}              \tab see \link[graphics]{legend}  \cr
+#'     \code{position_event}\tab \code{character}              \tab see \link[graphics]{legend}  \cr
 #'     \code{visible}       \tab \code{logical}                \tab should legend be plotted?    \cr
 #'  }
 #'  }
 #' }
 #'
 #' @usage NULL
+#'
+#' @examples
+#' \donttest{
+#'
+#' ## Data
+#'
+#' aapl_candles = get_yahoo_data                ( 'AAPL', '2014-01-01', '2015-01-01' )
+#' aapl_events  = get_yahoo_splits_and_dividends( 'AAPL', '2014-01-01', '2015-01-01' )
+#'
+#' msft_candles = get_yahoo_data                ( 'MSFT', '2014-01-01', '2015-01-01' )
+#' msft_events  = get_yahoo_splits_and_dividends( 'MSFT', '2014-01-01', '2015-01-01' )
+#'
+#' ## Plots
+#'
+#' # Default:
+#' p = plot_dts( aapl_candles[, .( date, close ) ] )
+#' p$plot()
+#'
+#' # User defined names and line types:
+#' plot_dts( aapl_candles[, .( date, close ) ] )$
+#'   lines( names = 'close', labels = 'Apple', col = 'purple', lwd = 1, lty = 2, type = 's' )$
+#'   plot()
+#'
+#' # With events:
+#' plot_dts( aapl_candles[, .( date, close ) ] )$
+#'   lines( names = 'close', labels = 'Apple', col = 'purple', lwd = 1, lty = 5, type = 'l' )$
+#'   events( aapl_events[, .( date, event ) ] )$
+#'   plot()
+#'
+#' # With labeled events and user defined style:
+#' plot_dts( aapl_candles[, .( date, close ) ] )$
+#'   lines( names = 'close', labels = 'Apple', col = 'purple', lwd = 1, lty = 5, type = 'l' )$
+#'   events( aapl_events[, .( date, event ) ], labels = format( aapl_events$value, digits = 3 ), lty = 4, col = c( 'red', 'yellow' ) )$
+#'   plot()
+#'
+#' # Multiple data sets:
+#' plot_dts( aapl_candles[, .( date, aapl = close / close[1] ) ], msft_candles[, .( date, msft = close / close[1] ) ] )$
+#'   lines( names = c( 'aapl', 'msft' ), labels = c( 'Apple', 'Microsoft' ), lty = c( 1, 2 ) )$
+#'   plot()
+#'
+#' # Candles auto detection:
+#' plot_dts( aapl_candles[, .( date, open, high, low, close ) ] )$
+#'   plot()
+#'
+#' # User defined candles with user defined style:
+#' plot_dts( aapl_candles[, .( date, o = open, h = high, l = low, c = close ) ] )$
+#'   candles( ohlc = c( 'o', 'h', 'l', 'c' ), type = 'candlestick', mono = F, gap = 0.5 )$
+#'   plot()
+#'
+#' # Other methods:
+#' plot_dts( aapl_candles[, .( date, open, high, low, close, sma = sma( close, 20 ) ) ] )$
+#'   lines( names = 'sma', labels = 'SMA( close ) 20', lwd = 2 )$
+#'   style( candle = list( type = 'candlestick', mono = F, gap = 0.5 ), time = list( resolution = 'day' ) )$
+#'   limits( tlim = '2014-07' )$
+#'   plot()
+#'
+#' # Grid:
+#' prices  = plot_dts( aapl_candles[, .( date, Apple = close / close[1] ) ], msft_candles[, .( date, Microsoft = close / close[1] ) ] )
+#' volume = plot_dts( aapl_candles[, .( date, Apple = volume * close / 1e9 ) ], msft_candles[, .( date, Microsoft = volume * close / 1e9 ) ] )$
+#'   lines( type = 'h' )
+#'
+#' pars = par( mfrow = c( 2, 1 ), oma = c( 5, 4, 2, 4 ) + 0.1, mar = c( 0, 0, 1, 0 ) )
+#' prices$style( time = list( visible = F ) )$
+#'   plot()
+#' volume$style( legend = list( visible = F ) )$
+#'   plot()
+#' par( pars )
+#' }
+#'
 #' @export
 plot_dts = function( ... ) {
 
@@ -106,6 +185,7 @@ plot.PlotTs = function( x ) x$plot()
 
 PlotTs <- R6Class( 'PlotTs', lock_objects = F )
 
+# init ----
 PlotTs$set( 'public', 'initialize', function() {
 
   self$style_info = list(
@@ -166,6 +246,7 @@ PlotTs$set( 'public', 'initialize', function() {
     legend = list(
 
       position = 'topleft',
+      position_event = 'bottomleft',
       visible  = TRUE,
       inset    = 0.01,
       col      = list(
@@ -180,7 +261,7 @@ PlotTs$set( 'public', 'initialize', function() {
   )
   invisible( self )
 } )
-
+# style ----
 PlotTs$set( 'public', 'style', function( ... ) {
 
   args = list(...)
@@ -210,6 +291,41 @@ PlotTs$set( 'public', 'add_data', function( data ) {
   self
 
 } )
+
+PlotTs$set( 'public', 'events', function( data, names = 'auto', labels = NULL, lty = 1, col = 'auto', lwd = 1 ) {
+
+  if( names[1] == 'auto' ) names = unique( data[[2]] )
+
+  if( length( data ) != 2 ) stop( 'events must contain exactly 2 columns, date/time and name' )
+
+  if( !is.null( labels ) && length( labels ) != length( data [[1]] ) ) stop( 'labels must be the same length as numer of rows in data' )
+
+  if( !is.data.table( data ) ) stop( 'only data.table supported' )
+  if( length( self$data ) == 0 ) stop( 'add data first' )
+
+  self$events_data = data.table( data, labels )
+
+  x_type =
+    if( inherits( data[[1]], 'Date'    ) ) 'date' else
+      if( inherits( data[[1]], 'POSIXct' ) ) 'time' else
+        stop( 'only Date and POSIXct index supported' )
+
+  if( !is.null( self$x_type ) && self$x_type != x_type ) stop( 'data sets index type mismatch' )
+  self$x_type = x_type
+
+  n_events = length( names )
+  if( !length( lty    ) %in% c( 1, n_events ) ) stop( 'lty must be same size as names or single value'  )
+  if( !length( col    ) %in% c( 1, n_events ) ) stop( 'col must be same size as names or single value'  )
+  if( !length( lwd    ) %in% c( 1, n_events ) ) stop( 'lwd must be same size as names or single value'  )
+
+  events_info = data.table( names, lty, col, lwd )
+
+  self$events_info = rbind( self$events_info, events_info )
+
+  self
+
+} )
+
 
 PlotTs$set( 'public', 'set_time_range', function( text_time_range ) {
 
@@ -379,7 +495,7 @@ PlotTs$set( 'public', 'calc_basis', function() {
   self$basis = basis
   self$basis_limited = self$basis
   self$calc_data_x()
-
+  self$calc_events_x()
 
   invisible( self )
 
@@ -389,6 +505,14 @@ PlotTs$set( 'public', 'calc_data_x', function() {
 
   self$data_x = lapply( self$data, function( x ) self$t_to_x( x[[1]] ) )
 
+  invisible( self )
+
+} )
+
+PlotTs$set( 'public', 'calc_events_x', function() {
+
+  if( is.null( self$events_data ) ) return( invisible( self ) )
+  self$events_x = self$t_to_x( self$events_data[[1]] )
   invisible( self )
 
 } )
@@ -488,7 +612,8 @@ PlotTs$set( 'public', 'calc_time_grid_and_labels', function() {
     'hours' = par( 'xaxt' ) != 'n' & resolution %in% c( 'minute', 'hour' ),
     'dates' = par( 'xaxt' ) != 'n' & resolution %in% c( 'minute', 'hour', 'day'  ),
     'month' = par( 'xaxt' ) != 'n' & resolution %in% c( 'minute', 'hour', 'day', 'month', 'year' ),
-    'years' = par( 'xaxt' ) != 'n' & resolution %in% c( 'minute', 'hour', 'day', 'month', 'year', 'years' )
+    'years' = par( 'xaxt' ) != 'n' & resolution %in% c( 'minute', 'hour', 'day', 'month', 'year', 'years' ),
+    'event' = length( self$events_data ) == 3
 
   )
 
@@ -549,7 +674,17 @@ PlotTs$set( 'public', 'calc_time_grid_and_labels', function() {
 
   }
 
-  self$x_grid_coord = list( min10 = min10, hours = hours, dates = dates, month = month, years = years )
+  event = NULL
+  if( self$x_labs$'event' ) {
+
+    event = data.table(
+      l = self$events_data[[3]]
+    )
+    event[, x := self$events_x ]
+
+  }
+
+  self$x_grid_coord = list( min10 = min10, hours = hours, dates = dates, month = month, years = years, event = event )
 
   invisible( self )
 
@@ -587,6 +722,7 @@ PlotTs$set( 'public', 'plot_time', function() {
   if( self$x_labs$'dates' ) self$x_grid_coord$dates[, axis( at = x, labels = l, side = 1, tick = FALSE, line = -1 + self$x_labs$'hours' ) ]
   if( self$x_labs$'month' ) self$x_grid_coord$month[, axis( at = x, labels = l, side = 1, tick = FALSE, line = -1 + self$x_labs$'hours' + self$x_labs$'dates' ) ]
   if( self$x_labs$'years' ) self$x_grid_coord$years[, axis( at = x, labels = l, side = 1, tick = FALSE, line = -1 + self$x_labs$'hours' + self$x_labs$'dates' + self$x_labs$'month' ) ]
+  if( self$x_labs$'event' ) self$x_grid_coord$event[, axis( at = x, labels = l, side = 1, tick = FALSE, line = -1 + self$x_labs$'hours' + self$x_labs$'dates' + self$x_labs$'month' + self$x_labs$'years' ) ]
 
   invisible( self )
 
@@ -595,37 +731,6 @@ PlotTs$set( 'public', 'plot_time', function() {
 PlotTs$set( 'public', 'print', function(...) {
 
   self$plot()
-
-} )
-
-
-PlotTs$set( 'public', 'stack', function( names = NULL, labels = names, col = 'auto', timeframe = 'auto', position, type, gap ) {
-
-  if( !missing( position ) ) self$style_info$stack$position = position
-  if( !missing( type     ) ) self$style_info$stack$type     = type
-  if( !missing( gap      ) ) self$style_info$stack$gap      = gap
-
-  if( !is.null( self$stack_info ) ) stop( 'only single stack trace supported' )
-
-  # scan data for stack
-  data_id = which( sapply( self$data, function( x ) all( names %in% names( x ) ) ) )
-  if( length( data_id ) > 1 ) {
-
-    data_id = data_id[1]
-    warning( 'multiple data sets found having specified stack names: using first data set' )
-
-  }
-  if( length( data_id ) == 0 ) return( self )#stop( 'no data sets found having specified ohlc names' )
-
-  self$stack_info = list(
-    data_id   = data_id,
-    name      = names,
-    label     = labels,
-    col       = col,
-    timeframe = timeframe
-  )
-
-  self
 
 } )
 
@@ -734,63 +839,6 @@ PlotTs$set( 'public', 'candles', function( ohlc = c( 'open', 'high', 'low', 'clo
   self
 
 } )
-PlotTs$set( 'public', 'plot_stack', function() {
-
-  if( is.null( self$stack_info ) ) return( invisible( self ) )
-
-  info = as.data.table( self$stack_info[ c( 'name', 'label', 'col' ) ] )
-  info[ col == 'auto', col := if( .N > 25 ) rainbow( .N ) else distinct_colors[ 1:.N ] ]
-
-  x = self$data_x[[ self$stack_info$data_id ]]
-
-  timeframe = if( self$stack_info$timeframe == 'auto' ) min( diff( x ), na.rm = T ) else self$stack_info$timeframe
-  width = timeframe * ( 1 - self$style_info$stack$gap ) / 2
-
-  y = self$data[[ self$stack_info$data_id ]][ x >= self$frame$xlim[1] & x <= self$frame$xlim[2] & !is.na( x ) ][, info$name, with = F ]
-  x = x[ x >= self$frame$xlim[1] & x <= self$frame$xlim[2] & !is.na( x ) ]
-
-  y_positive = y * ( y > 0 )
-  y_negative = y * ( y < 0 )
-
-  yy = y_positive
-  yy[, {
-
-    y = as.vector( .SD )
-    col = info[ order( y ) ]
-    y = cumsum( y[ order( y ) ] )
-
-
-
-  }, by = .( 1:nrow( yy ) ) ]
-  apply( yy, 1, order )
-
-
-
-  rect( x - width * 2, y[[ open ]], x        , y[[ close ]], col = col, border = col )
-
-  switch(
-    self$style_info$candle$type,
-    barchart = {
-
-      segments( x - width    , y[[ high  ]], x - width, y[[ low   ]], col = col )
-      segments( x - width * 2, y[[ open  ]], x - width, y[[ open  ]], col = col )
-      segments( x - width    , y[[ close ]], x        , y[[ close ]], col = col )
-
-    },
-    candlestick = {
-
-      segments( x - width    , y[[ high ]], x - width, y[[ low   ]], col = col )
-      rect    ( x - width * 2, y[[ open ]], x        , y[[ close ]], col = col, border = col )
-
-    }
-  )
-
-  self$candles_info$last = tail( y[[ close ]], 1 )
-  self$candles_info$col  = tail( col, 1 )
-
-  invisible( self )
-
-} )
 
 PlotTs$set( 'public', 'plot_candles', function() {
 
@@ -869,6 +917,23 @@ PlotTs$set( 'public', 'plot_lines', function() {
 
 } )
 
+PlotTs$set( 'public', 'plot_events', function() {
+
+  if( is.null( self$events_data ) ) return( invisible( self ) )
+
+  self$events_info[ col == 'auto', col := if( .N > 25 ) rainbow( .N ) else distinct_colors[ 1:.N ] ]
+
+  self$events_info[, {
+
+    x = self$events_x[ self$events_data[[2]] == name ]
+    abline( v = x, col = col[1], lwd = lwd[1], lty = lty[1] )
+
+  } , by = .( name = names ) ]
+
+  invisible( self )
+
+} )
+
 PlotTs$set( 'public', 'plot_legend', function() {
 
   if( !self$style_info$legend$visible ) return( invisible( self ) )
@@ -880,6 +945,22 @@ PlotTs$set( 'public', 'plot_legend', function() {
 
       legend( legend = label, col = col, pt.bg = bg, lty = lty, pch = pch, lwd = lwd,
               x = self$style_info$legend$position,
+              bg = self$style_info$legend$col$background,
+              box.col = self$style_info$legend$col$frame,
+              inset = self$style_info$legend$inset,
+              xpd = TRUE,
+              horiz = self$style_info$legend$horizontal )
+
+    } ]
+
+  # events
+  legend_info = self$events_info
+
+  if( !is.null( legend_info ) )
+    legend_info[, {
+
+      legend( legend = names, col = col, lty = lty, lwd = lwd,
+              x = self$style_info$legend$position_event,
               bg = self$style_info$legend$col$background,
               box.col = self$style_info$legend$col$frame,
               inset = self$style_info$legend$inset,
@@ -903,6 +984,7 @@ PlotTs$set( 'public', 'plot', function() {
   self$plot_candles()
   self$plot_lines()
   self$plot_segments()
+  self$plot_events()
   self$plot_legend()
   self$plot_last_values()
 
@@ -972,3 +1054,44 @@ PlotTs$set( 'public', 'plot_last_values', function() {
   invisible( self )
 
 } )
+
+
+plot_dts_hist = function( x, normalized = T, style_args = NULL ) {
+
+  data = copy( x[, -1 ] )
+
+  normator = rowSums( data )
+
+  p = plot_dts( x )$lines( type = 'n' )$limits( ylim = c( 0, if( normalized ) 1 else max( normator ) ) )
+
+  do.call( p$style, c( legend = list( visible = F ), value = list( last = F ), style_args ) )
+
+  p$plot()
+
+  p$style_info$legend$visible = T
+
+  if( !is.null( style_args$legend$visible ) ) p$style_info$legend$visible = style_args$legend$visible
+  p$lines_info[, ':='( pch = 15, lty = 0 ) ]
+
+  xright = p$data_x[[1]]
+
+  xleft = shift( xright )
+
+  xleft[1] = xright[1] - min( xright - xleft, na.rm = T )
+
+  ytop = 0
+
+  if( normalized ) data = data / rowSums( data )
+
+  for( i in 1:length( data ) ) {
+
+    ybottom = ytop
+    ytop = ytop + data[[i]]
+    rect( xleft, ybottom, xright, ytop, col = p$lines_info[ i, col ], border = NA )
+
+  }
+
+  p$plot_legend()
+  invisible( p )
+
+}
