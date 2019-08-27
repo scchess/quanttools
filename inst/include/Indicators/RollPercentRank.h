@@ -41,7 +41,7 @@ public:
   RollPercentRank( int n ) :
   n( ( size_t )n )
   {
-    if( n < 1 ) throw std::invalid_argument( "n must be greater than 0" );
+    if( n < 2 ) throw std::invalid_argument( "n must be greater than 1" );
   }
 
   void Add( double value ) {
@@ -57,8 +57,7 @@ public:
     }
     auto it = std::lower_bound( windowSorted.begin(), windowSorted.end(), value );
     int distance = std::distance( windowSorted.begin(), it );
-    percentRank = distance * 1. / n;
-    // bug max value not equal 1;
+    percentRank = distance * 1. / (n - 1);
 
     IsFormed() ? history.push_back( GetValue() ) : history.push_back( NA_REAL );
 
