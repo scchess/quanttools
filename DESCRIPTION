@@ -16,7 +16,10 @@ Depends:
 Imports: 
     methods,
     fasttime,
-    RCurl,
+    httr,
+    jsonlite,
+    progress,
+    xml2,
     readxl,
     Rcpp (>= 0.12.12),
     R6
