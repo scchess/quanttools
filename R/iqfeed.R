@@ -521,6 +521,7 @@ iqfeed$set( 'public', 'lookup', function( cmd, colClasses = NULL ) {
   no_data_tag = '!NO_DATA!'
   invalid_tag = 'Unauthorized user ID.'
   unknown_tag = 'Unknown Server Error'
+  timeout_tag = 'Connection Timeout Error.'
   message_chunk = list( complete = '', tail = '' )
 
   repeat {
@@ -540,6 +541,10 @@ iqfeed$set( 'public', 'lookup', function( cmd, colClasses = NULL ) {
       }
       if( grepl( unknown_tag, message_chunk$complete, fixed = T ) ) {
         message( unknown_tag )
+        return( NULL )
+      }
+      if( grepl( timeout_tag, message_chunk$complete, fixed = T ) ) {
+        message( timeout_tag )
         return( NULL )
       }
 
@@ -566,9 +571,9 @@ iqfeed$set( 'public', 'lookup', function( cmd, colClasses = NULL ) {
 iqfeed$set( 'public', 'lookup_retry', function( cmd, colClasses = NULL ) {
 
   retry_index = 0
-  max_n_retry = 10
+  max_n_retry = Inf
 
-  while( retry_index < 10 ) {
+  while( retry_index < max_n_retry ) {
 
     data = try( self$lookup( cmd, colClasses ), silent = TRUE )
 
