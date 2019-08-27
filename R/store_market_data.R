@@ -175,10 +175,9 @@ store_iqfeed_data = function( from = NULL, to = NULL, verbose = TRUE ) {
 
 }
 
-#' @rdname store_market_data
-#' @export
+## ---- deprecated ----
 # moex
-store_moex_data = function( from = NULL, to = format( Sys.Date() ), verbose = TRUE ) {
+deprecated_store_moex_data = function( from = NULL, to = format( Sys.Date() ), verbose = TRUE ) {
 
   save_dir = .settings$moex_storage
   if( save_dir == '' ) stop( 'please set storage path via QuantTools_settings( \'moex_storage\', \'/storage/path/\' ) ' )
@@ -221,11 +220,13 @@ store_moex_data = function( from = NULL, to = format( Sys.Date() ), verbose = TR
 
     data_url = .settings$moex_data_url
 
-    if( !RCurl::url.exists( data_url ) ) stop( 'please set MOEX data url via QuantTools_settings( \'moex_data_url\', \'/moe/data/url/\' )' )
+    url_exists = function( url ) TRUE # !RCurl::url.exists
+
+    if( !url_exists( data_url ) ) stop( 'please set MOEX data url via QuantTools_settings( \'moex_data_url\', \'/moe/data/url/\' )' )
 
     url = paste0( data_url, '/', year, '/FT', yymmdd, '.ZIP')
 
-    if( !RCurl::url.exists( url ) ) next
+    if( !url_exists( url ) ) next
     file_zip = paste0( temp_dir, '/', yymmdd, '.zip' )
 
 
