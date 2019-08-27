@@ -20,6 +20,7 @@
 #' @param dt data.table
 #' @param transpose should table be transposed?
 #' @param justify \code{'middle','left','right'}
+#' @param height_mult height scale
 #' @param ... further graphical parameters as in \code{\link[graphics]{par}}
 #' @family graphical functions
 #' @export
