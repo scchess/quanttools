@@ -22,6 +22,15 @@ Plot data.table time series
     \code{bg}                           \tab vector or single value, see \link[graphics]{points}   \cr
  }
  }
+ \item{\bold{\code{$events}}}{
+ Add vertical events lines with following arguments:
+ \tabular{ll}{
+    \code{data}                         \tab two column data.table date/time index + event id      \cr
+    \code{names}                        \tab only 'auto' supported                                 \cr
+    \code{labels}                       \tab vector of labels                                      \cr
+    \code{lty,col,lwd}                  \tab vector or single value, see \link[graphics]{par}      \cr
+ }
+ }
  \item{\bold{\code{$candles}}}{
  Add candles with following arguments:
     \tabular{ll}{
@@ -76,9 +85,79 @@ Plot data.table time series
     \code{horizontal}    \tab \code{logical}                \tab should legend be horizontal? \cr
     \code{inset}         \tab \code{numeric}                \tab see \link[graphics]{legend}  \cr
     \code{position}      \tab \code{character}              \tab see \link[graphics]{legend}  \cr
+    \code{position_event}\tab \code{character}              \tab see \link[graphics]{legend}  \cr
     \code{visible}       \tab \code{logical}                \tab should legend be plotted?    \cr
  }
  }
 }
 }
 
+\examples{
+\donttest{
+
+## Data
+
+aapl_candles = get_yahoo_data                ( 'AAPL', '2014-01-01', '2015-01-01' )
+aapl_events  = get_yahoo_splits_and_dividends( 'AAPL', '2014-01-01', '2015-01-01' )
+
+msft_candles = get_yahoo_data                ( 'MSFT', '2014-01-01', '2015-01-01' )
+msft_events  = get_yahoo_splits_and_dividends( 'MSFT', '2014-01-01', '2015-01-01' )
+
+## Plots
+
+# Default:
+p = plot_dts( aapl_candles[, .( date, close ) ] )
+p$plot()
+
+# User defined names and line types:
+plot_dts( aapl_candles[, .( date, close ) ] )$
+  lines( names = 'close', labels = 'Apple', col = 'purple', lwd = 1, lty = 2, type = 's' )$
+  plot()
+
+# With events:
+plot_dts( aapl_candles[, .( date, close ) ] )$
+  lines( names = 'close', labels = 'Apple', col = 'purple', lwd = 1, lty = 5, type = 'l' )$
+  events( aapl_events[, .( date, event ) ] )$
+  plot()
+
+# With labeled events and user defined style:
+plot_dts( aapl_candles[, .( date, close ) ] )$
+  lines( names = 'close', labels = 'Apple', col = 'purple', lwd = 1, lty = 5, type = 'l' )$
+  events( aapl_events[, .( date, event ) ], labels = format( aapl_events$value, digits = 3 ), lty = 4, col = c( 'red', 'yellow' ) )$
+  plot()
+
+# Multiple data sets:
+plot_dts( aapl_candles[, .( date, aapl = close / close[1] ) ], msft_candles[, .( date, msft = close / close[1] ) ] )$
+  lines( names = c( 'aapl', 'msft' ), labels = c( 'Apple', 'Microsoft' ), lty = c( 1, 2 ) )$
+  plot()
+
+# Candles auto detection:
+plot_dts( aapl_candles[, .( date, open, high, low, close ) ] )$
+  plot()
+
+# User defined candles with user defined style:
+plot_dts( aapl_candles[, .( date, o = open, h = high, l = low, c = close ) ] )$
+  candles( ohlc = c( 'o', 'h', 'l', 'c' ), type = 'candlestick', mono = F, gap = 0.5 )$
+  plot()
+
+# Other methods:
+plot_dts( aapl_candles[, .( date, open, high, low, close, sma = sma( close, 20 ) ) ] )$
+  lines( names = 'sma', labels = 'SMA( close ) 20', lwd = 2 )$
+  style( candle = list( type = 'candlestick', mono = F, gap = 0.5 ), time = list( resolution = 'day' ) )$
+  limits( tlim = '2014-07' )$
+  plot()
+
+# Grid:
+prices  = plot_dts( aapl_candles[, .( date, Apple = close / close[1] ) ], msft_candles[, .( date, Microsoft = close / close[1] ) ] )
+volume = plot_dts( aapl_candles[, .( date, Apple = volume * close / 1e9 ) ], msft_candles[, .( date, Microsoft = volume * close / 1e9 ) ] )$
+  lines( type = 'h' )
+
+pars = par( mfrow = c( 2, 1 ), oma = c( 5, 4, 2, 4 ) + 0.1, mar = c( 0, 0, 1, 0 ) )
+prices$style( time = list( visible = F ) )$
+  plot()
+volume$style( legend = list( visible = F ) )$
+  plot()
+par( pars )
+}
+
+}

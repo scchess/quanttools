@@ -14,6 +14,8 @@ plot_table(dt, transpose = F, justify = c("middle", "left", "right"),
 
 \item{justify}{\code{'middle','left','right'}}
 
+\item{height_mult}{height scale}
+
 \item{...}{further graphical parameters as in \code{\link[graphics]{par}}}
 }
 \description{
