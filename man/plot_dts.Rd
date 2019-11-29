@@ -115,19 +115,22 @@ plot_dts( aapl_candles[, .( date, close ) ] )$
   plot()
 
 # With events:
-plot_dts( aapl_candles[, .( date, close ) ] )$
+plot_dts( aapl_candles[, .( date, close ) ], aapl_events[, .( date, event ) ] )$
   lines( names = 'close', labels = 'Apple', col = 'purple', lwd = 1, lty = 5, type = 'l' )$
-  events( aapl_events[, .( date, event ) ] )$
+  events( name = 'event' )$
   plot()
 
 # With labeled events and user defined style:
-plot_dts( aapl_candles[, .( date, close ) ] )$
+plot_dts( aapl_candles[, .( date, close ) ], aapl_events[, .( date, event ) ] )$
   lines( names = 'close', labels = 'Apple', col = 'purple', lwd = 1, lty = 5, type = 'l' )$
-  events( aapl_events[, .( date, event ) ], labels = format( aapl_events$value, digits = 3 ), lty = 4, col = c( 'red', 'yellow' ) )$
+  events( name = 'event', label = 'dividends',
+    labels = format( aapl_events$value, digits = 3 ), lty = 4, col = 'red' )$
   plot()
 
 # Multiple data sets:
-plot_dts( aapl_candles[, .( date, aapl = close / close[1] ) ], msft_candles[, .( date, msft = close / close[1] ) ] )$
+plot_dts(
+  aapl_candles[, .( date, aapl = close / close[1] ) ],
+  msft_candles[, .( date, msft = close / close[1] ) ] )$
   lines( names = c( 'aapl', 'msft' ), labels = c( 'Apple', 'Microsoft' ), lty = c( 1, 2 ) )$
   plot()
 
@@ -137,27 +140,66 @@ plot_dts( aapl_candles[, .( date, open, high, low, close ) ] )$
 
 # User defined candles with user defined style:
 plot_dts( aapl_candles[, .( date, o = open, h = high, l = low, c = close ) ] )$
-  candles( ohlc = c( 'o', 'h', 'l', 'c' ), type = 'candlestick', mono = F, gap = 0.5 )$
+  candles( names = c( 'o', 'h', 'l', 'c' ), type = 'candlestick', gap = 0.5 )$
   plot()
 
 # Other methods:
 plot_dts( aapl_candles[, .( date, open, high, low, close, sma = sma( close, 20 ) ) ] )$
+  candles()$
   lines( names = 'sma', labels = 'SMA( close ) 20', lwd = 2 )$
-  style( candle = list( type = 'candlestick', mono = F, gap = 0.5 ), time = list( resolution = 'day' ) )$
+  style(
+    candle = list( type = 'candlestick', gap = 0.5 ),
+    time = list( resolution = 'day' ) )$
   limits( tlim = '2014-07' )$
   plot()
 
 # Grid:
-prices  = plot_dts( aapl_candles[, .( date, Apple = close / close[1] ) ], msft_candles[, .( date, Microsoft = close / close[1] ) ] )
-volume = plot_dts( aapl_candles[, .( date, Apple = volume * close / 1e9 ) ], msft_candles[, .( date, Microsoft = volume * close / 1e9 ) ] )$
+prices  = plot_dts(
+  aapl_candles[, .( date, Apple = close / close[1] ) ],
+  msft_candles[, .( date, Microsoft = close / close[1] ) ] )
+volume = plot_dts(
+  aapl_candles[, .( date, Apple = volume * close / 1e9 ) ],
+  msft_candles[, .( date, Microsoft = volume * close / 1e9 ) ] )$
   lines( type = 'h' )
 
 pars = par( mfrow = c( 2, 1 ), oma = c( 5, 4, 2, 4 ) + 0.1, mar = c( 0, 0, 1, 0 ) )
-prices$style( time = list( visible = F ) )$
+prices$style( time = list( visible = F ), legend = list( col = list( text = 'black', background = rgb( 1,1,1,0.5 ) ) ) )$
   plot()
-volume$style( legend = list( visible = F ) )$
+volume$style( legend = list( visible = F ), legend = list( col = list( text = 'black', background = rgb( 1,1,1,0.5 ) ) ) )$
   plot()
 par( pars )
+
+# Histogram:
+volume = merge(
+
+  aapl_candles[, .( date, aapl = volume * close / 1e9 ) ],
+  msft_candles[, .( date, msft = volume * close / 1e9 ) ],
+  by = 'date', all = T
+
+)
+
+volume[ is.na( volume ) ] = 0
+
+# Side by side
+plot_dts( volume )$
+  histogram( c( 'aapl', 'msft' ), labels = c( 'Apple', 'Microsoft' ), split = T )$limits( tlim = '2014-07' )$
+  plot()
+
+# Stacked
+volume_stacked = volume[][, ( 2:3 ) := tlt( .SD, cumsum ), .SDcols = 2:3 ][]
+
+plot_dts( volume_stacked )$
+  histogram( c( 'aapl', 'msft' ), labels = c( 'Apple', 'Microsoft' ), stacked = T )$limits( tlim = '2014-07' )$
+  plot()
+
+# Stacked normalized with other parameters
+volume_norm = volume_stacked[][, ( 2:3 ) := .SD / .SD[[2]], .SDcols = 2:3 ][]
+
+plot_dts( volume_norm )$
+  histogram( c( 'aapl', 'msft' ), labels = c( 'Apple', 'Microsoft' ), stacked = T, gap = 0, border = 'white' )$limits( tlim = '2014-07' )$
+  plot()
+
+
 }
 
 }
