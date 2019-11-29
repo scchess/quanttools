@@ -1,4 +1,4 @@
-# Copyright (C) 2017 Stanislav Kovalevsky
+# Copyright (C) 2019 Stanislav Kovalevsky
 #
 # This file is part of QuantTools.
 #
@@ -126,19 +126,22 @@
 #'   plot()
 #'
 #' # With events:
-#' plot_dts( aapl_candles[, .( date, close ) ] )$
+#' plot_dts( aapl_candles[, .( date, close ) ], aapl_events[, .( date, event ) ] )$
 #'   lines( names = 'close', labels = 'Apple', col = 'purple', lwd = 1, lty = 5, type = 'l' )$
-#'   events( aapl_events[, .( date, event ) ] )$
+#'   events( name = 'event' )$
 #'   plot()
 #'
 #' # With labeled events and user defined style:
-#' plot_dts( aapl_candles[, .( date, close ) ] )$
+#' plot_dts( aapl_candles[, .( date, close ) ], aapl_events[, .( date, event ) ] )$
 #'   lines( names = 'close', labels = 'Apple', col = 'purple', lwd = 1, lty = 5, type = 'l' )$
-#'   events( aapl_events[, .( date, event ) ], labels = format( aapl_events$value, digits = 3 ), lty = 4, col = c( 'red', 'yellow' ) )$
+#'   events( name = 'event', label = 'dividends',
+#'     labels = format( aapl_events$value, digits = 3 ), lty = 4, col = 'red' )$
 #'   plot()
 #'
 #' # Multiple data sets:
-#' plot_dts( aapl_candles[, .( date, aapl = close / close[1] ) ], msft_candles[, .( date, msft = close / close[1] ) ] )$
+#' plot_dts(
+#'   aapl_candles[, .( date, aapl = close / close[1] ) ],
+#'   msft_candles[, .( date, msft = close / close[1] ) ] )$
 #'   lines( names = c( 'aapl', 'msft' ), labels = c( 'Apple', 'Microsoft' ), lty = c( 1, 2 ) )$
 #'   plot()
 #'
@@ -148,45 +151,94 @@
 #'
 #' # User defined candles with user defined style:
 #' plot_dts( aapl_candles[, .( date, o = open, h = high, l = low, c = close ) ] )$
-#'   candles( ohlc = c( 'o', 'h', 'l', 'c' ), type = 'candlestick', mono = F, gap = 0.5 )$
+#'   candles( names = c( 'o', 'h', 'l', 'c' ), type = 'candlestick', gap = 0.5 )$
 #'   plot()
 #'
 #' # Other methods:
 #' plot_dts( aapl_candles[, .( date, open, high, low, close, sma = sma( close, 20 ) ) ] )$
+#'   candles()$
 #'   lines( names = 'sma', labels = 'SMA( close ) 20', lwd = 2 )$
-#'   style( candle = list( type = 'candlestick', mono = F, gap = 0.5 ), time = list( resolution = 'day' ) )$
+#'   style(
+#'     candle = list( type = 'candlestick', gap = 0.5 ),
+#'     time = list( resolution = 'day' ) )$
 #'   limits( tlim = '2014-07' )$
 #'   plot()
 #'
 #' # Grid:
-#' prices  = plot_dts( aapl_candles[, .( date, Apple = close / close[1] ) ], msft_candles[, .( date, Microsoft = close / close[1] ) ] )
-#' volume = plot_dts( aapl_candles[, .( date, Apple = volume * close / 1e9 ) ], msft_candles[, .( date, Microsoft = volume * close / 1e9 ) ] )$
+#' prices  = plot_dts(
+#'   aapl_candles[, .( date, Apple = close / close[1] ) ],
+#'   msft_candles[, .( date, Microsoft = close / close[1] ) ] )
+#' volume = plot_dts(
+#'   aapl_candles[, .( date, Apple = volume * close / 1e9 ) ],
+#'   msft_candles[, .( date, Microsoft = volume * close / 1e9 ) ] )$
 #'   lines( type = 'h' )
 #'
 #' pars = par( mfrow = c( 2, 1 ), oma = c( 5, 4, 2, 4 ) + 0.1, mar = c( 0, 0, 1, 0 ) )
-#' prices$style( time = list( visible = F ) )$
+#' prices$style( time = list( visible = F ), legend = list( col = list( text = 'black', background = rgb( 1,1,1,0.5 ) ) ) )$
 #'   plot()
-#' volume$style( legend = list( visible = F ) )$
+#' volume$style( legend = list( visible = F ), legend = list( col = list( text = 'black', background = rgb( 1,1,1,0.5 ) ) ) )$
 #'   plot()
 #' par( pars )
+#'
+#' # Histogram:
+#' volume = merge(
+#'
+#'   aapl_candles[, .( date, aapl = volume * close / 1e9 ) ],
+#'   msft_candles[, .( date, msft = volume * close / 1e9 ) ],
+#'   by = 'date', all = T
+#'
+#' )
+#'
+#' volume[ is.na( volume ) ] = 0
+#'
+#' # Side by side
+#' plot_dts( volume )$
+#'   histogram( c( 'aapl', 'msft' ), labels = c( 'Apple', 'Microsoft' ), split = T )$limits( tlim = '2014-07' )$
+#'   plot()
+#'
+#' # Stacked
+#' volume_stacked = volume[][, ( 2:3 ) := tlt( .SD, cumsum ), .SDcols = 2:3 ][]
+#'
+#' plot_dts( volume_stacked )$
+#'   histogram( c( 'aapl', 'msft' ), labels = c( 'Apple', 'Microsoft' ), stacked = T )$limits( tlim = '2014-07' )$
+#'   plot()
+#'
+#' # Stacked normalized with other parameters
+#' volume_norm = volume_stacked[][, ( 2:3 ) := .SD / .SD[[2]], .SDcols = 2:3 ][]
+#'
+#' plot_dts( volume_norm )$
+#'   histogram( c( 'aapl', 'msft' ), labels = c( 'Apple', 'Microsoft' ), stacked = T, gap = 0, border = 'white' )$limits( tlim = '2014-07' )$
+#'   plot()
+#'
+#'
 #' }
 #'
 #' @export
 plot_dts = function( ... ) {
 
-  x = PlotTs$new()
-  lapply( list( ... ), x$add_data )
-  x
+   PlotDts$new( ... )
 
 }
 
 plot.PlotTs = function( x ) x$plot()
 
+PlotDts <- R6::R6Class( 'PlotDts', lock_objects = F )
 
-PlotTs <- R6Class( 'PlotTs', lock_objects = F )
+PlotDts$set( 'public', 'initialize', function( ... ) {
 
-# init ----
-PlotTs$set( 'public', 'initialize', function() {
+  private$data = list( ... )
+
+  if( length( private$data ) == 0 ) stop( 'nothing to plot' )
+
+  private$data_summary = private$screen_data( private$data )
+
+  private$basis_type = if( private$data_summary[ class == 'POSIXct' & col_id == 1, .N > 0 ] ) 'POSIXct' else 'Date'
+
+  private$t_to_x_map = private$data_summary[ class == private$basis_type ][ , .( t = private$data[[ id ]][[ col_id ]] ), by = .( id, col_id ) ]
+
+  private$basis = private$calc_basis( private$t_to_x_map$t )
+
+  private$t_to_x_map[, x := self$t_to_x( t ) ]
 
   self$style_info = list(
 
@@ -252,846 +304,653 @@ PlotTs$set( 'public', 'initialize', function() {
       col      = list(
 
         background = rgb( 1, 1, 1, 0.8 ),
-        frame      = rgb( 1, 1, 1, 0.0 )
+        frame      = rgb( 1, 1, 1, 0.0 ),
+        text       = rgb( 0, 0, 0, 1   )
 
       ),
       horizontal = FALSE
 
     )
   )
+
   invisible( self )
+
 } )
-# style ----
-PlotTs$set( 'public', 'style', function( ... ) {
+
+PlotDts$set( 'private', 'calc_basis', function( t, gap = 5, fixed = T, range = NULL, units = 'mins' ) {
+
+  type = class( t )[1]
+
+  t = sort( t )
+
+  switch(
+    type,
+    POSIXct = {
+
+      basis = data.table( t )[, .( t_from = as.numeric( t[1] - date, units = units ), t_to = as.numeric( t[.N] - date, units = units ) ), by = .( date = round_POSIXct( t, 24, units = 'hours', trunc ) ) ]
+
+      if( fixed ) {
+
+        basis[-1 , t_from := min( t_from ) ]
+        basis[-.N, t_to   := max( t_to   ) ]
+
+      }
+
+      if( !is.null( range ) ) {
+
+        range = as.numeric( as.difftime( range ), units = units )
+        basis[, ':='( t_from = t_range[1], t_to = t_range[2] ) ]
+
+      }
+
+      # round to gap
+      basis[, t_from := floor  ( t_from / gap ) * gap - gap ]
+      basis[, t_to   := ceiling( t_to   / gap ) * gap       ]
+      basis[ t_from < 0, t_from := 0 ]
+
+      basis[, x_to     := cumsum( t_to - t_from ) ]
+      basis[, x_from   := shift( x_to, fill = 0 ) ]
+
+      setattr( basis, 'units', units )
+      setattr( basis, 'step', gap )
+
+    },
+    Date = {
+
+      basis = data.table( date = unique( t ) )[ , .( date, x = 1:.N, x_from = 1:.N, x_to = 1:.N ) ]
+      setattr( basis, 'step', 1 )
+
+    }
+  )
+
+  setattr( basis, 'type', type )
+  basis[]
+
+} )
+
+PlotDts$set( 'private', 'screen_data', function( data ) {
+
+  summary = lapply( data, function( x ) {
+
+    sapply( lapply( x, is ), head, 1 )
+
+  } )
+  summary = rbindlist( lapply( summary, as.data.table, keep.rownames = T ), idcol = 'id' )
+  setnames( summary, c( 'id', 'name', 'class' ) )
+  summary[, col_id := 1:.N, by = id ]
+
+  summary
+
+} )
+
+PlotDts$set( 'private', 'subset_basis', function( b, tlim ) {
+
+  switch(
+    attr( b, 'type' ),
+    POSIXct = {
+
+      dlim = round_POSIXct( tlim, 24, units = 'hours', trunc )
+
+      basis = b[ date %bw% dlim ]
+
+      if( nrow( basis ) == 0 ) return( NULL )
+
+      times = as.numeric( tlim - dlim, units = attr( b, 'units' ) )
+
+      xlim = basis[, c( x_from[1] + ( times[1] - t_from[1] ), x_to[.N] - ( t_to[.N] - times[2] ) ) ]
+
+      basis[ 1 , x_from := xlim[1] ]
+      basis[ .N, x_to   := xlim[2] ]
+
+      basis[ 1 , t_from := times[1] ]
+      basis[ .N, t_to   := times[2] ]
+
+      basis = basis[ t_from < t_to ]
+
+    },
+    Date = {
+
+      basis = b[ date %bw% tlim ]
+
+    } )
+
+    if( nrow( basis ) == 0 ) return( NULL )
+    basis
+
+} )
+
+PlotDts$set( 'public', 'style', function( ... ) {
 
   args = list(...)
   #if( is.null( names( args ) ) ) args = args[[1]]
   self$style_info = modifyList( self$style_info, args )
-  self
-
-} )
-
-PlotTs$set( 'public', 'add_data', function( data ) {
-
-  if( !is.data.table( data ) ) stop( 'only data.table supported' )
-
-  self$data[[ length( self$data ) + 1 ]] = data
-
-  x_type =
-    if( inherits( data[[1]], 'Date'    ) ) 'date' else
-    if( inherits( data[[1]], 'POSIXct' ) ) 'time' else
-    stop( 'only Date and POSIXct index supported' )
-
-  if( !is.null( self$x_type ) && self$x_type != x_type ) stop( 'data sets index type mismatch' )
-  self$x_type = x_type
-
-  tzone = attr( data[[1]], 'tzone' )
-  self$tzone = if( is.null( tzone ) ) '' else tzone
-
-  self
-
-} )
-
-PlotTs$set( 'public', 'events', function( data, names = 'auto', labels = NULL, lty = 1, col = 'auto', lwd = 1 ) {
-
-  if( names[1] == 'auto' ) names = unique( data[[2]] )
-
-  if( length( data ) != 2 ) stop( 'events must contain exactly 2 columns, date/time and name' )
-
-  if( !is.null( labels ) && length( labels ) != length( data [[1]] ) ) stop( 'labels must be the same length as numer of rows in data' )
-
-  if( !is.data.table( data ) ) stop( 'only data.table supported' )
-  if( length( self$data ) == 0 ) stop( 'add data first' )
-
-  self$events_data = data.table( data, labels )
-
-  x_type =
-    if( inherits( data[[1]], 'Date'    ) ) 'date' else
-      if( inherits( data[[1]], 'POSIXct' ) ) 'time' else
-        stop( 'only Date and POSIXct index supported' )
-
-  if( !is.null( self$x_type ) && self$x_type != x_type ) stop( 'data sets index type mismatch' )
-  self$x_type = x_type
-
-  n_events = length( names )
-  if( !length( lty    ) %in% c( 1, n_events ) ) stop( 'lty must be same size as names or single value'  )
-  if( !length( col    ) %in% c( 1, n_events ) ) stop( 'col must be same size as names or single value'  )
-  if( !length( lwd    ) %in% c( 1, n_events ) ) stop( 'lwd must be same size as names or single value'  )
-
-  events_info = data.table( names, lty, col, lwd )
-
-  self$events_info = rbind( self$events_info, events_info )
-
-  self
-
-} )
-
-
-PlotTs$set( 'public', 'set_time_range', function( text_time_range ) {
-
-  seconds_in_day = 24 * 60 * 60
-
-  range = unlist( strsplit( text_time_range, '/', fixed = TRUE ) )
-  if( length( range ) != 2 ) stop( 'time must be in \'H[:M][:S]/H[:M][:S]\' format' )
-
-  from = .text_time_to_seconds( range[1] )
-  to   = .text_time_to_seconds( range[2] )
-
-  if( from < 0 | from > seconds_in_day ) stop( 'time must be in \'H[:M][:S]/H[:M][:S]\' format' )
-  if( to   < 0 | to   > seconds_in_day ) stop( 'time must be in \'H[:M][:S]/H[:M][:S]\' format' )
-
-  if( to == 0 ) to = seconds_in_day
-  if( !to > from ) stop( 'time range must be positive ( to > from )' )
-
-  self$time_range = c( from, to )
-  self
-
-} )
-
-
-PlotTs$set( 'public', 'limits', function( xlim = NULL, ylim = NULL, tlim = NULL, time_range = NULL ) {
-
-  if( is.null( self$candles_info ) ) self$candles()
-  if( is.null( self$lines_info   ) ) self$lines()
-  if( !is.null( time_range ) ) self$set_time_range( time_range )
-
-  self$frame$limited = !is.null( xlim ) | !is.null( ylim ) | !is.null( tlim )
-
-  #if( !self$frame$limited ) return( invisible( self ) )
-
-  if( is.null( self$basis ) ) self$calc_basis() else self$basis_limited = self$basis
-
-  if( !is.null( tlim ) ) {
-
-    if( is.character( tlim ) ) {
-      tlim = .text_to_time_interval( tlim )
-      if( self$x_type == 'date' ) tlim = as.Date( tlim )
-    } else {
-        if( length( tlim ) != 2 ) stop( 'tlim must have two elements' )
-    }
-
-    if( tlim[1] < self$basis[1,  t_from ] ) tlim[1] = self$basis[1 , t_from ]
-    if( tlim[1] > self$basis[.N, t_to   ] ) tlim[1] = self$basis[1 , t_from ]
-    if( tlim[2] > self$basis[.N, t_to   ] ) tlim[2] = self$basis[.N, t_to   ]
-    if( tlim[2] < self$basis[1,  t_from ] ) tlim[2] = self$basis[.N, t_to   ]
-    if( tlim[2] <= tlim[1] ) tlim[2] = self$basis[.N, t_to   ]
-
-    xlim = self$t_to_x( tlim )
-    tlim2 = c( self$basis[ t_from >= tlim[1], t_from[1] ], self$basis[ t_to <= tlim[2], t_to[.N] ] )
-    xlim[ is.na( xlim ) ] = self$t_to_x( tlim2[ is.na( xlim ) ] )
-    #if( any( is.na( xlim ) ) ) xlim = NULL
-
-  }
-
-  if( is.null( xlim ) ) {
-
-    xlim = self$basis[, c( x_from[1], x_to[.N] ) ]
-    self$basis_limited = self$basis
-    #tlim = xlim
-
-  }
-
-  if( is.null( ylim ) ) {
-
-    if( length( xlim ) != 2 ) stop( 'xlim must have two elements' )
-
-    xlim = round( xlim )
-
-    if( xlim[2] - xlim[1] < 1 ) xlim[2] = xlim[1] + 1
-
-    if( xlim[1] < self$basis[  1, x_from ] ) xlim[1] = self$basis[  1, x_from ]
-    if( xlim[2] > self$basis[ .N, x_to   ] ) xlim[2] = self$basis[ .N, x_to   ]
-
-    if( xlim[2] <= self$basis[  1, x_from ] ) xlim[2] = self$basis[ .N, x_to   ]
-    if( xlim[1] >= self$basis[ .N, x_to   ] ) xlim[1] = self$basis[  1, x_from ]
-
-    tlim = self$x_to_t( xlim )
-
-    selection = rbind(
-
-      self$lines_info,
-      as.data.table( self$candles_info ), fill = T
-
-    )[, .( name, data_id ) ]
-
-
-    ylim = selection[, {
-
-      y = self$data[[ data_id ]][ self$data_x[[ data_id ]] >= xlim[1] & self$data_x[[ data_id ]] <= xlim[2], name, with = FALSE ]
-      if( nrow( y ) == 0 ) Inf else suppressWarnings( range( y, na.rm = TRUE ) )
-
-    }, by = data_id ][[2]]
-
-    ylim = suppressWarnings( range( ylim, na.rm = TRUE, finite = TRUE ) )
-    if( any( is.infinite( ylim ) ) ) ylim = c( 0, 1 )
-
-    basis_limited = self$basis[ { x = match_between( xlim, x_from, x_to ); x[1]:x[2] } ]
-
-    basis_limited[ 1 , ':='( x_from = xlim[1], t_from = tlim[1] ) ]
-    basis_limited[ .N, ':='( x_to   = xlim[2], t_to   = tlim[2] ) ]
-    if( self$x_type == 'time' ) basis_limited = basis_limited[ x_from != x_to ]
-
-
-    self$basis_limited = basis_limited
-
-  }
-
-  self$frame$xlim = xlim
-  self$frame$ylim = ylim
-  self$frame$tlim = tlim
-
-  self
-
-} )
-
-PlotTs$set( 'public', 'calc_basis', function() {
-
-  if( is.null( self$x_type ) ) stop( 'add data first' )
-
-  t = sort( do.call( 'c', lapply( self$data, '[[', 1 ) ) )
-
-  switch(
-    self$x_type,
-    time = {
-
-      setattr( t, 'tzone', self$tzone )
-
-      # calculate daily intervals
-
-      basis = data.table( time = t )[, .( t_from = time[1 ], t_to = time[.N] ), by = .( date = as.Date( time ) ) ]
-      if( any( basis[, t_from == t_to ] ) & self$style_info$time$round == 0 ) {
-        basis[, t_to := t_from + as.difftime( 24, units = 'hours' ) ]
-      }
-      if( !is.null( self$time_range ) ) {
-
-        basis[, t_from := fasttime::fastPOSIXct( date, self$tzone ) + self$time_range[1] ]
-        basis[, t_to   := fasttime::fastPOSIXct( date, self$tzone ) + self$time_range[2] ]
-
-      } else {
-
-        basis[, t_from := round_POSIXct( t_from, self$style_info$time$round, 'mins', floor ) - as.difftime( self$style_info$time$round, units = 'mins' ) ]
-        basis[, t_to   := round_POSIXct( t_to  , self$style_info$time$round, 'mins', floor ) + as.difftime( self$style_info$time$round, units = 'mins' ) ]
-
-      }
-
-      lag = function( x, first = NA ) { c( first, x[ -length( x ) ] ) }
-      # merge overlapping intervals
-      basis[, not_overlap_previous := lag( t_to, first = -Inf ) < t_from ]
-      basis[, interval_id := cumsum( not_overlap_previous ) ]
-      basis = basis[ , .( date_from = date[1], date_to = date[.N], t_from = t_from[1], t_to = t_to[.N] ), by = interval_id ]
-
-      # set continuous x intervals
-      basis[, x_to   := cumsum( as.numeric( t_to - t_from, units = 'mins' ) ) ]
-      basis[, x_from := lag( x_to, first = 0 ) ]
-
-    },
-    date = {
-
-      basis = data.table( date = t )[ , .( interval_id = 1:.N, date_from = date, date_to = date, t_from = date, t_to = date, x_from = 1:.N, x_to = 1:.N ) ]
-
-    }
-  )
-
-  self$basis = basis
-  self$basis_limited = self$basis
-  self$calc_data_x()
-  self$calc_events_x()
 
   invisible( self )
 
 } )
 
-PlotTs$set( 'public', 'calc_data_x', function() {
-
-  self$data_x = lapply( self$data, function( x ) self$t_to_x( x[[1]] ) )
-
-  invisible( self )
-
-} )
-
-PlotTs$set( 'public', 'calc_events_x', function() {
-
-  if( is.null( self$events_data ) ) return( invisible( self ) )
-  self$events_x = self$t_to_x( self$events_data[[1]] )
-  invisible( self )
-
-} )
-
-PlotTs$set( 'public', 'plot_frame', function() {
-
-  plot( 1, 1, type = 'n', xlab = '', ylab = '', main = '', xaxt = 'n', yaxt = 'n', xlim = self$frame$xlim, ylim = self$frame$ylim, xaxs = 'i', bty = 'n', log = if( self$style_info$value$log ) 'y' else ''  )
-
-  ax_ticks = round( axTicks( 2 ), 10 )
-  if( self$style_info$value$visible ) axis( 2, at = ax_ticks, labels = format( ax_ticks ), las = 1, tick = FALSE )
-
-  if( self$style_info$value$grid )
-    if( self$x_grid$hours ) abline( h = ax_ticks, col = self$style_info$grid$hour$col, lty = self$style_info$grid$hour$lty ) else
-    if( self$x_grid$dates ) abline( h = ax_ticks, col = self$style_info$grid$day $col, lty = self$style_info$grid$day $lty ) else
-     abline( h = ax_ticks, col = self$style_info$grid$month$col, lty = self$style_info$grid$month$lty )
-
-  abline( h = 0, col = self$style_info$grid$zero$col, lty = self$style_info$grid$zero$lty )
-
-  invisible( self )
-
-} )
-
-PlotTs$set( 'public', 't_to_x', function( t ) {
-
-  if( is.null( self$x_type ) ) stop( 'add data first' )
-
-  switch( self$x_type,
-    time = self$basis_limited[ match_between( t, t_from, t_to ), .( x_to, x = x_from + as.numeric( t - t_from, units = 'mins' ) ) ][ x > x_to, x := NA ][, x ],
-    date = self$basis_limited[ match( t, t_from ), x_from ]
-  )
-
-} )
-
-PlotTs$set( 'public', 'x_to_t', function( x ) {
-
-  if( is.null( self$x_type ) ) stop( 'add data first' )
-
-  switch( self$x_type,
-    time = self$basis_limited[ match_between( x, x_from, x_to ), .( t_to, t = t_from + as.difftime( x - x_from, units = 'mins' ) ) ][ t > t_to, t := NA ][, t ],
-    date = self$basis_limited[ match_between( x, x_from, x_to ), t_from ]
-  )
-
-} )
-
-PlotTs$set( 'public', 'calc_time_grid_and_labels', function() {
-
-  if( is.null( self$x_type ) ) stop( 'add data first' )
-  if( is.null( self$basis ) ) self$calc_basis()
-
-  resolution = match.arg( self$style_info$time$resolution, choices = c( 'auto', 'minute', 'hour', 'day', 'month', 'year', 'years' ) )
-
-  if( resolution == 'auto' ) resolution =
-
-      switch(
-        self$x_type,
-
-        time = {
-
-          time_span_hours = self$basis_limited[, sum( x_to - x_from ) / 60 ]
-          time_span_dates = self$basis_limited[, sum( date_to - date_from + 1 ) ]
-
-          if( time_span_dates      > 1500 ) 'years' else
-          if( time_span_dates      > 100  ) 'year'  else
-          if( time_span_dates      > 50   ) 'month' else
-          if( time_span_dates      > 8    ) 'day'   else
-          if( time_span_hours      > 4    ) 'hour'  else
-          'minute'
-
-        },
-
-        date = {
-
-          time_span_dates = self$basis_limited[, .N ]
-
-          if( time_span_dates > 1500 ) 'years' else
-          if( time_span_dates > 100  ) 'year'  else
-          if( time_span_dates > 50   ) 'month' else
-          'day'
-
-        }
-      )
-
-
-  self$x_grid = list(
-
-    '10min' = resolution %in% c( 'minute' ),
-    'hours' = resolution %in% c( 'minute', 'hour' ),
-    'dates' = resolution %in% c( 'minute', 'hour', 'day', 'month' ),
-    'month' = resolution %in% c( 'minute', 'hour', 'day', 'month', 'year' ),
-    'years' = resolution %in% c( 'minute', 'hour', 'day', 'month', 'year', 'years' )
-
-  )
-
-  self$x_labs = list(
-
-    '10min' = par( 'xaxt' ) != 'n' & resolution %in% c( 'minute' ),
-    'hours' = par( 'xaxt' ) != 'n' & resolution %in% c( 'minute', 'hour' ),
-    'dates' = par( 'xaxt' ) != 'n' & resolution %in% c( 'minute', 'hour', 'day'  ),
-    'month' = par( 'xaxt' ) != 'n' & resolution %in% c( 'minute', 'hour', 'day', 'month', 'year' ),
-    'years' = par( 'xaxt' ) != 'n' & resolution %in% c( 'minute', 'hour', 'day', 'month', 'year', 'years' ),
-    'event' = length( self$events_data ) == 3
-
-  )
-
-  dates = data.table(
-    t = switch(
-      self$x_type,
-      time = {
-
-        t = self$basis_limited[, {
-          t = c( t_from, seq( round_POSIXct( t_from, 1, units = 'days' ), round_POSIXct( t_to, 1, units = 'days' ), as.difftime( 1, units = 'days' ) ) )
-          t[ t >= t_from & t <= t_to ]
-        }, by = interval_id ][[2]]
-        setattr( t, 'tzone', self$tzone )
-
-      },
-
-      date = {
-
-        self$basis_limited[, date_from ]
-
-      } )
-  )
-  dates[, x := self$t_to_x( t ) ]
-  dates[, l := format( t, '%d' ) ]
-  dates = dates[, .SD[.N], by = x ]
-
-  month = dates[ !duplicated( format( t, '%Y-%m' ) ) ]
-  month[, l := format( t, '%b' ) ]
-  if( month[, .N] > 12 ) month[, l := substr( l, 1, 1 ) ]
-
-  years = month[ !duplicated( format( t, '%Y' ) ) ]
-  years[, l := format( t, '%Y' ) ]
-
-
-  hours = NULL
-  if( self$x_labs$'hours' | self$x_grid$'hours' ) {
-
-    hours = data.table( t = {
-      t = self$basis_limited[, c( t_from, seq( round_POSIXct( t_from, 1, units = 'hours' ), round_POSIXct( t_to, 1, units = 'hours' ), as.difftime( 1 , units = 'hours' ) ) ), by = interval_id ][[2]]
-      setattr( t, 'tzone', self$tzone )
-
-    } )
-    hours[, x := self$t_to_x( t ) ]
-    hours[ 1, t := if( is.na( x ) ) self$basis_limited[ 1, t_from ] else t ][ 1, x := self$t_to_x( t ) ]
-    hours[, l := format( t, '%H:%M' ) ]
-    hours = hours[, .SD[.N], by = x ]
-
-  }
-
-  min10 = NULL
-  if( self$x_labs$'10min' | self$x_grid$'10min' ) {
-
-    min10 = data.table(
-      t = self$basis_limited[, seq( round_POSIXct( t_from, 10, units = 'mins' ), round_POSIXct( t_to, 10, units = 'mins' ), as.difftime( 10, units = 'mins'  ) ), by = interval_id ][[2]]
-    )[ !t %in% hours$t ]
-    min10[, x := self$t_to_x( t ) ]
-    min10[, l := format( t, ':%M' ) ]
-
-  }
-
-  event = NULL
-  if( self$x_labs$'event' ) {
-
-    event = data.table(
-      l = self$events_data[[3]]
-    )
-    event[, x := self$events_x ]
-
-  }
-
-  self$x_grid_coord = list( min10 = min10, hours = hours, dates = dates, month = month, years = years, event = event )
-
-  invisible( self )
-
-} )
-
-PlotTs$set( 'public', 'plot_time_grid', function() {
-
-  if( !self$style_info$time$grid ) return( invisible( self ) )
-
-  if( self$x_grid$'10min' ) abline( v = self$x_grid_coord$min10$x, lty = self$style_info$grid$minute$lty, col = self$style_info$grid$minute$col )
-  if( self$x_grid$'hours' ) abline( v = self$x_grid_coord$hours$x, lty = self$style_info$grid$hour  $lty, col = self$style_info$grid$hour  $col )
-  if( self$x_grid$'dates' ) abline( v = self$x_grid_coord$dates$x, lty = self$style_info$grid$day   $lty, col = self$style_info$grid$day   $col )
-  if( self$x_grid$'month' ) abline( v = self$x_grid_coord$month$x, lty = self$style_info$grid$month $lty, col = self$style_info$grid$month $col )
-  if( self$x_grid$'years' ) abline( v = self$x_grid_coord$years$x, lty = self$style_info$grid$year  $lty, col = self$style_info$grid$year  $col )
-
-  invisible( self )
-
-} )
-
-PlotTs$set( 'public', 'plot_time', function() {
-
-  if( !self$style_info$time$visible ) return( invisible( self ) )
-
-  if( self$x_labs$'10min' ) {
-
-    min10_hours = rbind( self$x_grid_coord$hours, self$x_grid_coord$min10 )[ !is.na( x ) ]
-    setorder( min10_hours, x )
-    min10_hours[ 1, l := format( t, '%H:%M' ) ]
-
-
-    min10_hours[ , axis( at = x, labels = l, side = 1, tick = FALSE, line = -1 ) ]
-
-  } else
-  if( self$x_labs$'hours' ) self$x_grid_coord$hours[, axis( at = x, labels = l, side = 1, tick = FALSE, line = -1 ) ]
-  if( self$x_labs$'dates' ) self$x_grid_coord$dates[, axis( at = x, labels = l, side = 1, tick = FALSE, line = -1 + self$x_labs$'hours' ) ]
-  if( self$x_labs$'month' ) self$x_grid_coord$month[, axis( at = x, labels = l, side = 1, tick = FALSE, line = -1 + self$x_labs$'hours' + self$x_labs$'dates' ) ]
-  if( self$x_labs$'years' ) self$x_grid_coord$years[, axis( at = x, labels = l, side = 1, tick = FALSE, line = -1 + self$x_labs$'hours' + self$x_labs$'dates' + self$x_labs$'month' ) ]
-  if( self$x_labs$'event' ) self$x_grid_coord$event[, axis( at = x, labels = l, side = 1, tick = FALSE, line = -1 + self$x_labs$'hours' + self$x_labs$'dates' + self$x_labs$'month' + self$x_labs$'years' ) ]
-
-  invisible( self )
-
-} )
-
-PlotTs$set( 'public', 'print', function(...) {
+PlotDts$set( 'public', 'print', function( ... ) {
 
   self$plot()
 
 } )
 
-PlotTs$set( 'public', 'segments', function( data, lty = 1, col = 'auto', lwd = 1 ) {
+PlotDts$set( 'public', 'limits', function( tlim = NULL, ylim = NULL ) {
 
-  if( is.null( self$segments_info ) ) {
+  private$set_limits( tlim, ylim )
 
-    self$segments_length = 0
-    self$segments_info = vector( mode = 'list', length = 100 )
-
-  }
-  self$segments_length = self$segments_length + 1
-  self$segments_info[[ self$segments_length ]] = list( data = data, lty = lty, col = col, lwd = lwd )
   invisible( self )
 
 } )
 
-PlotTs$set( 'public', 'plot_segments', function() {
+PlotDts$set( 'private', 'set_limits', function( tlim = NULL, ylim = NULL ) {
 
-  if( is.null( self$segments_info ) ) return( self )
-  lapply( self$segments_info[ 1:self$segments_length ], function( s ) {
-  segments(
-    self$t_to_x( s$data[[1]] ), s$data[[2]],
-    self$t_to_x( s$data[[3]] ), s$data[[4]],
-    col = s$col, lty = s$lty, lwd = s$lwd )
-  } )
-  invisible( self )
+  no_tasks_available = length( private$tasks ) == 0
+  if( no_tasks_available ) {
 
-} )
+    names = private$data_summary[ class %in% c( 'numeric', 'double' ), name ]
 
-PlotTs$set( 'public', 'lines',
-            function( names = NULL, labels = names, type = 'l', lty = 1, pch = 19, col = 'auto', bg = NA, lwd = 1, lend = 'round' ) {
+    candles_detected = length( names ) == 4 && all( names == c( 'open', 'high', 'low', 'close' ) )
 
-    # names = 'auto'; type = 'l'; lty = 1; pch = 19; col = 'auto'; lwd = 1; lend = 'round'
-
-    if( !is.null( names ) && length( names ) == 0 ) return( self )
-    auto_lines = is.null( names )
-
-    if( auto_lines ) {
-
-      names = unique( unlist( lapply( self$data, function( x ) names( x )[ -1 ] ) ) )
-      if( !is.null( self$candles_info ) ) names = names %w/o% self$candles_info$name
-      if( !is.null( self$lines_info   ) ) names = names %w/o% self$lines_info$name
-      labels = names
-
-    }
-
-    n_lines = length( names )
-    if( !length( type   ) %in% c( 1, n_lines ) ) stop( 'type must be same size as names or single value' )
-    if( !length( lty    ) %in% c( 1, n_lines ) ) stop( 'lty must be same size as names or single value'  )
-    if( !length( pch    ) %in% c( 1, n_lines ) ) stop( 'pch must be same size as names or single value'  )
-    if( !length( col    ) %in% c( 1, n_lines ) ) stop( 'col must be same size as names or single value'  )
-    if( !length( bg     ) %in% c( 1, n_lines ) ) stop( 'bg must be same size as names or single value'   )
-    if( !length( lwd    ) %in% c( 1, n_lines ) ) stop( 'lwd must be same size as names or single value'  )
-    if( !length( lend   ) %in% c( 1, n_lines ) ) stop( 'lend must be same size as names or single value' )
-    if( !length( labels ) %in% n_lines         ) stop( 'labels must be same size as names'               )
-
-    lines_info = data.table( data_id = 1:length( self$data ) )[, {
-      data_names = names( self$data[[data_id]] )
-      name_id = match( names, data_names )
-      name = data_names[ name_id ]
-      list( name_id = name_id, name = name )
-    }, by = data_id ][ !is.na( name ) ]
-    if( nrow( lines_info ) == 0 & !is.null( names ) ) if( auto_lines ) return( self ) else stop( 'no data sets found having specified lines names' )
-
-
-    lines_info[, ':='( type = type, lty = lty, pch = pch, col = col, bg = bg, lwd = lwd, lend = lend, label = labels ) ]
-
-    if( lines_info[ , .N != uniqueN( name ) ] ) warning( 'multiple data sets found having specified names: using first data set' )
-
-    self$lines_info = rbind( self$lines_info, lines_info )
-
-    self
-
-} )
-
-PlotTs$set( 'public', 'candles', function( ohlc = c( 'open', 'high', 'low', 'close' ), timeframe = 'auto', position, type, gap, mono, col, col_up, col_flat, col_down ) {
-
-  if( !missing( position ) ) self$style_info$candle$position = position
-  if( !missing( type     ) ) self$style_info$candle$type     = type
-  if( !missing( gap      ) ) self$style_info$candle$gap      = gap
-  if( !missing( mono     ) ) self$style_info$candle$mono     = mono
-  if( !missing( col      ) ) self$style_info$candle$col$mono = col
-  if( !missing( col_up   ) ) self$style_info$candle$col$up   = col_up
-  if( !missing( col_down ) ) self$style_info$candle$col$down = col_down
-  if( !missing( col_flat ) ) self$style_info$candle$col$flat = col_flat
-
-  if( !is.null( self$candles_info ) ) stop( 'only single candles trace supported' )
-
-  # scan data for ohlc
-  data_id = which( sapply( self$data, function( x ) all( ohlc %in% names( x ) ) ) )
-  if( length( data_id ) > 1 ) {
-
-    data_id = data_id[1]
-    warning( 'multiple data sets found having specified ohlc names: using first data set' )
+    if( candles_detected ) self$candles() else self$lines()
 
   }
-  if( length( data_id ) == 0 ) return( self )#stop( 'no data sets found having specified ohlc names' )
 
-  self$candles_info = list(
-    data_id   = data_id,
-    name      = ohlc,
-    timeframe = timeframe
-  )
+  private$basis_limited = private$basis
+  if( !is.null( tlim ) ) private$basis_limited = private$subset_basis( private$basis, tlim )
 
-  self
+  private$t_to_x_map[ , visible := t %bw% tlim ]
+
+  names = unlist( lapply( private$tasks, '[[', 'names' ) )
+
+  if( uniqueN( names ) != length( names ) ) stop( 'duplicated column names not allowed', call. = F )
+
+  absent_names = names %w/o% private$data_summary$name
+  numeric_names = names[ names %in% private$data_summary[ class %in% c( 'numeric', 'integer' ) , name ] ]
+
+  if( length( absent_names ) > 0 ) stop( 'following column names are absent in data: ', paste( absent_names, collapse = ',' ), call. = F )
+  if( length( numeric_names ) == 0 ) stop( 'please set at least one column name for numeric data', call. = F )
+
+  private$data_summary[
+    name %in% names & class %in% c( 'numeric', 'integer' ),
+    c( 'min', 'max', 'last' ) := if( .N > 0 ) {
+
+      y = na.omit( private$data[[ id ]][[ col_id ]][ private$get_visible( id ) ] )
+      as.list( c( range( y ), tail( y, 1 ) ) )
+
+    }, by = .( id, col_id ) ]
+
+  if( is.null( ylim ) ) {
+
+    private$ylim = private$data_summary[ name %in% names & class %in% c( 'numeric', 'integer' ), if( .N > 0 ) range( min, max, self$ylim ) ]
+
+  } else {
+
+    private$ylim = ylim
+
+  }
+
+  private$last = private$data_summary[ name %in% names & class %in% c( 'numeric', 'integer' ), last ]
+
+  private$xlim = private$basis_limited[, c( x_from[1], x_to[.N] ) ] + attr( private$basis_limited, 'step' ) * c( -1, 0 )
 
 } )
 
-PlotTs$set( 'public', 'plot_candles', function() {
-
-  if( is.null( self$candles_info ) ) return( invisible( self ) )
-
-  open  = self$candles_info$name[1]
-  high  = self$candles_info$name[2]
-  low   = self$candles_info$name[3]
-  close = self$candles_info$name[4]
-
-  x = self$data_x[[ self$candles_info$data_id ]]
-
-  timeframe = if( self$candles_info$timeframe == 'auto' ) min( diff( x ), na.rm = T ) else self$candles_info$timeframe
-  width = timeframe * ( 1 - self$style_info$candle$gap ) / 2
-
-  y = self$data[[ self$candles_info$data_id ]][ x >= self$frame$xlim[1] & x <= self$frame$xlim[2] & !is.na( x ) ]
-  x = x[ x >= self$frame$xlim[1] & x <= self$frame$xlim[2] & !is.na( x ) ]
-
-  col = if( !self$style_info$candle$mono ) {
-
-    ifelse( y[[ open  ]] < y[[ close ]], self$style_info$candle$col$up,
-            ifelse( y[[ open  ]] > y[[ close ]], self$style_info$candle$col$down,
-                    self$style_info$candle$col$flat ) )
-
-  } else self$style_info$candle$col$mono
+PlotDts$set( 'public', 't_to_x', function( t ) {
 
   switch(
-    self$style_info$candle$type,
+    attr( private$basis, 'type' ),
+    POSIXct = {
+
+      private$basis[ cut( t, c( date, Inf ), labels = F ), x_from + { t = as.numeric( t - date, units = attr( private$basis, 'units' ) ); t[ t < t_from | t > t_to ] = NA; t - t_from } ]
+
+    },
+    Date = {
+
+      private$basis[ match( t, date ), x ]
+
+    }
+  )
+
+} )
+
+PlotDts$set( 'private', 'calc_resolution', function( b ) {
+
+  switch(
+    attr( b, 'type' ),
+    POSIXct = {
+      time_span_hours = b[, as.numeric( as.difftime( sum( x_to - x_from ), units = attr( b, 'units' ) ), units = 'hours' ) ]
+      time_span_dates = b[, .N ]
+    },
+    Date = {
+      time_span_dates = max( b[, .N ], 9 )
+    }
+  )
+
+  if( time_span_dates      > 1500 ) 'years' else
+    if( time_span_dates      > 100  ) 'year'  else
+      if( time_span_dates      > 50   ) 'month' else
+        if( time_span_dates      > 8    ) 'day'   else
+          if( time_span_hours      > 4    ) 'hour'  else
+            'minute'
+
+} )
+
+PlotDts$set( 'private', 'calc_intraday_marks', function( b, step ) {
+
+  step = as.numeric( step, units = attr( b, 'units' ) )
+
+  b[, .( t = date + as.difftime( c( t_from, seq( ceiling( t_from / step ) * step, floor( t_to / step ) * step, step ) ), units = attr( b, 'units' ) ) ), by = date ][, x := self$t_to_x( t ) ][ !rev( duplicated( rev( x ) ) ) ][]
+
+} )
+
+PlotDts$set( 'private', 'plot_basis', function() {
+
+  b = private$basis_limited
+
+  xlim = private$xlim
+  ylim = private$ylim
+
+  plot( 1, 1, type = 'n', xlab = '', ylab = '', main = '', xaxt = 'n', yaxt = 'n', xlim = xlim, ylim = ylim, xaxs = 'i', bty = 'n', log = if( self$style_info$value$log ) 'y' else ''  )
+
+  if( self$style_info$time$resolution == 'auto' ) self$style_info$time$resolution = private$calc_resolution( private$basis_limited )
+
+  private$plot_time_axis_and_grid()
+  private$plot_value_axis_and_grid()
+
+} )
+
+PlotDts$set( 'private', 'plot_value_axis_and_grid', function() {
+
+  ax_ticks = round( axTicks( 2 ), 10 )
+
+  if( self$style_info$value$grid ) {
+
+    if( self$x_grid$hours ) abline( h = ax_ticks, col = self$style_info$grid$hour $col, lty = self$style_info$grid$hour $lty ) else
+    if( self$x_grid$dates ) abline( h = ax_ticks, col = self$style_info$grid$day  $col, lty = self$style_info$grid$day  $lty ) else
+                            abline( h = ax_ticks, col = self$style_info$grid$month$col, lty = self$style_info$grid$month$lty )
+
+  }
+
+  abline( h = 0, col = self$style_info$grid$zero$col, lty = self$style_info$grid$zero$lty )
+
+  if( self$style_info$value$visible ) axis( 2, at = ax_ticks, labels = format( ax_ticks ), las = 1, tick = FALSE )
+
+} )
+
+PlotDts$set( 'private', 'plot_time_axis_and_grid', function() {
+
+  b = private$basis_limited
+
+  switch(
+    attr( b, 'type' ),
+    POSIXct = {
+
+      min10 = private$calc_intraday_marks( b, as.difftime( '00:10:00' ) )
+      hours = private$calc_intraday_marks( b, as.difftime( '01:00:00' ) )
+
+      min10[, xlab := format( t, ':%M'   ) ]
+      hours[, xlab := format( t, '%H:%M' ) ]
+
+    }
+  )
+
+  dates = b[, .( date, t = date, x = x_from ) ]
+  month = b[, .( t = date[1], x = x_from[1] ), by = .( month = format( date, '%Y-%m' ) ) ]
+  years = b[, .( t = date[1], x = x_from[1] ), by = .( year  = format( date, '%Y'    ) ) ]
+
+  dates[, xlab := format( t, '%d'    ) ]
+  month[, xlab := format( t, '%b'    ) ]
+  years[, xlab := format( t, '%Y'    ) ]
+
+  # plot grid
+  x_grid = list(
+
+    min10 = self$style_info$time$resolution %in% c( 'minute' ),
+    hours = self$style_info$time$resolution %in% c( 'minute', 'hour' ),
+    dates = self$style_info$time$resolution %in% c( 'minute', 'hour', 'day', 'month' ),
+    month = self$style_info$time$resolution %in% c( 'minute', 'hour', 'day', 'month', 'year' ),
+    years = self$style_info$time$resolution %in% c( 'minute', 'hour', 'day', 'month', 'year', 'years' )
+
+  )
+
+  self$x_grid = x_grid
+
+  if( self$style_info$time$grid ) {
+
+    if( x_grid$min10 ) abline( v = min10$x, lty = self$style_info$grid$minute$lty, col = self$style_info$grid$minute$col )
+    if( x_grid$hours ) abline( v = hours$x, lty = self$style_info$grid$hour  $lty, col = self$style_info$grid$hour  $col )
+    if( x_grid$dates ) abline( v = dates$x, lty = self$style_info$grid$day   $lty, col = self$style_info$grid$day   $col )
+    if( x_grid$month ) abline( v = month$x, lty = self$style_info$grid$month $lty, col = self$style_info$grid$month $col )
+    if( x_grid$years ) abline( v = years$x, lty = self$style_info$grid$year  $lty, col = self$style_info$grid$year  $col )
+
+  }
+
+  # plot axis
+  x_labs = list(
+
+    min10 = par( 'xaxt' ) != 'n' & self$style_info$time$resolution %in% c( 'minute' ),
+    hours = par( 'xaxt' ) != 'n' & self$style_info$time$resolution %in% c( 'minute', 'hour' ),
+    dates = par( 'xaxt' ) != 'n' & self$style_info$time$resolution %in% c( 'minute', 'hour', 'day'  ),
+    month = par( 'xaxt' ) != 'n' & self$style_info$time$resolution %in% c( 'minute', 'hour', 'day', 'month', 'year' ),
+    years = par( 'xaxt' ) != 'n' & self$style_info$time$resolution %in% c( 'minute', 'hour', 'day', 'month', 'year', 'years' )
+
+  )
+
+  if( self$style_info$time$visible ) {
+
+    if( x_labs$hours ) hours[, axis( at = x, labels = xlab, side = 1, tick = FALSE, line = -1 ) ]
+    if( x_labs$dates ) dates[, axis( at = x, labels = xlab, side = 1, tick = FALSE, line = -1 + x_labs$hours ) ]
+    if( x_labs$month ) month[, axis( at = x, labels = xlab, side = 1, tick = FALSE, line = -1 + x_labs$hours + x_labs$dates ) ]
+    if( x_labs$years ) years[, axis( at = x, labels = xlab, side = 1, tick = FALSE, line = -1 + x_labs$hours + x_labs$dates + x_labs$month ) ]
+
+  }
+
+} )
+
+PlotDts$set( 'private', 'plot_candles', function( x, y, time_frame, col = 'auto', type = c( 'barchart', 'candlestick' ), gap = 0.2, border = NA ) {
+
+  type = match.arg( type )
+
+  if( col[[1]] == 'auto' ) {
+
+    if( type == 'candlestick' ) {
+
+      col = c( up = private$get_color(), self$style_info$candle$col[ c( 'flat', 'down' ) ] )
+
+    } else {
+
+      col = private$get_color()
+    }
+
+  }
+
+  legend_info = data.table( col = col[[1]], pch = NA, lty = 1, lwd = 1 )
+
+  o = y[[1]]
+  h = y[[2]]
+  l = y[[3]]
+  c = y[[4]]
+
+  if( missing( time_frame ) ) {
+
+    time_frame = min( diff( x ), na.rm = T )
+
+  }
+
+  width = time_frame * ( 1 - gap ) / 2
+
+  if( length( col ) > 1 ) col = ifelse( o < c, col$up, ifelse( o > c, col$down, col$flat ) )
+
+  switch(
+    type,
     barchart = {
 
-      segments( x - width    , y[[ high  ]], x - width, y[[ low   ]], col = col )
-      segments( x - width * 2, y[[ open  ]], x - width, y[[ open  ]], col = col )
-      segments( x - width    , y[[ close ]], x        , y[[ close ]], col = col )
+      segments( x - width    , h, x - width, l, col = col )
+      segments( x - width * 2, o, x - width, o, col = col )
+      segments( x - width    , c, x        , c, col = col )
 
     },
     candlestick = {
 
-      segments( x - width    , y[[ high ]], x - width, y[[ low   ]], col = col )
-      rect    ( x - width * 2, y[[ open ]], x        , y[[ close ]], col = col, border = col )
+      segments( x - width    , h, x - width, l, col = col )
+      rect    ( x - width * 2, o, x        , c, col = col, border = border )
 
     }
   )
 
-  self$candles_info$last = tail( y[[ close ]], 1 )
-  self$candles_info$col  = tail( col, 1 )
+  legend_info
+
+
+} )
+
+PlotDts$set( 'private', 'plot_events', function( x, labels = NA, lty = 1, col = 'auto', lwd = 1 ) {
+
+  if( col == 'auto' ) col = private$get_color()
+
+  abline( v = x, lty = lty, col = col, lwd = lwd )
+  axis( 3, at = x, tick = F, labels = labels, line = -1 )
+
+  legend_info = data.table( lty, col, lwd )
+
+} )
+
+PlotDts$set( 'private', 'plot_lines', function( x, y, type = 'l', lty = 1, pch = NA, col = 'auto', bg = NA, lwd = 1, lend = 'round' ) {
+
+  if( col == 'auto' ) col = private$get_color()
+
+  args = as.list( environment() )
+  do.call( lines, args )
+
+  legend_info = data.table( lty, col, lwd, pch, bg, lend )
+
+} )
+
+PlotDts$set( 'private', 'plot_histogram', function( x, y, gap = 0.2, col = 'auto', border = NA, time_frame = NULL, split = F, stacked = F, gap2 = 0.05, y0 = 0 ) {
+
+  if( col[1] == 'auto' ) col = private$get_color( length( y ) )
+
+  legend_info = data.table( col, pch = 15 )
+
+  xright = x
+
+  xleft = if( is.null( time_frame ) ) shift( x ) else x - time_frame
+
+  xstep = min( xright - xleft, na.rm = T )
+
+  xleft[1] = xright[1] - xstep
+
+  xleft = xleft + xstep * gap
+
+  ytop = y0
+  ybottom = y0
+
+  shift_step = split / length( y )
+
+  shift = 0
+
+  xw = xright - xleft
+
+  mapply( function( y, col ) {
+
+    if( stacked ) {
+
+      ybottom <<- ytop
+
+    }
+    ytop <<- y
+
+    if( split ) {
+
+      shift <<- shift + shift_step
+      rect( xleft + xw * ( shift - shift_step ) + xstep * gap2, ybottom, xleft + xw * shift, ytop, col = col, border = border )
+
+    }
+    else {
+
+      rect( xleft, ybottom, xright, ytop, col = col, border = border )
+
+    }
+
+  }, y, col )
+
+  legend_info
+
+} )
+
+PlotDts$set( 'private', 'plot_last_values', function() {
+
+  x = private$last
+  axis( 4, at = x, tick = F, labels = format( signif( x, 4 ) ), las = 1 )
+
+} )
+
+PlotDts$set( 'private', 'get_x', function( id ) {
+
+  id.. = id
+  private$t_to_x_map[ id == id.. & col_id == col_id[1], .( x ) ]
+
+} )
+
+PlotDts$set( 'private', 'get_visible', function( id ) {
+
+  id.. = id
+  private$t_to_x_map[ id == id.. & col_id == col_id[1], visible ]
+
+} )
+
+PlotDts$set( 'private', 'get_color', function( n = 1 ) {
+
+  if( is.null( private$color_id ) ) private$color_id = 0
+
+  col = distinct_colors[ private$color_id + 1:n ]
+
+  private$color_id = private$color_id + n
+
+  if( any( is.na( col ) ) ) stop( 'no more automatic colors available, please set colors manually', call. = F )
+
+  return( col )
+
+} )
+
+PlotDts$set( 'private', 'plot_legend', function() {
+
+  private$legend_info[, {
+    legend(
+      legend    = label, col = col, pt.bg = bg, lty = lty, pch = pch, lwd = lwd,
+      x         = self$style_info$legend$position,
+      bg        = self$style_info$legend$col$background,
+      box.col   = self$style_info$legend$col$frame,
+      text.col  = self$style_info$legend$col$text,
+      inset     = self$style_info$legend$inset,
+      xpd       = TRUE,
+      horiz     = self$style_info$legend$horizontal,
+      y.intersp = 0.8
+    )
+  } ]
+
+} )
+
+PlotDts$set( 'private', 'do_task', function( task ) {
+
+  switch(
+    task$type,
+    candles = {
+
+      ds = private$data_summary[ match( task$names, name ) ]
+
+      li = do.call(
+        private$plot_candles, c(
+          private$get_x( ds$id[1] ),
+          list( y = private$data[[ ds$id[1] ]][, ds$name, with = F ] ),
+          task$args
+        ) )
+      data.table( name = task$names[4], label = task$label, li )
+
+    },
+    lines = {
+
+      ds = private$data_summary[ match( task$names, name ) ]
+
+      args = as.data.table( task$args )
+
+      li = ds[, do.call(
+        private$plot_lines, c(
+          private$get_x( id ),
+          y = list( private$data[[ id ]][[ name ]] ),
+          if( nrow( args ) == length( task$names ) ) args[ task$names == name ] else args
+        ) ), by = .( id, col_id, name ) ]
+      data.table( label = task$labels, li )
+
+    },
+    events = {
+
+      ds = private$data_summary[ match( task$name, name ) ]
+
+      li = do.call(
+        private$plot_events, c(
+          private$get_x( ds$id ),
+          task$args
+        ) )
+      data.table( name = task$name, label = task$label, li )
+
+    },
+    histogram = {
+
+      ds = private$data_summary[ match( task$names, name ) ]
+      if( uniqueN( ds$id ) > 1 ) stop( 'histogram data must be from single data set', call. = F )
+
+      li = do.call(
+        private$plot_histogram, c(
+          private$get_x( ds$id[1] ),
+          list( y = private$data[[ ds$id[1] ]][, ds$name, with = F ] ),
+          task$args
+        ) )
+      data.table( name = task$names, label = task$labels, li )
+
+    }
+
+  )
+
+} )
+
+PlotDts$set( 'private', 'add_task', function( type, args ) {
+
+  i = length( private$tasks ) + 1
+  private$tasks[[ i ]] = c( type = type, args )
+
+} )
+
+PlotDts$set( 'public', 'plot', function() {
+
+  if( is.null( private$basis_limited ) ) private$set_limits()
+  private$plot_basis()
+  legend_info_mask = data.table( label = '', last = 0., pch = 1, col = '', lty = 1, lwd = 1, bg = '' )[0]
+  private$legend_info = rbindlist( c( list( legend_info_mask ), lapply( private$tasks, private$do_task ) ), fill = T )
+
+  private$legend_info[ private$data_summary, last := i.last, on = 'name' ]
+  setorder( private$legend_info, -last )
+
+  if( self$style_info$value$last     ) private$plot_last_values()
+  if( self$style_info$legend$visible ) private$plot_legend()
 
   invisible( self )
 
 } )
 
-PlotTs$set( 'public', 'plot_lines', function() {
+PlotDts$set( 'public', 'lines', function( names = 'auto', labels = names, ... ) {
 
-  if( is.null( self$lines_info ) ) return( invisible( self ) )
+  if( all( names == 'auto' ) )  {
 
-  self$lines_info = self$lines_info[ !duplicated( name ) ]
-
-  self$lines_info[ type == 'p', lty := 0 ]
-  self$lines_info[ type == 'h', lend := 'square' ]
-  self$lines_info[ !type %in% c( 'p', 'b', 'o' ), pch := NA ]
-
-  self$lines_info[ col == 'auto', col := if( .N > 25 ) rainbow( .N ) else distinct_colors[ 1:.N ] ]
-
-  self$lines_info[, last := {
-
-    x = self$data_x[[ data_id ]]
-    y = self$data[[ data_id ]][[ name_id ]]#[ x >= self$frame$xlim[1] & x <= self$frame$xlim[2] ]
-    #x = x[ x >= self$frame$xlim[1] & x <= self$frame$xlim[2] ]
-
-    lines( x, y, type = type[1], lty = lty[1], pch = pch[1], col = col[1], lwd = lwd[1], lend = lend[1], bg = bg[1] )
-    as.double( tail( y[ x <= self$frame$xlim[2] ], 1 ) )
-
-
-  } , by = list( data_id, name_id ) ]
-
-  invisible( self )
-
-} )
-
-PlotTs$set( 'public', 'plot_events', function() {
-
-  if( is.null( self$events_data ) ) return( invisible( self ) )
-
-  self$events_info[ col == 'auto', col := if( .N > 25 ) rainbow( .N ) else distinct_colors[ 1:.N ] ]
-
-  self$events_info[, {
-
-    x = self$events_x[ self$events_data[[2]] == name ]
-    abline( v = x, col = col[1], lwd = lwd[1], lty = lty[1] )
-
-  } , by = .( name = names ) ]
-
-  invisible( self )
-
-} )
-
-PlotTs$set( 'public', 'plot_legend', function() {
-
-  if( !self$style_info$legend$visible ) return( invisible( self ) )
-
-  legend_info = self$lines_info
-
-  if( !is.null( legend_info ) )
-    legend_info[, {
-
-      legend( legend = label, col = col, pt.bg = bg, lty = lty, pch = pch, lwd = lwd,
-              x = self$style_info$legend$position,
-              bg = self$style_info$legend$col$background,
-              box.col = self$style_info$legend$col$frame,
-              inset = self$style_info$legend$inset,
-              xpd = TRUE,
-              horiz = self$style_info$legend$horizontal )
-
-    } ]
-
-  # events
-  legend_info = self$events_info
-
-  if( !is.null( legend_info ) )
-    legend_info[, {
-
-      legend( legend = names, col = col, lty = lty, lwd = lwd,
-              x = self$style_info$legend$position_event,
-              bg = self$style_info$legend$col$background,
-              box.col = self$style_info$legend$col$frame,
-              inset = self$style_info$legend$inset,
-              xpd = TRUE,
-              horiz = self$style_info$legend$horizontal )
-
-    } ]
-
-  invisible( self )
-
-} )
-
-PlotTs$set( 'public', 'plot', function() {
-
-  if( all( sapply( self$data, ncol ) == 1 ) ) stop( 'at least one data set must have data columns' )
-  if( is.null( self$basis        ) ) self$limits()
-  self$calc_time_grid_and_labels()
-  self$plot_frame()
-  self$plot_time()
-  self$plot_time_grid()
-  self$plot_candles()
-  self$plot_lines()
-  self$plot_segments()
-  self$plot_events()
-  self$plot_legend()
-  self$plot_last_values()
-
-  invisible( self )
-
-} )
-
-PlotTs$set( 'public', 'plot_last_values', function() {
-
-  if( !self$style_info$value$last ) return( invisible( self ) )
-
-  if( !is.null( self$lines_info ) ){
-
-    self$lines_info[ type == 'p', last := NA ]
+    names = private$data_summary[ class %in% c( 'numeric', 'double' ), name ]
+    labels = names
 
   }
-  if( is.null( self$lines_info ) & is.null( self$candles_info ) ) return( invisible( self ) )
 
-  lines_info = rbind( self$lines_info[, c( 'last', 'col' ) ], setDT( self$candles_info[ c( 'last', 'col' ) ] ) )
-
-  setorder( lines_info, last )
-  lines_info = lines_info[ !is.na( last ) ]
-  if( nrow( lines_info ) == 0 ) return( invisible( self ) )
-
-
-  last_values <- round( lines_info$last, calc_decimal_resolution( axTicks( 2 ) ) )
-
-  at  = last_values
-
-  steps = c( Inf, diff( at ) )
-
-  str_height = strheight( 'X' ) * 1.1
-
-  overlaps = steps < str_height
-
-  overlaps[ which( overlaps ) - 1 ] = TRUE
-
-  rle <- rle( overlaps )
-
-  group_lengths = rle$length
-  group_values  = rle$values
-  n_groups      = length( group_lengths )
-
-  m = cumsum( group_lengths )
-
-  n = c( 1, m[-n_groups] + 1 )
-
-  groups = mapply( ':', n, m, SIMPLIFY = FALSE )
-
-
-  last_values_shifted = lapply( 1:n_groups, function(i) if( group_values[i] ) {
-
-    values = last_values[ groups[[i]] ]
-
-    at_values = seq( from = values[1], by = str_height, length.out = group_lengths[i] )
-
-    at_offset = mean( values ) - mean( at_values )
-
-    at_values = at_values + at_offset
-
-  } else at_values = last_values[ groups[[i]] ]  )
-
-  last_values_shifted <- unlist( last_values_shifted )
-
-  mtext( format( last_values ), at = last_values_shifted, side = 4, cex = par('cex'), line = 0.5, las = 1, col = lines_info$col )
-
+  private$add_task( type = 'lines', c( as.list( environment() ), list( args = list( ... ) ) ) )
   invisible( self )
 
 } )
 
+PlotDts$set( 'public', 'candles', function( names = c( 'open', 'high', 'low', 'close' ), label = 'candles', ... ) {
 
-plot_dts_hist = function( x, normalized = T, style_args = NULL ) {
+  private$add_task( type = 'candles', c( as.list( environment() ), list( args = list( ... ) ) ) )
+  invisible( self )
 
-  data = copy( x[, -1 ] )
+} )
 
-  normator = rowSums( data )
+PlotDts$set( 'public', 'events', function( name, label = name, ... ) {
 
-  p = plot_dts( x )$lines( type = 'n' )$limits( ylim = c( 0, if( normalized ) 1 else max( normator ) ) )
+  private$add_task( type = 'events', c( as.list( environment() ), list( args = list( ... ) ) ) )
+  invisible( self )
 
-  do.call( p$style, c( legend = list( visible = F ), value = list( last = F ), style_args ) )
+} )
 
-  p$plot()
+PlotDts$set( 'public', 'histogram', function( names, labels = names, y0 = 0, ... ) {
 
-  p$style_info$legend$visible = T
+  self$ylim = c( self$ylim, y0 )
 
-  if( !is.null( style_args$legend$visible ) ) p$style_info$legend$visible = style_args$legend$visible
-  p$lines_info[, ':='( pch = 15, lty = 0 ) ]
+  private$add_task( type = 'histogram', c( as.list( environment() ), list( args = list( ... ) ) ) )
+  invisible( self )
 
-  xright = p$data_x[[1]]
-
-  xleft = shift( xright )
-
-  xleft[1] = xright[1] - min( xright - xleft, na.rm = T )
-
-  ytop = 0
-
-  if( normalized ) data = data / rowSums( data )
-
-  for( i in 1:length( data ) ) {
-
-    ybottom = ytop
-    ytop = ytop + data[[i]]
-    rect( xleft, ybottom, xright, ytop, col = p$lines_info[ i, col ], border = NA )
-
-  }
-
-  p$plot_legend()
-  invisible( p )
-
-}
+} )
