@@ -30,8 +30,7 @@
 #' \href{https://www.finam.ru/profile/moex-akcii/sberbank/export/}{Finam},
 #' \href{https://www.moex.com/en/derivatives/contracts.aspx}{MOEX},
 #' \href{https://www.iqfeed.net/symbolguide/index.cfm?symbolguide=lookup}{IQFeed},
-#' \href{https://finance.yahoo.com/}{Yahoo} and
-#' \href{https://www.google.com/finance}{Google} sources. \cr
+#' \href{https://finance.yahoo.com/}{Yahoo} \cr
 
 #' \subsection{IQFeed}{
 #'
@@ -86,7 +85,6 @@
 #' get_iqfeed_data( 'MSFT', '2015-01-01', '2016-01-01', 'hour' )
 #' get_iqfeed_data( 'MSFT', Sys.Date() - 3, Sys.Date() , 'tick' )
 #'
-#' get_google_data( 'MSFT', '2015-01-01', '2016-01-01' )
 #' get_yahoo_data( 'MSFT', '2015-01-01', '2016-01-01' )
 #'
 #' get_moex_futures_data( 'RIH9', '2009-01-01', '2009-02-01', 'tick', local = T )

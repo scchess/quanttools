@@ -7,8 +7,8 @@
 \alias{get_moex_options_data}
 \alias{get_moex_futures_data}
 \alias{get_moex_continuous_futures_data}
-\alias{get_yahoo_data}
 \alias{get_yahoo_splits_and_dividends}
+\alias{get_yahoo_data}
 \title{Download historical market data}
 \usage{
 get_finam_data(symbol, from, to = from, period = "day",
@@ -25,10 +25,10 @@ get_moex_futures_data(code, from, to = from, period = "tick",
 
 get_moex_continuous_futures_data(contract, from, to, frequency, day_exp)
 
+get_yahoo_splits_and_dividends(symbol, from, to = from)
+
 get_yahoo_data(symbol, from, to, split.adjusted = TRUE,
   dividend.adjusted = TRUE)
-
-get_yahoo_splits_and_dividends(symbol, from, to = from)
 }
 \arguments{
 \item{symbol}{symbol name}
@@ -55,8 +55,7 @@ Use external websites to get desired symbol name for
 \href{https://www.finam.ru/profile/moex-akcii/sberbank/export/}{Finam},
 \href{https://www.moex.com/en/derivatives/contracts.aspx}{MOEX},
 \href{https://www.iqfeed.net/symbolguide/index.cfm?symbolguide=lookup}{IQFeed},
-\href{https://finance.yahoo.com/}{Yahoo} and
-\href{https://www.google.com/finance}{Google} sources. \cr
+\href{https://finance.yahoo.com/}{Yahoo} \cr
 \subsection{IQFeed}{
 
  \code{data.table} with following data returned:
@@ -113,7 +112,6 @@ get_iqfeed_data( 'MSFT', '2015-01-01', '2016-01-01' )
 get_iqfeed_data( 'MSFT', '2015-01-01', '2016-01-01', 'hour' )
 get_iqfeed_data( 'MSFT', Sys.Date() - 3, Sys.Date() , 'tick' )
 
-get_google_data( 'MSFT', '2015-01-01', '2016-01-01' )
 get_yahoo_data( 'MSFT', '2015-01-01', '2016-01-01' )
 
 get_moex_futures_data( 'RIH9', '2009-01-01', '2009-02-01', 'tick', local = T )
