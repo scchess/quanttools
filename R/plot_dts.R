@@ -114,6 +114,10 @@
 #' msft_candles = get_yahoo_data                ( 'MSFT', '2014-01-01', '2015-01-01' )
 #' msft_events  = get_yahoo_splits_and_dividends( 'MSFT', '2014-01-01', '2015-01-01' )
 #'
+#' # change system margins ( to revert use par( margins_old ) )
+#' margins_old = par( oma = c( 5, 4, 2, 4 ) + 0.1, mar = c( 0, 0, 1, 0 ) )
+#'
+#'
 #' ## Plots
 #'
 #' # Default:
@@ -210,6 +214,28 @@
 #'   histogram( c( 'aapl', 'msft' ), labels = c( 'Apple', 'Microsoft' ), stacked = T, gap = 0, border = 'white' )$limits( tlim = '2014-07' )$
 #'   plot()
 #'
+#' # theme
+#' theme_old = par( bg = 'black', col = 'white', col.axis = 'white', col.lab = 'white', col.main = 'white' )
+#'
+#' prices  = plot_dts(
+#'   aapl_candles[, .( date, Apple = close / close[1] ) ],
+#'   msft_candles[, .( date, Microsoft = close / close[1] ) ] )
+#' volume = plot_dts(
+#'   aapl_candles[, .( date, Apple = volume * close / 1e9 ) ],
+#'   msft_candles[, .( date, Microsoft = volume * close / 1e9 ) ] )$
+#'   lines( type = 'h' )
+#'
+#' pars = par( mfrow = c( 2, 1 ), oma = c( 5, 4, 2, 4 ) + 0.1, mar = c( 0, 0, 1, 0 ) )
+#' prices$style( time = list( visible = F ), legend = list( col = list( text = 'black', background = rgb( 1,1,1,0.5 ) ) ) )$
+#'   plot()
+#' volume$style( legend = list( visible = F ), legend = list( col = list( text = 'black', background = rgb( 1,1,1,0.5 ) ) ) )$
+#'   plot()
+#' par( pars )
+#'
+#' par( theme_old )
+#'
+#' # revert system margins
+#' par( margins_old )
 #'
 #' }
 #'
@@ -267,7 +293,8 @@ PlotDts$set( 'public', 'initialize', function( ... ) {
       log     = FALSE,
       visible = TRUE,
       grid    = TRUE,
-      last    = TRUE
+      last    = TRUE,
+      format  = list( digits = 3, nsmall = 0, big.mark = ' ' )
 
     ),
 
@@ -303,9 +330,9 @@ PlotDts$set( 'public', 'initialize', function( ... ) {
       inset    = 0.01,
       col      = list(
 
-        background = rgb( 1, 1, 1, 0.8 ),
-        frame      = rgb( 1, 1, 1, 0.0 ),
-        text       = rgb( 0, 0, 0, 1   )
+        background = par( 'bg' ),
+        frame      = NA,
+        text       = par( 'col' )
 
       ),
       horizontal = FALSE
@@ -490,6 +517,8 @@ PlotDts$set( 'private', 'set_limits', function( tlim = NULL, ylim = NULL ) {
 
   }
 
+  names = unlist( lapply( private$tasks, function( task ) switch( task$type , candles = task$names[4], task$names ) ) )
+
   private$last = private$data_summary[ name %in% names & class %in% c( 'numeric', 'integer' ), last ]
 
   private$xlim = private$basis_limited[, c( x_from[1], x_to[.N] ) ] + attr( private$basis_limited, 'step' ) * c( -1, 0 )
@@ -540,7 +569,7 @@ PlotDts$set( 'private', 'calc_intraday_marks', function( b, step ) {
 
   step = as.numeric( step, units = attr( b, 'units' ) )
 
-  b[, .( t = date + as.difftime( c( t_from, seq( ceiling( t_from / step ) * step, floor( t_to / step ) * step, step ) ), units = attr( b, 'units' ) ) ), by = date ][, x := self$t_to_x( t ) ][ !rev( duplicated( rev( x ) ) ) ][]
+  b[, .( t = date + as.difftime( c( t_from, seq( ceiling( t_from / step ) * step, floor( t_to / step ) * step + step, step ) ), units = attr( b, 'units' ) ) ), by = date ][, x := self$t_to_x( t ) ][ !rev( duplicated( rev( x ) ) ) ][]
 
 } )
 
@@ -574,7 +603,7 @@ PlotDts$set( 'private', 'plot_value_axis_and_grid', function() {
 
   abline( h = 0, col = self$style_info$grid$zero$col, lty = self$style_info$grid$zero$lty )
 
-  if( self$style_info$value$visible ) axis( 2, at = ax_ticks, labels = format( ax_ticks ), las = 1, tick = FALSE )
+  if( self$style_info$value$visible ) axis( 2, at = ax_ticks, labels = do.call( format, c( x = list( ax_ticks ), self$style_info$value$format ) ), las = 1, tick = FALSE )
 
 } )
 
@@ -726,6 +755,19 @@ PlotDts$set( 'private', 'plot_lines', function( x, y, type = 'l', lty = 1, pch =
 
 } )
 
+PlotDts$set( 'private', 'plot_segments', function( x0, y0, x1 = x0, y1 = y0, col = 'auto', lty = 1, lwd = 1 ) {
+
+
+  if( col[1] == 'auto' ) col = private$get_color()
+
+  legend_info = data.table( col, lty, lwd )
+
+  segments( x0, y0, x1, y1, col, lty, lwd )
+
+  legend_info
+
+} )
+
 PlotDts$set( 'private', 'plot_histogram', function( x, y, gap = 0.2, col = 'auto', border = NA, time_frame = NULL, split = F, stacked = F, gap2 = 0.05, y0 = 0 ) {
 
   if( col[1] == 'auto' ) col = private$get_color( length( y ) )
@@ -781,14 +823,14 @@ PlotDts$set( 'private', 'plot_histogram', function( x, y, gap = 0.2, col = 'auto
 PlotDts$set( 'private', 'plot_last_values', function() {
 
   x = private$last
-  axis( 4, at = x, tick = F, labels = format( signif( x, 4 ) ), las = 1 )
+  axis( 4, at = x, tick = F, labels = do.call( format, c( x = list( x ), self$style_info$value$format ) ), las = 1 )
 
 } )
 
-PlotDts$set( 'private', 'get_x', function( id ) {
+PlotDts$set( 'private', 'get_x', function( id, i = 1 ) {
 
   id.. = id
-  private$t_to_x_map[ id == id.. & col_id == col_id[1], .( x ) ]
+  private$t_to_x_map[ id == id.. & col_id == unique( col_id )[i], .( x ) ]
 
 } )
 
@@ -801,9 +843,16 @@ PlotDts$set( 'private', 'get_visible', function( id ) {
 
 PlotDts$set( 'private', 'get_color', function( n = 1 ) {
 
-  if( is.null( private$color_id ) ) private$color_id = 0
+  # init
+  if( is.null( private$color_id ) ) {
 
-  col = distinct_colors[ private$color_id + 1:n ]
+    private$color_id = 0
+    N = length( private$last ) * 1.5
+    self$colors = if( N > length( distinct_colors ) ) colorRampPalette( distinct_colors )( N ) else distinct_colors
+
+  }
+
+  col = self$colors[ private$color_id + 1:n ]
 
   private$color_id = private$color_id + n
 
@@ -888,6 +937,24 @@ PlotDts$set( 'private', 'do_task', function( task ) {
         ) )
       data.table( name = task$names, label = task$labels, li )
 
+    },
+    segments = {
+
+      ds = private$data_summary[ match( task$names, name ) ]
+
+      if( length( task$names ) != 2 ) stop( 'segments data must combine two names', call. = F )
+      if( uniqueN( ds$id ) > 1 ) stop( 'segments data must be from single data set', call. = F )
+
+      li = do.call(
+        private$plot_segments, c(
+          list( x0 = private$get_x( ds$id[1], 1 )$x ),
+          list( x1 = private$get_x( ds$id[1], 2 )$x ),
+          list( y0 = private$data[[ ds$id[1] ]][[ ds$col_id[1] ]] ),
+          list( y1 = private$data[[ ds$id[1] ]][[ ds$col_id[2] ]] ),
+          task$args
+        ) )
+      data.table( name = task$names[1], label = task$label, li )
+
     }
 
   )
@@ -951,6 +1018,13 @@ PlotDts$set( 'public', 'histogram', function( names, labels = names, y0 = 0, ...
   self$ylim = c( self$ylim, y0 )
 
   private$add_task( type = 'histogram', c( as.list( environment() ), list( args = list( ... ) ) ) )
+  invisible( self )
+
+} )
+
+PlotDts$set( 'public', 'segments', function( names, label = 'segments', ... ) {
+
+  private$add_task( type = 'segments', c( as.list( environment() ), list( args = list( ... ) ) ) )
   invisible( self )
 
 } )

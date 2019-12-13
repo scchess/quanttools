@@ -103,6 +103,10 @@ aapl_events  = get_yahoo_splits_and_dividends( 'AAPL', '2014-01-01', '2015-01-01
 msft_candles = get_yahoo_data                ( 'MSFT', '2014-01-01', '2015-01-01' )
 msft_events  = get_yahoo_splits_and_dividends( 'MSFT', '2014-01-01', '2015-01-01' )
 
+# change system margins ( to revert use par( margins_old ) )
+margins_old = par( oma = c( 5, 4, 2, 4 ) + 0.1, mar = c( 0, 0, 1, 0 ) )
+
+
 ## Plots
 
 # Default:
@@ -199,6 +203,28 @@ plot_dts( volume_norm )$
   histogram( c( 'aapl', 'msft' ), labels = c( 'Apple', 'Microsoft' ), stacked = T, gap = 0, border = 'white' )$limits( tlim = '2014-07' )$
   plot()
 
+# theme
+theme_old = par( bg = 'black', col = 'white', col.axis = 'white', col.lab = 'white', col.main = 'white' )
+
+prices  = plot_dts(
+  aapl_candles[, .( date, Apple = close / close[1] ) ],
+  msft_candles[, .( date, Microsoft = close / close[1] ) ] )
+volume = plot_dts(
+  aapl_candles[, .( date, Apple = volume * close / 1e9 ) ],
+  msft_candles[, .( date, Microsoft = volume * close / 1e9 ) ] )$
+  lines( type = 'h' )
+
+pars = par( mfrow = c( 2, 1 ), oma = c( 5, 4, 2, 4 ) + 0.1, mar = c( 0, 0, 1, 0 ) )
+prices$style( time = list( visible = F ), legend = list( col = list( text = 'black', background = rgb( 1,1,1,0.5 ) ) ) )$
+  plot()
+volume$style( legend = list( visible = F ), legend = list( col = list( text = 'black', background = rgb( 1,1,1,0.5 ) ) ) )$
+  plot()
+par( pars )
+
+par( theme_old )
+
+# revert system margins
+par( margins_old )
 
 }
 
