@@ -4,8 +4,13 @@
 \alias{lines_stacked_hist}
 \title{Add stacked histogram to active time series plot}
 \usage{
-lines_stacked_hist(x = 1:nrow(data), data, width = "auto",
-  col = "auto", ordered = TRUE)
+lines_stacked_hist(
+  x = 1:nrow(data),
+  data,
+  width = "auto",
+  col = "auto",
+  ordered = TRUE
+)
 }
 \arguments{
 \item{x}{location coordinates}
@@ -25,10 +30,15 @@ Add stacked histogram to active time series plot
 Used in \code{\link{plot_ts}} internally.
 }
 \seealso{
-Other graphical functions: \code{\link{add_last_values}},
-  \code{\link{add_legend}}, \code{\link{distinct_colors}},
-  \code{\link{empty_plot}}, \code{\link{hist_dt}},
-  \code{\link{lines_ohlc}}, \code{\link{multi_heatmap}},
-  \code{\link{plot_table}}, \code{\link{plot_ts}}
+Other graphical functions: 
+\code{\link{add_last_values}()},
+\code{\link{add_legend}()},
+\code{\link{distinct_colors}},
+\code{\link{empty_plot}()},
+\code{\link{hist_dt}()},
+\code{\link{lines_ohlc}()},
+\code{\link{multi_heatmap}()},
+\code{\link{plot_table}()},
+\code{\link{plot_ts}()}
 }
 \concept{graphical functions}

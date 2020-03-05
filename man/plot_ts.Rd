@@ -5,12 +5,25 @@
 \alias{t_to_x}
 \title{Plot time series !PLEASE USE plot_dts!}
 \usage{
-plot_ts(dt, type = "auto", col = "auto", lty = par("lty"),
-  lwd = par("lwd"), pch = par("pch"), legend = c("topright",
-  "topleft", "bottomright", "bottomleft", "n"), last_values = TRUE,
-  main = "", ylim = "auto", xlim = "auto", time_range = "auto",
-  resolution = "auto", log = par("ylog"), mar = par("mar"),
-  xaxt = par("xaxt"), add = par("new"))
+plot_ts(
+  dt,
+  type = "auto",
+  col = "auto",
+  lty = par("lty"),
+  lwd = par("lwd"),
+  pch = par("pch"),
+  legend = c("topright", "topleft", "bottomright", "bottomleft", "n"),
+  last_values = TRUE,
+  main = "",
+  ylim = "auto",
+  xlim = "auto",
+  time_range = "auto",
+  resolution = "auto",
+  log = par("ylog"),
+  mar = par("mar"),
+  xaxt = par("xaxt"),
+  add = par("new")
+)
 
 t_to_x(t)
 }
@@ -84,11 +97,15 @@ layout( matrix(1) )
 
 }
 \seealso{
-Other graphical functions: \code{\link{add_last_values}},
-  \code{\link{add_legend}}, \code{\link{distinct_colors}},
-  \code{\link{empty_plot}}, \code{\link{hist_dt}},
-  \code{\link{lines_ohlc}},
-  \code{\link{lines_stacked_hist}},
-  \code{\link{multi_heatmap}}, \code{\link{plot_table}}
+Other graphical functions: 
+\code{\link{add_last_values}()},
+\code{\link{add_legend}()},
+\code{\link{distinct_colors}},
+\code{\link{empty_plot}()},
+\code{\link{hist_dt}()},
+\code{\link{lines_ohlc}()},
+\code{\link{lines_stacked_hist}()},
+\code{\link{multi_heatmap}()},
+\code{\link{plot_table}()}
 }
 \concept{graphical functions}

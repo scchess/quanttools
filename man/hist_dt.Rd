@@ -4,8 +4,12 @@
 \alias{hist_dt}
 \title{Plot histogram of data.table by columns}
 \usage{
-hist_dt(dt, bin_width = diff(range(dt, na.rm = TRUE))/10, coeff = 0.8,
-  main = "")
+hist_dt(
+  dt,
+  bin_width = diff(range(dt, na.rm = TRUE))/10,
+  coeff = 0.8,
+  main = ""
+)
 }
 \arguments{
 \item{dt}{data.table}
@@ -20,11 +24,15 @@ hist_dt(dt, bin_width = diff(range(dt, na.rm = TRUE))/10, coeff = 0.8,
 Plot histogram of data.table by columns
 }
 \seealso{
-Other graphical functions: \code{\link{add_last_values}},
-  \code{\link{add_legend}}, \code{\link{distinct_colors}},
-  \code{\link{empty_plot}}, \code{\link{lines_ohlc}},
-  \code{\link{lines_stacked_hist}},
-  \code{\link{multi_heatmap}}, \code{\link{plot_table}},
-  \code{\link{plot_ts}}
+Other graphical functions: 
+\code{\link{add_last_values}()},
+\code{\link{add_legend}()},
+\code{\link{distinct_colors}},
+\code{\link{empty_plot}()},
+\code{\link{lines_ohlc}()},
+\code{\link{lines_stacked_hist}()},
+\code{\link{multi_heatmap}()},
+\code{\link{plot_table}()},
+\code{\link{plot_ts}()}
 }
 \concept{graphical functions}

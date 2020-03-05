@@ -10,11 +10,15 @@ empty_plot()
 Plot empty plot
 }
 \seealso{
-Other graphical functions: \code{\link{add_last_values}},
-  \code{\link{add_legend}}, \code{\link{distinct_colors}},
-  \code{\link{hist_dt}}, \code{\link{lines_ohlc}},
-  \code{\link{lines_stacked_hist}},
-  \code{\link{multi_heatmap}}, \code{\link{plot_table}},
-  \code{\link{plot_ts}}
+Other graphical functions: 
+\code{\link{add_last_values}()},
+\code{\link{add_legend}()},
+\code{\link{distinct_colors}},
+\code{\link{hist_dt}()},
+\code{\link{lines_ohlc}()},
+\code{\link{lines_stacked_hist}()},
+\code{\link{multi_heatmap}()},
+\code{\link{plot_table}()},
+\code{\link{plot_ts}()}
 }
 \concept{graphical functions}

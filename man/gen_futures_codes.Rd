@@ -4,8 +4,14 @@
 \alias{gen_futures_codes}
 \title{Generate futures contract codes and schedule between dates}
 \usage{
-gen_futures_codes(contract, from, to, frequency, day_exp,
-  year_last_digit = FALSE)
+gen_futures_codes(
+  contract,
+  from,
+  to,
+  frequency,
+  day_exp,
+  year_last_digit = FALSE
+)
 }
 \arguments{
 \item{contract}{contract base name}

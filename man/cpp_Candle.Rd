@@ -29,19 +29,31 @@ double close, double time, int volume, int timeFrame }}
 }
 
 \seealso{
-Other backtesting classes: \code{\link{Cost}},
-  \code{\link{Indicator}}, \code{\link{Order}},
-  \code{\link{Processor}}, \code{\link{Tick}}
+Other backtesting classes: 
+\code{\link{Cost}},
+\code{\link{Indicator}},
+\code{\link{Order}},
+\code{\link{Processor}},
+\code{\link{Tick}}
 
-Other C++ classes: \code{\link{BBands}},
-  \code{\link{CandleAggregator}}, \code{\link{Cost}},
-  \code{\link{Crossover}}, \code{\link{Ema}},
-  \code{\link{Indicator}}, \code{\link{Order}},
-  \code{\link{Processor}}, \code{\link{RollLinReg}},
-  \code{\link{RollPercentRank}}, \code{\link{RollRange}},
-  \code{\link{RollSd}}, \code{\link{RollVolumeProfile}},
-  \code{\link{Rsi}}, \code{\link{Sma}},
-  \code{\link{Stochastic}}, \code{\link{Tick}}
+Other C++ classes: 
+\code{\link{BBands}},
+\code{\link{CandleAggregator}},
+\code{\link{Cost}},
+\code{\link{Crossover}},
+\code{\link{Ema}},
+\code{\link{Indicator}},
+\code{\link{Order}},
+\code{\link{Processor}},
+\code{\link{RollLinReg}},
+\code{\link{RollPercentRank}},
+\code{\link{RollRange}},
+\code{\link{RollSd}},
+\code{\link{RollVolumeProfile}},
+\code{\link{Rsi}},
+\code{\link{Sma}},
+\code{\link{Stochastic}},
+\code{\link{Tick}}
 }
 \concept{C++ classes}
 \concept{backtesting classes}

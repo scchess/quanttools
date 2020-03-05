@@ -18,11 +18,17 @@ data.table with columns \code{tr, atr, trueHigh, trueLow}
 Average True Rangeis a measure of volatility of a High-Low-Close series.
 }
 \seealso{
-Other technical indicators: \code{\link{bbands}},
-  \code{\link{crossover}}, \code{\link{ema}},
-  \code{\link{roll_lm}}, \code{\link{roll_percent_rank}},
-  \code{\link{roll_range}}, \code{\link{roll_sd}},
-  \code{\link{roll_volume_profile}}, \code{\link{rsi}},
-  \code{\link{sma}}, \code{\link{stochastic}}
+Other technical indicators: 
+\code{\link{bbands}()},
+\code{\link{crossover}()},
+\code{\link{ema}()},
+\code{\link{roll_lm}()},
+\code{\link{roll_percent_rank}()},
+\code{\link{roll_range}()},
+\code{\link{roll_sd}()},
+\code{\link{roll_volume_profile}()},
+\code{\link{rsi}()},
+\code{\link{sma}()},
+\code{\link{stochastic}()}
 }
 \concept{technical indicators}

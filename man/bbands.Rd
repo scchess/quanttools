@@ -20,11 +20,17 @@ Returns data.table with columns \code{upper, lower, sma}.
 Bollinger bands is a mix of Rolling Range and SMA indicators. It shows the average price and its range over n past values based on price volatility.
 }
 \seealso{
-Other technical indicators: \code{\link{atr}},
-  \code{\link{crossover}}, \code{\link{ema}},
-  \code{\link{roll_lm}}, \code{\link{roll_percent_rank}},
-  \code{\link{roll_range}}, \code{\link{roll_sd}},
-  \code{\link{roll_volume_profile}}, \code{\link{rsi}},
-  \code{\link{sma}}, \code{\link{stochastic}}
+Other technical indicators: 
+\code{\link{atr}()},
+\code{\link{crossover}()},
+\code{\link{ema}()},
+\code{\link{roll_lm}()},
+\code{\link{roll_percent_rank}()},
+\code{\link{roll_range}()},
+\code{\link{roll_sd}()},
+\code{\link{roll_volume_profile}()},
+\code{\link{rsi}()},
+\code{\link{sma}()},
+\code{\link{stochastic}()}
 }
 \concept{technical indicators}

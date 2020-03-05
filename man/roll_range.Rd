@@ -30,11 +30,17 @@ roll_range returns data.table with columns \code{min, max}
 Rolling range is minimum and maximum values over n past values. Can be used to identify price range.
 }
 \seealso{
-Other technical indicators: \code{\link{atr}},
-  \code{\link{bbands}}, \code{\link{crossover}},
-  \code{\link{ema}}, \code{\link{roll_lm}},
-  \code{\link{roll_percent_rank}}, \code{\link{roll_sd}},
-  \code{\link{roll_volume_profile}}, \code{\link{rsi}},
-  \code{\link{sma}}, \code{\link{stochastic}}
+Other technical indicators: 
+\code{\link{atr}()},
+\code{\link{bbands}()},
+\code{\link{crossover}()},
+\code{\link{ema}()},
+\code{\link{roll_lm}()},
+\code{\link{roll_percent_rank}()},
+\code{\link{roll_sd}()},
+\code{\link{roll_volume_profile}()},
+\code{\link{rsi}()},
+\code{\link{sma}()},
+\code{\link{stochastic}()}
 }
 \concept{technical indicators}

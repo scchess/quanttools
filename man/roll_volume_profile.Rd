@@ -24,12 +24,17 @@ data.table with columns \code{time, profile} where profile is data.table with co
 This indicator is not common. Volume profile is the distribution of volume over price. It is formed tick by tick and partially forgets past values over time interval. When volume on any bar is lower than specified critical value the bar is cut.
 }
 \seealso{
-Other technical indicators: \code{\link{atr}},
-  \code{\link{bbands}}, \code{\link{crossover}},
-  \code{\link{ema}}, \code{\link{roll_lm}},
-  \code{\link{roll_percent_rank}},
-  \code{\link{roll_range}}, \code{\link{roll_sd}},
-  \code{\link{rsi}}, \code{\link{sma}},
-  \code{\link{stochastic}}
+Other technical indicators: 
+\code{\link{atr}()},
+\code{\link{bbands}()},
+\code{\link{crossover}()},
+\code{\link{ema}()},
+\code{\link{roll_lm}()},
+\code{\link{roll_percent_rank}()},
+\code{\link{roll_range}()},
+\code{\link{roll_sd}()},
+\code{\link{rsi}()},
+\code{\link{sma}()},
+\code{\link{stochastic}()}
 }
 \concept{technical indicators}

@@ -4,8 +4,14 @@
 \alias{lines_ohlc}
 \title{Add candles to active time series plot}
 \usage{
-lines_ohlc(x = 1:nrow(ohlc), ohlc, width = 0.3,
-  candle.col.up = "blue", candle.col.dn = "red", ch = TRUE)
+lines_ohlc(
+  x = 1:nrow(ohlc),
+  ohlc,
+  width = 0.3,
+  candle.col.up = "blue",
+  candle.col.dn = "red",
+  ch = TRUE
+)
 }
 \arguments{
 \item{x}{location coordinates}
@@ -25,11 +31,15 @@ Add candles to active time series plot
 Used in \code{\link{plot_ts}} internally.
 }
 \seealso{
-Other graphical functions: \code{\link{add_last_values}},
-  \code{\link{add_legend}}, \code{\link{distinct_colors}},
-  \code{\link{empty_plot}}, \code{\link{hist_dt}},
-  \code{\link{lines_stacked_hist}},
-  \code{\link{multi_heatmap}}, \code{\link{plot_table}},
-  \code{\link{plot_ts}}
+Other graphical functions: 
+\code{\link{add_last_values}()},
+\code{\link{add_legend}()},
+\code{\link{distinct_colors}},
+\code{\link{empty_plot}()},
+\code{\link{hist_dt}()},
+\code{\link{lines_stacked_hist}()},
+\code{\link{multi_heatmap}()},
+\code{\link{plot_table}()},
+\code{\link{plot_ts}()}
 }
 \concept{graphical functions}

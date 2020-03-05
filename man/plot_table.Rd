@@ -4,8 +4,13 @@
 \alias{plot_table}
 \title{Plot data.table as table}
 \usage{
-plot_table(dt, transpose = F, justify = c("middle", "left", "right"),
-  height_mult = 1, ...)
+plot_table(
+  dt,
+  transpose = F,
+  justify = c("middle", "left", "right"),
+  height_mult = 1,
+  ...
+)
 }
 \arguments{
 \item{dt}{data.table}
@@ -22,11 +27,15 @@ plot_table(dt, transpose = F, justify = c("middle", "left", "right"),
 Plot data.table as table
 }
 \seealso{
-Other graphical functions: \code{\link{add_last_values}},
-  \code{\link{add_legend}}, \code{\link{distinct_colors}},
-  \code{\link{empty_plot}}, \code{\link{hist_dt}},
-  \code{\link{lines_ohlc}},
-  \code{\link{lines_stacked_hist}},
-  \code{\link{multi_heatmap}}, \code{\link{plot_ts}}
+Other graphical functions: 
+\code{\link{add_last_values}()},
+\code{\link{add_legend}()},
+\code{\link{distinct_colors}},
+\code{\link{empty_plot}()},
+\code{\link{hist_dt}()},
+\code{\link{lines_ohlc}()},
+\code{\link{lines_stacked_hist}()},
+\code{\link{multi_heatmap}()},
+\code{\link{plot_ts}()}
 }
 \concept{graphical functions}

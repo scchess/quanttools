@@ -4,8 +4,14 @@
 \alias{add_legend}
 \title{Add legend to active time series plot}
 \usage{
-add_legend(position = "topright", names, col = "auto", lty = 1,
-  lwd = 1, pch = NA)
+add_legend(
+  position = "topright",
+  names,
+  col = "auto",
+  lty = 1,
+  lwd = 1,
+  pch = NA
+)
 }
 \arguments{
 \item{position}{same as in \code{\link{plot_ts}} except \code{'n'}}
@@ -25,11 +31,15 @@ Add legend to active time series plot
 Used in \code{\link{plot_ts}} internally.
 }
 \seealso{
-Other graphical functions: \code{\link{add_last_values}},
-  \code{\link{distinct_colors}}, \code{\link{empty_plot}},
-  \code{\link{hist_dt}}, \code{\link{lines_ohlc}},
-  \code{\link{lines_stacked_hist}},
-  \code{\link{multi_heatmap}}, \code{\link{plot_table}},
-  \code{\link{plot_ts}}
+Other graphical functions: 
+\code{\link{add_last_values}()},
+\code{\link{distinct_colors}},
+\code{\link{empty_plot}()},
+\code{\link{hist_dt}()},
+\code{\link{lines_ohlc}()},
+\code{\link{lines_stacked_hist}()},
+\code{\link{multi_heatmap}()},
+\code{\link{plot_table}()},
+\code{\link{plot_ts}()}
 }
 \concept{graphical functions}

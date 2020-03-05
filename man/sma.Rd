@@ -15,12 +15,17 @@ sma(x, n)
 Simple moving average also called SMA is the most popular indicator. It shows the average of n past values. Can be used for time series smoothing.
 }
 \seealso{
-Other technical indicators: \code{\link{atr}},
-  \code{\link{bbands}}, \code{\link{crossover}},
-  \code{\link{ema}}, \code{\link{roll_lm}},
-  \code{\link{roll_percent_rank}},
-  \code{\link{roll_range}}, \code{\link{roll_sd}},
-  \code{\link{roll_volume_profile}}, \code{\link{rsi}},
-  \code{\link{stochastic}}
+Other technical indicators: 
+\code{\link{atr}()},
+\code{\link{bbands}()},
+\code{\link{crossover}()},
+\code{\link{ema}()},
+\code{\link{roll_lm}()},
+\code{\link{roll_percent_rank}()},
+\code{\link{roll_range}()},
+\code{\link{roll_sd}()},
+\code{\link{roll_volume_profile}()},
+\code{\link{rsi}()},
+\code{\link{stochastic}()}
 }
 \concept{technical indicators}

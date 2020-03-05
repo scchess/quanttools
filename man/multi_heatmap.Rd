@@ -4,9 +4,14 @@
 \alias{multi_heatmap}
 \title{Multi Dimensional Heat Map}
 \usage{
-multi_heatmap(x, pars, value, col_neg = c("darkblue", "lightblue"),
-  col_pos = c("yellow", "darkgreen"), peak_value = x[,
-  max(abs(get(value)), na.rm = T)])
+multi_heatmap(
+  x,
+  pars,
+  value,
+  col_neg = c("darkblue", "lightblue"),
+  col_pos = c("yellow", "darkgreen"),
+  peak_value = x[, max(abs(get(value)), na.rm = T)]
+)
 }
 \arguments{
 \item{x}{\code{data.table} object}
@@ -27,11 +32,15 @@ Plots multi dimensional heatmap. Axes drawn automatically by layers.
 Inner axes are most frequent and outer axes are less frequent.
 }
 \seealso{
-Other graphical functions: \code{\link{add_last_values}},
-  \code{\link{add_legend}}, \code{\link{distinct_colors}},
-  \code{\link{empty_plot}}, \code{\link{hist_dt}},
-  \code{\link{lines_ohlc}},
-  \code{\link{lines_stacked_hist}},
-  \code{\link{plot_table}}, \code{\link{plot_ts}}
+Other graphical functions: 
+\code{\link{add_last_values}()},
+\code{\link{add_legend}()},
+\code{\link{distinct_colors}},
+\code{\link{empty_plot}()},
+\code{\link{hist_dt}()},
+\code{\link{lines_ohlc}()},
+\code{\link{lines_stacked_hist}()},
+\code{\link{plot_table}()},
+\code{\link{plot_ts}()}
 }
 \concept{graphical functions}

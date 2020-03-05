@@ -20,11 +20,15 @@ Add last values marks to the right of active time series plot
 Used in \code{\link{plot_ts}} internally.
 }
 \seealso{
-Other graphical functions: \code{\link{add_legend}},
-  \code{\link{distinct_colors}}, \code{\link{empty_plot}},
-  \code{\link{hist_dt}}, \code{\link{lines_ohlc}},
-  \code{\link{lines_stacked_hist}},
-  \code{\link{multi_heatmap}}, \code{\link{plot_table}},
-  \code{\link{plot_ts}}
+Other graphical functions: 
+\code{\link{add_legend}()},
+\code{\link{distinct_colors}},
+\code{\link{empty_plot}()},
+\code{\link{hist_dt}()},
+\code{\link{lines_ohlc}()},
+\code{\link{lines_stacked_hist}()},
+\code{\link{multi_heatmap}()},
+\code{\link{plot_table}()},
+\code{\link{plot_ts}()}
 }
 \concept{graphical functions}
