@@ -34,8 +34,9 @@ to_UTC = function( x ) {
   if( is.null( tz ) ) tz = ''
   if( tz == 'UTC' ) return( x )
 
-  x = data.table( x )[, x + ( as.POSIXct( format( x[1] ), tz = 'UTC' ) - as.POSIXct( format( x[1] ), tz = tz ) ),
-                      by = as.Date( x ) ]$'V1'
+  o = order( x )
+  x = data.table( x = x[ o ] )[, x + ( as.POSIXct( format( x[1] ), tz = 'UTC' ) - as.POSIXct( format( x[1] ), tz = tz ) ),
+                      by = as.Date( x ) ][[ 2 ]][ order( o ) ]
   attr( x, 'tzone' ) = 'UTC'
   return( x )
 
