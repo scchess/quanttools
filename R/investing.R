@@ -1,9 +1,9 @@
 investing_get_data = function( id, from, to ) {
 
   # https://github.com/derlin/investing-historical-data/blob/master/investing-get.js
-  response = httr::POST( 
-    url = 'https://uk.investing.com/instruments/HistoricalDataAjax', 
-    httr::add_headers( 
+  response = httr::POST(
+    url = 'https://uk.investing.com/instruments/HistoricalDataAjax',
+    httr::add_headers(
       'Origin' = 'http://www.investing.com',
       'X-Requested-With' = 'XMLHttpRequest'
     ),
@@ -12,46 +12,54 @@ investing_get_data = function( id, from, to ) {
       # paste( 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Ubuntu', 'Chromium/51.0.2704.79 Chrome/51.0.2704.79 Safari/537.36' )
     ),
     body = list(
-      'action' = 'historical_data', 
-      'curr_id' = id, 
-      'st_date' = format( as.Date( from ), '%m/%d/%Y' ), 
-      'end_date' = format( as.Date( to ), '%m/%d/%Y' ), 
+      'action' = 'historical_data',
+      'curr_id' = id,
+      'st_date' = format( as.Date( from ), '%m/%d/%Y' ),
+      'end_date' = format( as.Date( to ), '%m/%d/%Y' ),
       'interval_sec' = 'Daily'
     )
   )
-  
+
   table = xml2::xml_find_all( httr::content( response ), './/table[@id="curr_table"]' )
   data = xml2::xml_find_all( table, './/td[@data-real-value]' )
-  
-  data = as.data.table( 
-    matrix( 
-      as.numeric( gsub( ',', '', xml2::xml_attr( data, 'data-real-value' ), fixed = T ) ), 
-      ncol = 6, 
-      byrow = T, 
-      dimnames = list( 
-        NULL, 
-        c( 'date', 'close', 'open', 'high', 'low', 'volume' ) 
-      ) 
+
+  if( length( data ) == 0 ) return( NULL )
+
+  vec_attr = xml2::xml_attr( data, 'data-real-value' )
+  vec_text = xml2::xml_text( data, 'data-real-value' )
+  n_dates = sum( !is.na( as.Date( vec_text, '%b %d, %Y' ) ) )
+  n_col   = length( vec_text ) / n_dates
+
+  data = as.data.table(
+    matrix(
+      as.numeric( gsub( ',', '', vec_attr, fixed = T ) ),
+      ncol = n_col,
+      byrow = T,
+      dimnames = list(
+        NULL,
+        c( 'date', 'close', 'open', 'high', 'low', 'volume' )[ 1:n_col ]
+      )
     )
   )
+  if( n_col == 5 ) data[, volume := 0.0 ]
   data[, date := as.Date( as.POSIXct( date, origin = '1970-01-01', tz = 'UTC' ) ) ]
   setorder( data, date )
   setcolorder( data, c( 'date', 'open', 'high', 'low', 'close' ) )
   return( data[] )
-  
+
 }
 investing_get_info = function( url ) {
-  
-  response = httr::GET( url ) #, httr::add_headers( 
+
+  response = httr::GET( url ) #, httr::add_headers(
     #'Origin' = 'http://www.investing.com' ), httr::user_agent( paste( 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Ubuntu', 'Chromium/51.0.2704.79 Chrome/51.0.2704.79 Safari/537.36' ) ) )
 
   pairs = xml2::xml_find_all( httr::content( response ), './/tr[starts-with(@id,"pair_")]' )
-  
+
   flags         = xml2::xml_find_all( pairs, './/td[@class="flag"]/span' )
   url_and_title = xml2::xml_find_all( pairs, './/a[@href]' )
   symbol_and_id = xml2::xml_find_all( pairs, './/span[@data-name]' )
-  
-  setDT( c( 
+
+  setDT( c(
     lapply( c( name = 'data-name', id = 'data-id' ), xml2::xml_attr, x = symbol_and_id ),
     lapply( c( title = 'title', url = 'href' ), xml2::xml_attr, x = url_and_title ),
     lapply( c( country = 'title' ), xml2::xml_attr, x = flags )
@@ -59,14 +67,14 @@ investing_get_info = function( url ) {
 
 }
 investing_search = function( query ) {
-  
+
   url = httr::modify_url( 'https://www.investing.com/search/', query = list( q = query ) )
   response = httr::GET( url )
   message( response$url )
   content  = httr::content( response, as = 'text' )
   result = unlist( regmatches( content, gregexpr( '(?<=window.allResultsQuotesDataArray = ).+?(?=;\n)', content, perl = T ) ) )
   jsonlite::fromJSON( result )
-  
+
 }
 
 if( F ) {
