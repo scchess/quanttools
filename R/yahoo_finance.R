@@ -49,7 +49,7 @@ yahoo_query_modules = function( symbol ) {
 
   }
 
-  data   = jsonlite::fromJSON( httr::content( response, 'text' ), simplifyVector = FALSE )$quoteSummary
+  data   = jsonlite::fromJSON( httr::content( response, 'text', encoding = 'UTF-8' ), simplifyVector = FALSE )$quoteSummary
   result = data$result[[1]]
   error  = data$error
 
@@ -91,7 +91,7 @@ yahoo_query_prices = function( symbol, from, to ) {
 
   }
 
-  data   = jsonlite::fromJSON( httr::content( response, 'text' ), simplifyVector = FALSE )$chart
+  data   = jsonlite::fromJSON( httr::content( response, 'text', encoding = 'UTF-8' ), simplifyVector = FALSE )$chart
   result = data$result[[1]]
   error  = data$error
 
