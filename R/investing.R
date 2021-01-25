@@ -14,8 +14,8 @@ investing_get_data = function( id, from, to ) {
     body = list(
       'action' = 'historical_data',
       'curr_id' = id,
-      'st_date' = format( as.Date( from ), '%m/%d/%Y' ),
-      'end_date' = format( as.Date( to ), '%m/%d/%Y' ),
+      'st_date' = format( as.Date( from ), '%d/%m/%Y' ),
+      'end_date' = format( as.Date( to ), '%d/%m/%Y' ),
       'interval_sec' = 'Daily'
     )
   )
