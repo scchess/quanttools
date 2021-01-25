@@ -28,8 +28,26 @@
 #' @export
 multi_heatmap = function( x, pars, value, col_neg = c( 'darkblue', 'lightblue' ), col_pos = c( 'yellow', 'darkgreen' ), peak_value = x[ , max( abs( get( value ) ), na.rm = T ) ] ) {
 
-  x = copy( x )
+  extend_values = function( x, pars, value ) {
+
+    pars_names = unlist( pars, use.names = F )
+    pars_values = sapply( pars_names, function( p ) sort( x[, unique( get( p ) ) ] ), simplify = F )
+    pars_lengths = sapply( pars_values, length )
+
+    y = x[, c( unlist( pars ), value ), with = F ]
+
+    pars_combination = do.call( CJ, pars_values )
+
+    pars_combination[ y, y_ := get( paste0( 'i.', value ) ), on = pars_names ]
+    setnames( pars_combination, 'y_', value )
+
+    pars_combination
+
+  }
+
+  x = extend_values( x, pars, value )
   setorderv( x, unlist( pars ) )
+
   if( is.list( pars ) ) {
 
     axes = lapply_named( unlist( pars ), function( par ) x[, unique( get( par ) ) ] )
