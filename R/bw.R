@@ -81,8 +81,8 @@ bw = function( x, interval ) {
 
     if( inherits( x, 'POSIXct' ) ) {
 
-      if( length( interval ) == 2 ) interval = paste( interval, collapse = '/' )
-      interval = .text_to_time_interval( interval, attr( x, 'tzone' ) )
+      tz = c( attr( x, 'tzone' ), '' )[1]
+      interval = .text_to_time_interval( interval, tz )
       if( is.numeric( interval ) ) {
         return( round( as.numeric( to_UTC( x ) ) %% ( 24 * 60 * 60 ), 6 ) %bw% interval )
       }
@@ -91,11 +91,11 @@ bw = function( x, interval ) {
     }
     if( inherits( x, 'Date' ) ) {
 
-      if( length( interval ) == 2 ) interval = paste( interval, collapse = '/' )
-      interval = as.Date( .text_to_time_interval( interval ) )
+      interval = as.Date( .text_to_time_interval( interval, 'UTC' ) )
       return( interval[1] <= x & x < interval[2] )
 
     }
+
   }
   if( length( interval ) == 1 ) {
 
@@ -118,84 +118,102 @@ bw = function( x, interval ) {
   x >= interval[1] & x <= interval[2]
 
 }
+
 #' @name bw
 #' @export
 `%bw%` = bw
 
-.text_to_time_interval = function( x, tzone = NULL ) {
 
-  tlim = NULL
-  if( is.null( tzone ) ) tzone = 'UTC'
-  from_to = strsplit( x, split = '/', fixed = T )[[1]]
-  nchar = nchar( from_to )
-  if( nchar[1] > 12 ) {
+.text_to_time_interval = function( x, tz = '' ) {
 
-    if( length( nchar ) == 1 ) {
-      tlim = fasttime::fastPOSIXct( if( any( nchar == c( 15, 18 ) ) ) paste0( from_to, '0' ) else from_to, tz = tzone )
-      # dt
-      tlim[2] = tlim[1] +
-        if( nchar > 18 ) as.difftime( 1 , units = 'secs' ) else
-        if( nchar > 17 ) as.difftime( 10, units = 'secs' ) else
-        if( nchar > 15 ) as.difftime( 1 , units = 'mins' ) else
-        if( nchar > 14 ) as.difftime( 10, units = 'mins' ) else
-        as.difftime( 1, units = 'hours' )
+  text_to_timestamp_interval = function( x, tz = '', date = '' ) {
 
-    } else
-      # dt/dt
-      if( nchar[2] > 12 ) tlim = fasttime::fastPOSIXct( from_to, tz = tzone ) else
-      # dt/t
-      if( nchar[2] > 1  ) tlim = fasttime::fastPOSIXct( c( from_to[1], paste( substr( from_to[1], 1, 10 ), from_to[2] ) ), tz = tzone )
+    # x = '2020'
+    # tz = 'UTC'
 
-  }
-  if( nchar[1] < 11 ) {
+    x = unlist( stringi::stri_split_fixed( x, '/' ) )
 
-    if( all( nchar < 4 | ( nchar > 4 & !grepl( '-', from_to, fixed = T ) ) ) ) {
-      # t/t
-      return( .text_time_to_seconds( from_to ) )
-    }
-    # d
-    if( nchar[1] > 9 ) {
-      tlim = as.Date( from_to[1] ) + 0:1
-    } else
-    if( nchar[1] > 6 ) {
-      tlim = rep( as.POSIXlt( paste0( from_to[1], '-01' ), tz = tzone ), 2 )
-      tlim[2]$mon = tlim[2]$mon + 1
-    } else
-    if( nchar[1] > 3 ) {
-      tlim = rep( as.POSIXlt( paste0( from_to[1], '-01-01' ), tz = tzone ), 2 )
-      tlim[2]$year = tlim[2]$year + 1
+    if( length( x ) == 2 ) {
+
+      interval_1 = text_to_timestamp_interval( x[1], tz )
+      interval_2 = text_to_timestamp_interval( x[2], tz, interval_1$date )
+
+      ret = list(
+        interval = c( interval_1$interval[1], interval_2$interval[2] ),
+        date = interval_1$date
+      )
+
+      return( ret )
+
     }
 
-    if( length( nchar ) == 2 ) {
-      if( nchar[2] < 11 ) {
-        # d/d
-        if( nchar[2] > 9 ) {
-          tlim[2] = as.Date( from_to[2] ) + 1
-        } else
-        if( nchar[2] > 6 ) {
-          tlim[2] = as.POSIXlt( paste0( from_to[2], '-01' ), tz = tzone )
-          tlim[2]$mon = tlim[2]$mon + 1
-        } else
-        if( nchar[2] > 3 ) {
-          tlim[2] = as.POSIXlt( paste0( from_to[2], '-01-01' ), tz = tzone )
-          tlim[2]$year = tlim[2]$year + 1
+    info = c( stringi::stri_length( x ), stringi::stri_count( x, fixed = c( '-', ':' ) ) )
+
+    case = paste( info, collapse = '-' )
+
+    switch(
+      case,
+      '2-0-0' = , # HH
+      '4-0-1' = , # HH:M
+      '5-0-1' = , # HH:MM
+      '7-0-2' = , # HH:MM:S
+      '8-0-2' =   # HH:MM:SS
+        {
+
+          if( date == '' ) {
+
+            interval = text_to_timestamp_interval( paste( '1970-01-01', x ), tz )
+            interval$interval = interval$interval - as.POSIXct( '1970-01-01', tz )
+            interval$date = ''
+
+          } else {
+
+            interval = text_to_timestamp_interval( paste( date, x ), tz )
+
+          }
+
+          return( interval )
+
         }
-      }
-    }
-    if( !is.null( tlim ) ) tlim = fasttime::fastPOSIXct( tlim, tz = tzone )
+    )
+
+    start_text = stringi::stri_sub_replace( '1970-01-01 00:00:00', 1, info[1], replacement = x )
+
+    start_time = lubridate::fast_strptime( start_text, '%Y-%m-%d %H:%M:%S', tz = tz, lt = T )
+    end_time   = start_time
+
+    switch(
+      case,
+      '4-0-0'  = { end_time$mon  = end_time$mon  + 12 }, # YYYY
+      '7-1-0'  = { end_time$mon  = end_time$mon  + 01 }, # YYYY-mm
+      '10-2-0' = { end_time$mday = end_time$mday + 01 }, # YYYY-mm-dd
+      '13-2-0' = { end_time$hour = end_time$hour + 01 }, # YYYY-mm-dd HH
+      '15-2-1' = { end_time$min  = end_time$min  + 10 }, # YYYY-mm-dd HH:M
+      '16-2-1' = { end_time$min  = end_time$min  + 01 }, # YYYY-mm-dd HH:MM
+      '18-2-2' = { end_time$sec  = end_time$sec  + 10 }, # YYYY-mm-dd HH:MM:S
+      '19-2-2' = { end_time$sec  = end_time$sec  + 01 }, # YYYY-mm-dd HH:MM:SS
+      stop( 'usupported interval format' )
+    )
+
+    interval = as.POSIXct( c( start_time, end_time ) )
+    attr( interval, 'tzone' ) = tz
+
+    list(
+      interval = interval,
+      date = substr( start_text, 1, 10 )
+    )
+
   }
-  tlim
+
+  interval = text_to_timestamp_interval( x, tz )$interval
+
+  if( inherits( interval, 'difftime' )  ) {
+
+    interval = as.numeric( interval, units = 'secs' )
+
+  }
+
+  interval
+
 }
-
-.text_time_to_seconds = function( text_time ) {
-
-  h = lapply( strsplit( text_time, ':', fixed = T ), function( x ) {
-
-    sum( as.numeric( x ) / 60^( seq_along( x ) - 1 ) )
-
-  } )
-  round( unlist( h ) * 60 * 60, 6 )
-
-}
-
 
