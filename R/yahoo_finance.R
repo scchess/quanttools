@@ -62,6 +62,83 @@ yahoo_query_modules = function( symbol ) {
   result
 
 }
+yahoo_search = function( query, n = 1 ) {
+
+  url = httr::modify_url( 'https://query2.finance.yahoo.com/', path = c( 'v1', 'finance', 'search' ), query = list( q = query, quotesCount = n, newsCount = 0 ) )
+  message( url )
+
+  response = httr::GET( url )
+  rbindlist( httr::content( response )$quotes, fill = T )
+
+}
+
+yahoo_chart = function( symbol, period1 = NULL, period2 = NULL, interval = '1d', range = NULL, events = 'div,split', numberOfPoints = NULL, formatted = FALSE, includePrePost = F ) {
+
+  # symbol = 'SPY'; period1 = NULL; period2 = NULL; interval = '1m'; range = '1d'; events = 'div,split'; numberOfPoints = NULL; formatted = FALSE
+  # symbol = 'SPY'; period1 = NULL; period2 = NULL; interval = '1d'; range = '3mo'; events = 'div,split'; numberOfPoints = NULL; formatted = FALSE
+
+  checkmate::expect_choice( interval, c( '1m', '2m', '5m', '15m', '30m', '60m', '90m', '1h','1d', '5d', '1wk', '1mo', '3mo' ) )
+  checkmate::expect_choice( range   , c( '1d', '5d', '7d', '60d', '1mo', '3mo', '6mo', '1y', '2y', '5y', '10y', 'ytd', 'max' ), null.ok = T )
+
+  url = httr::modify_url( 'https://query2.finance.yahoo.com', path = c( 'v8', 'finance', 'chart', symbol ), query = list(
+
+    period1        = period1,
+    period2        = period2,
+    interval       = interval,
+    range          = range,
+    events         = events,
+    numberOfPoints = numberOfPoints,
+    formatted      = formatted,
+    includePrePost = includePrePost
+
+  ) )
+  message( url )
+
+  response = httr::GET( url, httr::user_agent( 'https://bitbucket.org/quanttools/quanttools' ) )
+
+  if( httr::http_type( response ) != 'application/json' ) {
+
+    stop( 'API did not return json', call. = FALSE )
+
+  }
+
+  data   = jsonlite::fromJSON( httr::content( response, 'text', encoding = 'UTF-8' ), simplifyVector = FALSE )$chart
+
+  if( httr::http_error( response ) ) {
+
+    stop( sprintf( "Yahoo API request failed [%s]\n%s\n<%s>", httr::status_code( response ), data$error$description, url ), call. = FALSE )
+
+  }
+
+  null_to_na = function( x ) { x[ sapply( x, is.null ) ] = NA_integer_; x }
+  timestamp_to_time = function( x ) as.POSIXct( x, tz = data$result[[1]]$meta$exchangeTimezoneName, origin = '1970-01-01' )
+  timestamp_to_date = function( x ) as.Date( timestamp_to_time( x ) )
+
+  if( is.null( data$result[[1]]$timestamp ) ) return( list( candles = NULL, splits = NULL, dividends = NULL ) )
+
+  candles = c(
+    data$result[[1]][ 'timestamp' ],
+    data$result[[1]]$indicators$quote[[1]],
+    if( !is.null( data$result[[1]]$indicators$adjclose ) ) data$result[[1]]$indicators$adjclose[[1]][ 'adjclose' ]
+  )
+
+  candles = lapply( candles, null_to_na )
+  candles = lapply( candles, unlist )
+
+  setDT( candles )
+
+  candles[, timestamp := timestamp_to_time( timestamp ) ]
+  if( is.null( candles$adjclose ) ) candles[, adjclose := close ]
+
+  dividends = data$result[[1]]$events$dividends
+  splits    = data$result[[1]]$events$splits
+
+  if( !is.null( dividends ) ) { dividends = rbindlist( dividends )[, date := timestamp_to_date( date ) ][] }
+  if( !is.null( splits    ) ) { splits    = rbindlist( splits    )[, date := timestamp_to_date( date ) ][] }
+
+  list( candles = candles[], splits = splits, dividends = dividends )
+
+}
 
 yahoo_query_prices = function( symbol, from, to ) {
 
@@ -75,7 +152,7 @@ yahoo_query_prices = function( symbol, from, to ) {
 
       symbol   = symbol,
       period1  = as.numeric( min( Sys.Date(), as.Date( from )     ), units = 'day' ) * 24 * 60 * 60,
-      period2  = as.numeric( min( Sys.Date(), as.Date( to   ) + 1 ), units = 'day' ) * 24 * 60 * 60,
+      period2  = as.numeric( min( Sys.Date(), as.Date( to   ) + 1 ) + 1, units = 'day' ) * 24 * 60 * 60,
       interval = '1d',
       events   = 'div,split'
 
