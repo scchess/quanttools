@@ -30,14 +30,7 @@
 #' @export
 to_UTC = function( x ) {
 
-  tz = attr( x, 'tzone' )
-  if( is.null( tz ) ) tz = ''
-  if( tz == 'UTC' ) return( x )
-
-  o = order( x )
-  x = data.table( x = x[ o ] )[, x + ( as.POSIXct( format( x[1] ), tz = 'UTC' ) - as.POSIXct( format( x[1] ), tz = tz ) ),
-                      by = as.Date( x ) ][[ 2 ]][ order( o ) ]
-  attr( x, 'tzone' ) = 'UTC'
-  return( x )
+  if( c( attr( x, 'tzone' ), '' )[1] == 'UTC' ) return( x )
+  lubridate::force_tz( x, 'UTC', roll = T )
 
 }
