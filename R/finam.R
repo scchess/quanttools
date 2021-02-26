@@ -133,7 +133,6 @@ finam_generate_export_url = function( em, from, to, p ) {
 finam_download_symbol_map = function( x ) {
 
   #Sys.setlocale( 'LC_CTYPE', 'en_US.utf8' )
-  Sys.setlocale( 'LC_CTYPE', 'ru_RU.utf8' )
 
   response = httr::GET(
     url = 'https://www.finam.ru/cache/N72Hgd54/icharts/icharts.js',
@@ -143,7 +142,25 @@ finam_download_symbol_map = function( x ) {
     )
   )
 
-  content = iconv( rawToChar( httr::content( response ) ), 'CP1251', 'UTF-8' )
+  content = rawToChar( httr::content( response ) )
+
+  if ( .Platform[['OS.type']] == 'windows' ) { # win
+
+    Sys.setlocale( category = "LC_CTYPE", 'Russian_Russia' )
+
+  } else if ( Sys.info()[['sysname']] == 'Darwin' ) { # mac
+
+    Sys.setlocale( 'LC_CTYPE', 'ru_RU.utf8' )
+    content = iconv( content, 'CP1251', 'UTF-8' )
+
+  } else if ( .Platform[['OS.type']] == 'unix' ) { # unix
+
+    Sys.setlocale( 'LC_CTYPE', 'ru_RU.utf8' )
+    content = iconv( content, 'CP1251', 'UTF-8' )
+
+  } else { # Unknown OS
+
+  }
 
   lines = strsplit( content, ';\r\n|\r\n|;$', useBytes = T )[[1]]
 
