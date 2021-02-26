@@ -130,7 +130,46 @@ finam_generate_export_url = function( em, from, to, p ) {
 }
 
 
+finam_download_symbol_map = function( x ) {
+
+  #Sys.setlocale( 'LC_CTYPE', 'en_US.utf8' )
+  Sys.setlocale( 'LC_CTYPE', 'ru_RU.utf8' )
+
+  response = httr::GET(
+    url = 'https://www.finam.ru/cache/N72Hgd54/icharts/icharts.js',
+    httr::config(
+      http_version = 0,
+      referer = 'https://www.finam.ru/analysis/profile041CA00007/default.asp'
+    )
+  )
+
+  content = iconv( rawToChar( httr::content( response ) ), 'CP1251', 'UTF-8' )
+
+  lines = strsplit( content, ';\r\n|\r\n|;$', useBytes = T )[[1]]
+
+  data = gsub( 'var .* = (\\[|\\{)|\\]$|\\}$', '', lines )
+
+  names = gsub( 'var | = .*', '', lines )
+
+  vars = sapply( c( 'name' = 'aEmitentNames', 'url' = 'aEmitentUrls',  'market' = 'aEmitentMarkets', 'em' = 'aEmitentIds', 'symbol' = 'aEmitentCodes' ), function( name ) {
+
+    line = data[ names == name ]
+    if( name %in% c( 'aEmitentCodes', 'aEmitentNames' ) ) return( gsub( "'|,$", "", regmatches( line, gregexpr( "'.*?'(,|$)", line, useBytes = T ) )[[1]] ) )
+    if( name %in% c( 'aEmitentChild', 'aEmitentDecp', 'aEmitentIds', 'aEmitentMarkets', 'aEmitentUrls' ) ) return( strsplit( line, ',', fixed = T )[[1]] )
+    return( NULL )
+
+
+  }, simplify = F )
+
+  symbol_map = data.table::setDT( vars )[ , url := gsub( '.*: |"', '', url ) ][ market != '-1' ][ em != '' ][ , em := as.numeric( em ) ][ order( symbol, em ) ]
+
+  symbol_map
+
+}
+
 finam_download_data = function( symbol, from, to = from, period = c( 'day', '1min', '5min', '10min', '15min', '30min', 'hour', 'tick' ), trial_limit = 10, trial_sleep = 0.5, verbose = T ) {
+
+  if( is.null( finam.globals$symbol_map ) ) finam.globals$symbol_map = finam_download_symbol_map()
 
   args = as.list( environment() )
 
@@ -183,7 +222,15 @@ finam_download_data = function( symbol, from, to = from, period = c( 'day', '1mi
 
   }
 
-  em = finam_symbol_map[ symbol, em ]
+  if( is.numeric( symbol ) ) {
+
+    em = finam.globals$symbol_map[ , em[ em == ..symbol ] ][1]
+
+  } else {
+
+    em = finam.globals$symbol_map[ , em[ symbol == ..symbol ] ][1]
+
+  }
 
   if( is.na( em ) ) stop( symbol, ' symbol not found', call. = F )
 
@@ -249,14 +296,17 @@ finam_download_data = function( symbol, from, to = from, period = c( 'day', '1mi
 
 finam_search_symbol = function( x, where = c( 'name', 'symbol' ) ) {
 
+  if( is.null( finam.globals$symbol_map ) ) finam.globals$symbol_map = finam_download_symbol_map()
+
   where = match.arg( where )
 
   name = symbol = NULL
 
-  finam_symbol_map[ grepl( x, get( where ), ignore.case = T ), list( name, symbol, url ) ]
+  finam.globals$symbol_map[ grepl( x, get( where ), ignore.case = T ), list( name, symbol, url, em ) ]
 
 }
 
+finam.globals = new.env()
 
 #z = download_finam_data( 'GAZP', from = '2019-07-25', to = '2020-09-01', period = '1min' )
 
