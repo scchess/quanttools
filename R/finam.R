@@ -132,8 +132,6 @@ finam_generate_export_url = function( em, from, to, p ) {
 
 finam_download_symbol_map = function( x ) {
 
-  #Sys.setlocale( 'LC_CTYPE', 'en_US.utf8' )
-
   response = httr::GET(
     url = 'https://www.finam.ru/cache/N72Hgd54/icharts/icharts.js',
     httr::config(
@@ -142,21 +140,18 @@ finam_download_symbol_map = function( x ) {
     )
   )
 
-  content = rawToChar( httr::content( response ) )
-
   if ( .Platform[['OS.type']] == 'windows' ) { # win
 
-    Sys.setlocale( category = "LC_CTYPE", 'Russian_Russia' )
+    #Sys.setlocale( category = "LC_CTYPE", 'Russian_Russia' )
+    content = rawToChar( httr::content( response, type = 'raw' ) )
 
   } else if ( Sys.info()[['sysname']] == 'Darwin' ) { # mac
 
-    Sys.setlocale( 'LC_CTYPE', 'ru_RU.utf8' )
-    content = iconv( content, 'CP1251', 'UTF-8' )
+    content = httr::content( response, 'text', encoding = 'CP1251' )
 
   } else if ( .Platform[['OS.type']] == 'unix' ) { # unix
 
-    Sys.setlocale( 'LC_CTYPE', 'ru_RU.utf8' )
-    content = iconv( content, 'CP1251', 'UTF-8' )
+    content = httr::content( response, 'text', encoding = 'CP1251' )
 
   } else { # Unknown OS
 
@@ -311,6 +306,7 @@ finam_download_data = function( symbol, from, to = from, period = c( 'day', '1mi
 
 }
 
+# On Windows run Sys.setlocale( category = "LC_CTYPE", 'Russian_Russia' ) to allow cyrillic text search
 finam_search_symbol = function( x, where = c( 'name', 'symbol' ) ) {
 
   if( is.null( finam.globals$symbol_map ) ) finam.globals$symbol_map = finam_download_symbol_map()

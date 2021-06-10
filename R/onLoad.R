@@ -17,18 +17,18 @@
 
 .onLoad <- function( libname, pkgname ) {
 
-  if ( .Platform[['OS.type']] == 'windows' ) { # win
-
-  } else if ( Sys.info()[['sysname']] == 'Darwin' ) { # mac
-
-    Sys.setlocale( 'LC_ALL', 'C' )
-
-  } else if ( .Platform[['OS.type']] == 'unix' ) { # unix
-
-    Sys.setlocale( 'LC_ALL', 'C' )
-
-  } else { # Unknown OS
-
-  }
+  # if ( .Platform[['OS.type']] == 'windows' ) { # win
+  #
+  # } else if ( Sys.info()[['sysname']] == 'Darwin' ) { # mac
+  #
+  #   Sys.setlocale( 'LC_ALL', 'C' )
+  #
+  # } else if ( .Platform[['OS.type']] == 'unix' ) { # unix
+  #
+  #   Sys.setlocale( 'LC_ALL', 'C' )
+  #
+  # } else { # Unknown OS
+  #
+  # }
 
 }
