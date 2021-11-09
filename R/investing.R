@@ -1,51 +1,24 @@
 investing_get_data = function( id, from, to ) {
 
-  # https://github.com/derlin/investing-historical-data/blob/master/investing-get.js
-  response = httr::POST(
-    url = 'https://uk.investing.com/instruments/HistoricalDataAjax',
-    httr::add_headers(
-      'Origin' = 'http://www.investing.com',
-      'X-Requested-With' = 'XMLHttpRequest'
-    ),
-    httr::user_agent(
-      'https://bitbucket.org/quanttools/quanttools'
-      # paste( 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Ubuntu', 'Chromium/51.0.2704.79 Chrome/51.0.2704.79 Safari/537.36' )
-    ),
-    body = list(
-      'action' = 'historical_data',
-      'curr_id' = id,
-      'st_date' = format( as.Date( from ), '%d/%m/%Y' ),
-      'end_date' = format( as.Date( to ), '%d/%m/%Y' ),
-      'interval_sec' = 'Daily'
-    )
-  )
+  response = httr::POST( 'https://www.investing.com/instruments/HistoricalDataAjax', httr::add_headers( 'x-requested-with' = 'XMLHttpRequest' ), body = list( curr_id = id, st_date = format( as.Date( from ), '%m/%d/%Y' ), end_date = format( as.Date( to ), '%m/%d/%Y' ) ), encode = 'form' )
 
-  table = xml2::xml_find_all( httr::content( response ), './/table[@id="curr_table"]' )
-  data = xml2::xml_find_all( table, './/td[@data-real-value]' )
+  table = xml2::xml_find_first( httr::content( response ), './/table' )
+  data = xml2::xml_attr( xml2::xml_find_all( table, './/td' ), attr = 'data-real-value' )
+  header = xml2::xml_attr( xml2::xml_find_all( table, './/th' ), attr = 'data-col-name' )
+  if( length( data ) < length( header ) ) return( NULL )
 
-  if( length( data ) == 0 ) return( NULL )
+  x = as.data.table( matrix( as.numeric( data ), ncol = length( header ), dimnames = list( NULL, header ), byrow = T ) )
 
-  vec_attr = xml2::xml_attr( data, 'data-real-value' )
-  vec_text = xml2::xml_text( data, 'data-real-value' )
-  n_dates = sum( !is.na( as.Date( vec_text, '%b %d, %Y' ) ) )
-  n_col   = length( vec_text ) / n_dates
+  if( !'vol' %in% header ) x[, vol := as.numeric( NA ) ]
 
-  data = as.data.table(
-    matrix(
-      as.numeric( gsub( ',', '', vec_attr, fixed = T ) ),
-      ncol = n_col,
-      byrow = T,
-      dimnames = list(
-        NULL,
-        c( 'date', 'close', 'open', 'high', 'low', 'volume' )[ 1:n_col ]
-      )
-    )
-  )
-  if( n_col == 5 ) data[, volume := 0.0 ]
-  data[, date := as.Date( as.POSIXct( date, origin = '1970-01-01', tz = 'UTC' ) ) ]
-  setorder( data, date )
-  setcolorder( data, c( 'date', 'open', 'high', 'low', 'close' ) )
-  return( data[] )
+  data = x[ order( date ), .( date = as.Date( as.POSIXct( date, origin = '1970-01-01', tz = 'UTC' ) ), open, high, low, close = price, volume = vol ) ]
+
+  if( nrow( data ) == 5000 ) {
+
+    data = rbind( data, investing_get_data( id, data[ .N, date + 1 ], to ) )
+
+  }
+  data
 
 }
 investing_get_info = function( url ) {
