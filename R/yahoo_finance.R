@@ -74,8 +74,8 @@ yahoo_search = function( query, n = 1 ) {
 
 yahoo_chart = function( symbol, period1 = NULL, period2 = NULL, interval = '1d', range = NULL, events = 'div,split', numberOfPoints = NULL, formatted = FALSE, includePrePost = F ) {
 
-  # symbol = 'SPY'; period1 = NULL; period2 = NULL; interval = '1m'; range = '1d'; events = 'div,split'; numberOfPoints = NULL; formatted = FALSE
-  # symbol = 'SPY'; period1 = NULL; period2 = NULL; interval = '1d'; range = '3mo'; events = 'div,split'; numberOfPoints = NULL; formatted = FALSE
+  # symbol = 'SPY'; period1 = NULL; period2 = NULL; interval = '1m'; range = '1d'; events = 'div,split'; numberOfPoints = NULL; formatted = FALSE; includePrePost = F
+  # symbol = 'SPY'; period1 = NULL; period2 = NULL; interval = '1d'; range = '3mo'; events = 'div,split'; numberOfPoints = NULL; formatted = FALSE; includePrePost = F
 
   checkmate::expect_choice( interval, c( '1m', '2m', '5m', '15m', '30m', '60m', '90m', '1h','1d', '5d', '1wk', '1mo', '3mo' ) )
   checkmate::expect_choice( range   , c( '1d', '5d', '7d', '60d', '1mo', '3mo', '6mo', '1y', '2y', '5y', '10y', 'ytd', 'max' ), null.ok = T )
@@ -98,6 +98,7 @@ yahoo_chart = function( symbol, period1 = NULL, period2 = NULL, interval = '1d',
 
   if( httr::http_type( response ) != 'application/json' ) {
 
+    message( httr::content( response ) )
     stop( 'API did not return json', call. = FALSE )
 
   }
@@ -144,27 +145,39 @@ yahoo_query_prices = function( symbol, from, to ) {
 
   # https://stackoverflow.com/a/47505102
 
-  url = httr::modify_url(
+  n_trials = 0
 
-    url   = 'https://query2.finance.yahoo.com',
-    path  = c( '/v8/finance/chart', symbol ),
-    query = list(
+  while( T ) {
 
-      symbol   = symbol,
-      period1  = as.numeric( min( Sys.Date(), as.Date( from )     ), units = 'day' ) * 24 * 60 * 60,
-      period2  = as.numeric( min( Sys.Date(), as.Date( to   ) + 1 ) + 1, units = 'day' ) * 24 * 60 * 60,
-      interval = '1d',
-      events   = 'div,split'
+    url = httr::modify_url(
+
+      url   = 'https://query2.finance.yahoo.com',
+      path  = c( '/v8/finance/chart', symbol ),
+      query = list(
+
+        symbol   = symbol,
+        period1  = as.numeric( min( Sys.Date(), as.Date( from )     ), units = 'day' ) * 24 * 60 * 60,
+        period2  = as.numeric( min( Sys.Date(), as.Date( to   ) + 1 ) + 1, units = 'day' ) * 24 * 60 * 60,
+        interval = '1d',
+        events   = 'div|split'
+
+      )
 
     )
 
-  )
+    response = httr::GET( url, httr::user_agent( 'https://bitbucket.org/quanttools/quanttools' ) )
+    n_trials = n_trials + 1
 
-  response = httr::GET( url, httr::user_agent( 'https://bitbucket.org/quanttools/quanttools' ) )
+    if( httr::http_type( response ) == 'application/json' ) break
 
-  if( httr::http_type( response ) != 'application/json' ) {
+    Sys.sleep( n_trials )
+    if( n_trials == 5 ) {
 
-    stop( 'API did not return json', call. = FALSE )
+      # message( httr::content( response ) )
+      stop( 'API did not return json', call. = FALSE )
+
+    }
+
 
   }
 
