@@ -1,21 +1,33 @@
 investing_get_data = function( id, from, to ) {
 
-  response = httr::POST( 'https://www.investing.com/instruments/HistoricalDataAjax', httr::add_headers( 'x-requested-with' = 'XMLHttpRequest' ), body = list( curr_id = id, st_date = format( as.Date( from ), '%m/%d/%Y' ), end_date = format( as.Date( to ), '%m/%d/%Y' ) ), encode = 'form' )
+  if( as.Date( to ) - as.Date( from ) > 5000 ) {
 
-  table = xml2::xml_find_first( httr::content( response ), './/table' )
-  data = xml2::xml_attr( xml2::xml_find_all( table, './/td' ), attr = 'data-real-value' )
-  header = xml2::xml_attr( xml2::xml_find_all( table, './/th' ), attr = 'data-col-name' )
-  if( length( data ) < length( header ) ) return( NULL )
+    from = seq( as.Date( from ), as.Date( to ), by = 5000 )
+    to = c( from[-1] - 1, to )
 
-  x = as.data.table( matrix( as.numeric( data ), ncol = length( header ), dimnames = list( NULL, header ), byrow = T ) )
+    data = data.table( from, to )[, investing_get_data( id, from, to ), by = from ][, -'from']
 
-  if( !'vol' %in% header ) x[, vol := as.numeric( NA ) ]
+  } else {
 
-  data = x[ order( date ), .( date = as.Date( as.POSIXct( date, origin = '1970-01-01', tz = 'UTC' ) ), open, high, low, close = price, volume = vol ) ]
+    response = httr::POST( 'https://www.investing.com/instruments/HistoricalDataAjax', httr::add_headers( 'x-requested-with' = 'XMLHttpRequest' ), body = list( curr_id = id, st_date = format( as.Date( from ), '%m/%d/%Y' ), end_date = format( as.Date( to ), '%m/%d/%Y' ) ), encode = 'form' )
 
-  if( nrow( data ) == 5000 ) {
+    table = xml2::xml_find_first( httr::content( response ), './/table' )
+    data = xml2::xml_attr( xml2::xml_find_all( table, './/td' ), attr = 'data-real-value' )
+    header = xml2::xml_attr( xml2::xml_find_all( table, './/th' ), attr = 'data-col-name' )
+    if( length( data ) < length( header ) ) return( NULL )
 
-    data = rbind( data, investing_get_data( id, data[ .N, date + 1 ], to ) )
+    x = as.data.table( matrix( as.numeric( data ), ncol = length( header ), dimnames = list( NULL, header ), byrow = T ) )
+
+    if( !'vol' %in% header ) x[, vol := as.numeric( NA ) ]
+
+    data = x[ order( date ), .( date = as.Date( as.POSIXct( date, origin = '1970-01-01', tz = 'UTC' ) ), open, high, low, close = price, volume = vol ) ]
+
+
+    if( nrow( data ) == 5000 | data[ .N, date + 1 ] < to ) {
+
+      data = rbind( data, investing_get_data( id, data[ .N, date + 1 ], to ) )
+
+    }
 
   }
   data
