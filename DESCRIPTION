@@ -22,7 +22,8 @@ Imports:
     xml2,
     readxl,
     Rcpp (>= 0.12.12),
-    R6
+    R6,
+    rvest
 LinkingTo: Rcpp
 SystemRequirements: C++11
-RoxygenNote: 7.0.2
+RoxygenNote: 7.2.0
