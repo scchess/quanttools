@@ -1,4 +1,4 @@
-    https://bitbucket.org/quanttools/quanttools/src/master/
+    https://bitbucket.org/quanttools/quanttools/src/master
 
 ![][cran version]
 ![][cran monthly downloads]
